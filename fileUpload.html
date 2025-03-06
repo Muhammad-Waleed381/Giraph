@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modern File Upload UI</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      padding: 20px;
+    }
+    
+    .upload-container {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      padding: 40px;
+      transition: all 0.3s ease;
+    }
+    
+    .upload-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.2);
+    }
+    
+    .upload-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .upload-header h2 {
+      color: #333;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .upload-header p {
+      color: #777;
+      font-size: 14px;
+    }
+    
+    .upload-area {
+      position: relative;
+      height: 200px;
+      border: 2px dashed #d0d7de;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      overflow: hidden;
+    }
+    
+    .upload-area:hover {
+      border-color: #6e8efb;
+      background-color: rgba(110, 142, 251, 0.03);
+    }
+    
+    .upload-area.active {
+      border-color: #6e8efb;
+      background-color: rgba(110, 142, 251, 0.05);
+    }
+    
+    .upload-icon {
+      width: 60px;
+      height: 60px;
+      background-color: rgba(110, 142, 251, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      transition: all 0.3s ease;
+    }
+    
+    .upload-area:hover .upload-icon {
+      transform: scale(1.1);
+      background-color: rgba(110, 142, 251, 0.2);
+    }
+    
+    .upload-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: #6e8efb;
+    }
+    
+    .upload-text {
+      color: #555;
+      font-size: 15px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+    
+    .upload-hint {
+      color: #888;
+      font-size: 13px;
+    }
+    
+    .file-input {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+    
+    .file-list {
+      margin-top: 30px;
+    }
+    
+    .file-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease forwards;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    .file-icon {
+      width: 36px;
+      height: 36px;
+      background-color: rgba(110, 142, 251, 0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px;
+      flex-shrink: 0;
+    }
+    
+    .file-icon svg {
+      width: 20px;
+      height: 20px;
+      fill: #6e8efb;
+    }
+    
+    .file-info {
+      flex: 1;
+    }
+    
+    .file-name {
+      font-size: 14px;
+      color: #333;
+      font-weight: 500;
+      margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .file-size {
+      font-size: 12px;
+      color: #888;
+    }
+    
+    .file-progress {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      background-color: #6e8efb;
+      width: 0%;
+      transition: width 1.5s ease;
+    }
+    
+    .file-item.uploading .file-progress {
+      width: 100%;
+    }
+    
+    .file-actions {
+      display: flex;
+      align-items: center;
+    }
+    
+    .file-remove {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .file-remove:hover {
+      background-color: rgba(239, 68, 68, 0.1);
+    }
+    
+    .file-remove svg {
+      width: 16px;
+      height: 16px;
+      fill: #ef4444;
+    }
+    
+    .upload-button {
+      margin-top: 30px;
+      background: linear-gradient(135deg, #6e8efb, #a777e3);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 15px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.3s ease;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    
+    .upload-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(110, 142, 251, 0.4);
+    }
+    
+    .upload-button:active {
+      transform: translateY(0);
+    }
+    
+    .upload-success {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #10b981;
+      color: white;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(16, 185, 129, 0.2);
+      display: flex;
+      align-items: center;
+      transform: translateX(120%);
+      transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    .upload-success.show {
+      transform: translateX(0);
+    }
+    
+    .success-icon {
+      width: 20px;
+      height: 20px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 12px;
+    }
+    
+    .success-icon svg {
+      width: 12px;
+      height: 12px;
+      fill: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="upload-container">
+    <div class="upload-header">
+      <h2>Upload Files</h2>
+      <p>Drag and drop files or click to browse</p>
+    </div>
+    
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path d="M11 14.9V10H8l4-5 4 5h-3v4.9c-.3-.1-.7-.1-1-.1s-.7 0-1 .1M6 18c0-1.1.9-2 2-2h1v2h2v-2h2v2h2v-2h1c1.1 0 2 .9 2 2v1H6v-1Z"/>
+        </svg>
+      </div>
+      <p class="upload-text">Drag and drop your files here</p>
+      <p class="upload-hint">Support for images, documents, videos</p>
+      <input type="file" class="file-input" id="fileInput" multiple>
+    </div>
+    
+    <div class="file-list" id="fileList">
+      <!-- Files will be added here dynamically -->
+    </div>
+    
+    <button class="upload-button" id="uploadButton">
+      Upload Files
+    </button>
+  </div>
+  
+  <div class="upload-success" id="uploadSuccess">
+    <div class="success-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/>
+      </svg>
+    </div>
+    <span>Files uploaded successfully!</span>
+  </div>
+  
+  <script>
+    // Get DOM elements
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileList = document.getElementById('fileList');
+    const uploadButton = document.getElementById('uploadButton');
+    const uploadSuccess = document.getElementById('uploadSuccess');
+    
+    // Add event listeners
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('active');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('active');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('active');
+      
+      if (e.dataTransfer.files.length) {
+        handleFiles(e.dataTransfer.files);
+      }
+    });
+    
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        handleFiles(fileInput.files);
+      }
+    });
+    
+    uploadButton.addEventListener('click', () => {
+      const fileItems = document.querySelectorAll('.file-item:not(.uploading)');
+      
+      if (fileItems.length === 0) return;
+      
+      fileItems.forEach(item => {
+        item.classList.add('uploading');
+      });
+      
+      // Simulate upload completion after 2 seconds
+      setTimeout(() => {
+        uploadSuccess.classList.add('show');
+        
+        // Hide notification after 3 seconds
+        setTimeout(() => {
+          uploadSuccess.classList.remove('show');
+        }, 3000);
+      }, 2000);
+    });
+    
+    // Handle file selection
+    function handleFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        addFileToList(file);
+      }
+    }
+    
+    // Add file to the list
+    function addFileToList(file) {
+      const fileSize = formatFileSize(file.size);
+      const fileName = file.name;
+      
+      const fileItem = document.createElement('div');
+      fileItem.className = 'file-item';
+      fileItem.innerHTML = `
+        <div class="file-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-1 5V3.5L18.5 9H13V7zM8 14c0-.55.45-1 1-1h6c.55 0 1 .45 1 1s-.45 1-1 1H9c-.55 0-1-.45-1-1zm0 3c0-.55.45-1 1-1h6c.55 0 1 .45 1 1s-.45 1-1 1H9c-.55 0-1-.45-1-1z"/>
+          </svg>
+        </div>
+        <div class="file-info">
+          <div class="file-name">${fileName}</div>
+          <div class="file-size">${fileSize}</div>
+        </div>
+        <div class="file-actions">
+          <div class="file-remove">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="file-progress"></div>
+      `;
+      
+      const removeButton = fileItem.querySelector('.file-remove');
+      removeButton.addEventListener('click', () => {
+        fileItem.style.opacity = 0;
+        setTimeout(() => {
+          fileList.removeChild(fileItem);
+        }, 300);
+      });
+      
+      fileList.appendChild(fileItem);
+    }
+    
+    // Format file size
+    function formatFileSize(bytes) {
+      if (bytes === 0) return '0 Bytes';
+      
+      const k = 1024;
+      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+  </script>
+</body>
+</html>
