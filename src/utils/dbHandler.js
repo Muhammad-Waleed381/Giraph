@@ -194,17 +194,35 @@ class DatabaseHandler {
     async getCollectionInfo(collectionName) {
         try {
             const collection = this.db.collection(collectionName);
-            const indexes = await collection.listIndexes().toArray();
-            const count = await collection.countDocuments({});
-            const options = await collection.options();
-
+            const count = await collection.countDocuments();
+            const sample = await collection.find().limit(1).toArray();
+            const schema = sample.length > 0 ? Object.keys(sample[0]).reduce((acc, key) => {
+                acc[key] = typeof sample[0][key];
+                return acc;
+            }, {}) : {};
+            
             return {
-                indexes,
                 count,
-                validationRules: options.validator || {}
+                schema
             };
         } catch (error) {
-            logger.error('Error getting collection info:', error);
+            logger.error(`Error getting collection info for ${collectionName}:`, error);
+            throw error;
+        }
+    }
+
+    async getSampleData(collectionName, sampleSize = 100) {
+        try {
+            const collection = this.db.collection(collectionName);
+            // Convert sampleSize to integer
+            const limit = parseInt(sampleSize, 10) || 100;
+            const sample = await collection.find()
+                .limit(limit)
+                .toArray();
+            
+            return sample;
+        } catch (error) {
+            logger.error(`Error getting sample data from ${collectionName}:`, error);
             throw error;
         }
     }

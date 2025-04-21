@@ -1447,6 +1447,549 @@ app.get('/api/google/data', async (req, res) => {
     }
 });
 
+// Get Recommended Visualizations for a Collection
+app.get('/api/visualizations/:collectionName', async (req, res) => {
+    const { collectionName } = req.params;
+    const { sampleSize = 100 } = req.query;
+
+    try {
+        logger.info(`Getting visualization recommendations for collection: ${collectionName}`);
+        
+        // Get collection metadata and schema from database
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({
+                error: 'Collection not found',
+                message: `Collection '${collectionName}' does not exist`
+            });
+        }
+
+        // Get sample data from the collection
+        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
+        
+        // Prepare metadata in the format expected by the visualization recommendation system
+        const metadata = {
+            totalRows: collectionInfo.count,
+            columns: Object.keys(collectionInfo.schema),
+            sampleData: sampleData,
+            sampleSize: sampleData.length
+        };
+
+        // Generate visualization recommendations using the existing Gemini interface
+        logger.info('Generating visualization recommendations...');
+        const visualizations = await gemini.generateVisualizationRecommendations(metadata, {
+            collection_name: collectionName,
+            schema: collectionInfo.schema
+        });
+        
+        // Prepare the response
+        const recommendations = {
+            dataset_info: {
+                collection_name: collectionName,
+                total_rows: collectionInfo.count,
+                columns: Object.keys(collectionInfo.schema),
+                schema: collectionInfo.schema
+            },
+            visualizations: visualizations.visualizations.map(vis => ({
+                id: vis.id,
+                title: vis.title,
+                description: vis.description,
+                type: vis.type,
+                suggestedDimensions: vis.data ? vis.data.dimensions : [],
+                configuration: vis.echarts_config ? {
+                    title: vis.echarts_config.title,
+                    xAxis: vis.echarts_config.xAxis,
+                    yAxis: vis.echarts_config.yAxis
+                } : {},
+                preview: generatePreviewForVisualization(vis.type)
+            })),
+            analysis_summary: visualizations.analysis_summary
+        };
+
+        res.json(recommendations);
+    } catch (error) {
+        logger.error(`Error in /api/visualizations/${collectionName}:`, error);
+        res.status(500).json({
+            error: 'Failed to generate visualization recommendations',
+            message: error.message
+        });
+    }
+});
+
+// Customize Specific Visualization Endpoint
+app.post('/api/visualizations/:id/customize', async (req, res) => {
+    const { id } = req.params;
+    const { 
+        title,
+        description,
+        type,
+        dimensions,
+        configuration,
+        collectionName,
+        sampleSize = 100
+    } = req.body;
+
+    try {
+        logger.info(`Customizing visualization ${id} with configuration:`, req.body);
+
+        // Validate required parameters
+        if (!collectionName) {
+            return res.status(400).json({
+                error: 'Missing required parameter',
+                message: 'collectionName is required'
+            });
+        }
+
+        // Get collection metadata and schema
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({
+                error: 'Collection not found',
+                message: `Collection '${collectionName}' does not exist`
+            });
+        }
+
+        // Get sample data
+        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
+
+        // Prepare metadata
+        const metadata = {
+            totalRows: collectionInfo.count,
+            columns: Object.keys(collectionInfo.schema),
+            sampleData: sampleData,
+            sampleSize: sampleData.length
+        };
+
+        // Create the customized visualization object
+        const customizedVisualization = {
+            id,
+            title: title || `Customized ${id}`,
+            description: description || `Customized visualization for ${collectionName}`,
+            type: type || 'bar_chart',
+            data: {
+                dimensions: dimensions || Object.keys(collectionInfo.schema),
+                source: sampleData
+            },
+            echarts_config: configuration || {
+                title: {
+                    text: title || `Customized ${id}`
+                },
+                tooltip: {},
+                legend: {
+                    data: dimensions || Object.keys(collectionInfo.schema)
+                },
+                xAxis: {},
+                yAxis: {},
+                series: []
+            }
+        };
+
+        // Generate query configuration for the customized visualization
+        const queryConfig = await gemini.generateVisualizationDataQuery(
+            customizedVisualization,
+            dbHandler,
+            collectionName
+        );
+
+        // Execute query
+        const collection = dbHandler.db.collection(collectionName);
+        const queryResults = await dbHandler.executeQuery(collection, { 
+            aggregate: queryConfig.pipeline 
+        });
+
+        // Update visualization with actual data
+        customizedVisualization.data = {
+            source: queryResults,
+            dimensions: queryConfig.visualization.data.dimensions
+        };
+
+        // Update ECharts configuration
+        customizedVisualization.option = {
+            ...customizedVisualization.echarts_config,
+            dataset: {
+                source: queryResults,
+                dimensions: queryConfig.visualization.data.dimensions
+            }
+        };
+
+        if (!customizedVisualization.option.series && 
+            queryConfig.visualization.option && 
+            queryConfig.visualization.option.series) {
+            customizedVisualization.option.series = queryConfig.visualization.option.series;
+        }
+
+        // Prepare response
+        const response = {
+            visualization: {
+                id: customizedVisualization.id,
+                title: customizedVisualization.title,
+                description: customizedVisualization.description,
+                type: customizedVisualization.type,
+                data: customizedVisualization.data,
+                option: customizedVisualization.option
+            },
+            dataset_info: {
+                collection_name: collectionName,
+                total_rows: collectionInfo.count,
+                columns: Object.keys(collectionInfo.schema),
+                schema: collectionInfo.schema
+            }
+        };
+
+        res.json(response);
+    } catch (error) {
+        logger.error(`Error customizing visualization ${id}:`, error);
+        res.status(500).json({
+            error: 'Failed to customize visualization',
+            message: error.message
+        });
+    }
+});
+
+// Initialize Dashboard model
+import Dashboard from './models/Dashboard.js';
+const dashboardModel = new Dashboard(dbHandler.db);
+
+// Dashboard endpoints
+app.post('/api/dashboards', async (req, res) => {
+    try {
+        const { name, description, layout, visualizations } = req.body;
+        
+        if (!name || !layout) {
+            return res.status(400).json({ error: 'Name and layout are required' });
+        }
+
+        const dashboardId = await dashboardModel.create({
+            name,
+            description,
+            layout,
+            visualizations: visualizations || []
+        });
+
+        res.status(201).json({
+            message: 'Dashboard created successfully',
+            dashboardId
+        });
+    } catch (error) {
+        logger.error('Error creating dashboard:', error);
+        res.status(500).json({ error: 'Failed to create dashboard' });
+    }
+});
+
+app.get('/api/dashboards', async (req, res) => {
+    try {
+        const dashboards = await dashboardModel.getAll();
+        res.json(dashboards);
+    } catch (error) {
+        logger.error('Error getting dashboards:', error);
+        res.status(500).json({ error: 'Failed to get dashboards' });
+    }
+});
+
+app.get('/api/dashboards/:id', async (req, res) => {
+    try {
+        const dashboard = await dashboardModel.getById(req.params.id);
+        if (!dashboard) {
+            return res.status(404).json({ error: 'Dashboard not found' });
+        }
+        res.json(dashboard);
+    } catch (error) {
+        logger.error('Error getting dashboard:', error);
+        res.status(500).json({ error: 'Failed to get dashboard' });
+    }
+});
+
+app.put('/api/dashboards/:id', async (req, res) => {
+    try {
+        const { name, description, layout, visualizations } = req.body;
+        
+        if (!name || !layout) {
+            return res.status(400).json({ error: 'Name and layout are required' });
+        }
+
+        const success = await dashboardModel.update(req.params.id, {
+            name,
+            description,
+            layout,
+            visualizations: visualizations || []
+        });
+
+        if (!success) {
+            return res.status(404).json({ error: 'Dashboard not found' });
+        }
+
+        res.json({ message: 'Dashboard updated successfully' });
+    } catch (error) {
+        logger.error('Error updating dashboard:', error);
+        res.status(500).json({ error: 'Failed to update dashboard' });
+    }
+});
+
+app.delete('/api/dashboards/:id', async (req, res) => {
+    try {
+        const success = await dashboardModel.delete(req.params.id);
+        if (!success) {
+            return res.status(404).json({ error: 'Dashboard not found' });
+        }
+        res.json({ message: 'Dashboard deleted successfully' });
+    } catch (error) {
+        logger.error('Error deleting dashboard:', error);
+        res.status(500).json({ error: 'Failed to delete dashboard' });
+    }
+});
+
+// Get AI-generated insights for a dataset
+app.get('/api/insights/:collectionName', async (req, res) => {
+    const { collectionName } = req.params;
+    const { sampleSize = 100 } = req.query;
+
+    try {
+        logger.info(`Generating insights for collection: ${collectionName}`);
+        
+        // Get collection metadata and schema
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({
+                error: 'Collection not found',
+                message: `Collection '${collectionName}' does not exist`
+            });
+        }
+
+        // Get sample data from the collection
+        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
+        
+        // Prepare metadata for AI analysis
+        const metadata = {
+            totalRows: collectionInfo.count,
+            columns: Object.keys(collectionInfo.schema),
+            sampleData: sampleData,
+            sampleSize: sampleData.length,
+            schema: collectionInfo.schema
+        };
+
+        // Generate insights using Gemini AI
+        logger.info('Generating AI insights...');
+        const insights = await gemini.generateDatasetInsights(metadata);
+        
+        // Structure the response
+        const response = {
+            collection_info: {
+                name: collectionName,
+                total_rows: collectionInfo.count,
+                columns: Object.keys(collectionInfo.schema),
+                schema: collectionInfo.schema
+            },
+            insights: {
+                key_patterns: insights.key_patterns || [],
+                anomalies: insights.anomalies || [],
+                trends: insights.trends || [],
+                statistical_summary: insights.statistical_summary || {},
+                recommendations: insights.recommendations || []
+            },
+            analysis_summary: insights.analysis_summary || ''
+        };
+
+        res.json(response);
+    } catch (error) {
+        logger.error(`Error generating insights for ${collectionName}:`, error);
+        res.status(500).json({
+            error: 'Failed to generate insights',
+            message: error.message
+        });
+    }
+});
+
+// Natural Language Query Endpoint
+app.post('/api/query', async (req, res) => {
+    const { collectionName, query, limit = 100 } = req.body;
+
+    try {
+        logger.info(`Processing natural language query for collection: ${collectionName}`);
+        
+        // Validate required parameters
+        if (!collectionName || !query) {
+            return res.status(400).json({
+                error: 'Missing required parameters',
+                message: 'Both collectionName and query are required'
+            });
+        }
+
+        // Get collection metadata and schema
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({
+                error: 'Collection not found',
+                message: `Collection '${collectionName}' does not exist`
+            });
+        }
+
+        // Convert natural language to MongoDB query
+        const queryConfig = await gemini.convertNaturalLanguageToQuery(
+            query,
+            collectionName,
+            collectionInfo.schema
+        );
+
+        // Execute the query
+        const collection = dbHandler.db.collection(collectionName);
+        let results;
+
+        if (queryConfig.query.type === 'aggregate') {
+            // Add limit to pipeline if not already present
+            if (!queryConfig.query.pipeline.some(stage => stage.$limit)) {
+                queryConfig.query.pipeline.push({ $limit: limit });
+            }
+            results = await collection.aggregate(queryConfig.query.pipeline).toArray();
+        } else {
+            // For find queries
+            const options = {
+                limit: queryConfig.query.limit || limit,
+                projection: queryConfig.query.projection,
+                sort: queryConfig.query.sort
+            };
+            results = await collection.find(queryConfig.query.filter, options).toArray();
+        }
+
+        // Prepare response
+        const response = {
+            collection: collectionName,
+            query: queryConfig.query,
+            explanation: queryConfig.explanation,
+            results: results,
+            count: results.length
+        };
+
+        res.json(response);
+    } catch (error) {
+        logger.error(`Error processing natural language query:`, error);
+        res.status(500).json({
+            error: 'Failed to process query',
+            message: error.message
+        });
+    }
+});
+
+// Time Series Forecasting Endpoint
+app.get('/api/forecast/:collectionName', async (req, res) => {
+    const { collectionName } = req.params;
+    const { periods = 12, sampleSize = 1000 } = req.query;
+
+    try {
+        logger.info(`Generating forecasts for collection: ${collectionName}`);
+        
+        // Get collection metadata and schema
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({
+                error: 'Collection not found',
+                message: `Collection '${collectionName}' does not exist`
+            });
+        }
+
+        // Get sample data from the collection
+        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
+        
+        // Prepare metadata for forecasting
+        const metadata = {
+            totalRows: collectionInfo.count,
+            columns: Object.keys(collectionInfo.schema),
+            sampleData: sampleData,
+            sampleSize: sampleData.length,
+            schema: collectionInfo.schema
+        };
+
+        // Generate forecasts
+        const forecasts = await gemini.generateTimeSeriesForecast(metadata, parseInt(periods));
+        
+        // Structure the response
+        const response = {
+            collection_info: {
+                name: collectionName,
+                total_rows: collectionInfo.count,
+                columns: Object.keys(collectionInfo.schema),
+                schema: collectionInfo.schema
+            },
+            forecast_info: {
+                periods: parseInt(periods),
+                sample_size: sampleData.length
+            },
+            analysis: forecasts.time_series_analysis,
+            forecasts: forecasts.forecasts,
+            insights: forecasts.insights,
+            recommendations: forecasts.recommendations
+        };
+
+        res.json(response);
+    } catch (error) {
+        logger.error(`Error generating forecasts for ${collectionName}:`, error);
+        res.status(500).json({
+            error: 'Failed to generate forecasts',
+            message: error.message
+        });
+    }
+});
+
+// Anomaly Detection Endpoint
+app.get('/api/anomalies/:collectionName', async (req, res) => {
+    const { collectionName } = req.params;
+    const { sensitivity = 0.95, sampleSize = 1000 } = req.query;
+
+    try {
+        logger.info(`Detecting anomalies in collection: ${collectionName}`);
+        
+        // Get collection metadata and schema
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({
+                error: 'Collection not found',
+                message: `Collection '${collectionName}' does not exist`
+            });
+        }
+
+        // Get sample data from the collection
+        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
+        
+        // Prepare metadata for anomaly detection
+        const metadata = {
+            totalRows: collectionInfo.count,
+            columns: Object.keys(collectionInfo.schema),
+            sampleData: sampleData,
+            sampleSize: sampleData.length,
+            schema: collectionInfo.schema
+        };
+
+        // Detect anomalies
+        const anomalies = await gemini.detectAnomalies(metadata, parseFloat(sensitivity));
+        
+        // Structure the response
+        const response = {
+            collection_info: {
+                name: collectionName,
+                total_rows: collectionInfo.count,
+                columns: Object.keys(collectionInfo.schema),
+                schema: collectionInfo.schema
+            },
+            analysis_info: {
+                sensitivity: parseFloat(sensitivity),
+                sample_size: sampleData.length
+            },
+            data_summary: anomalies.data_summary,
+            anomalies: anomalies.anomalies,
+            statistical_summary: anomalies.statistical_summary,
+            insights: anomalies.insights,
+            recommendations: anomalies.recommendations
+        };
+
+        res.json(response);
+    } catch (error) {
+        logger.error(`Error detecting anomalies in ${collectionName}:`, error);
+        res.status(500).json({
+            error: 'Failed to detect anomalies',
+            message: error.message
+        });
+    }
+});
+
 // Start server
 app.listen(port, () => {
     logger.info(`Server running on port ${port}`);

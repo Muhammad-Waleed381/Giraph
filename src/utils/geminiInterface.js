@@ -114,6 +114,62 @@ class GeminiInterface {
         }
     }
 
+    async generateDatasetInsights(metadata) {
+        try {
+            const prompt = this._createInsightsPrompt(metadata);
+            const result = await this.model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            logger.info('Raw insights response:', text);
+            return this._extractJsonFromResponse(text);
+        } catch (error) {
+            logger.error('Error in generateDatasetInsights:', error);
+            throw error;
+        }
+    }
+
+    async convertNaturalLanguageToQuery(naturalQuery, collectionName, schema) {
+        try {
+            const prompt = this._createQueryConversionPrompt(naturalQuery, collectionName, schema);
+            const result = await this.model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            logger.info('Raw query conversion response:', text);
+            return this._extractJsonFromResponse(text);
+        } catch (error) {
+            logger.error('Error in convertNaturalLanguageToQuery:', error);
+            throw error;
+        }
+    }
+
+    async generateTimeSeriesForecast(metadata, forecastPeriods = 12) {
+        try {
+            const prompt = this._createForecastPrompt(metadata, forecastPeriods);
+            const result = await this.model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            logger.info('Raw forecast response:', text);
+            return this._extractJsonFromResponse(text);
+        } catch (error) {
+            logger.error('Error in generateTimeSeriesForecast:', error);
+            throw error;
+        }
+    }
+
+    async detectAnomalies(metadata, sensitivity = 0.95) {
+        try {
+            const prompt = this._createAnomalyDetectionPrompt(metadata, sensitivity);
+            const result = await this.model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text();
+            logger.info('Raw anomaly detection response:', text);
+            return this._extractJsonFromResponse(text);
+        } catch (error) {
+            logger.error('Error in detectAnomalies:', error);
+            throw error;
+        }
+    }
+
     _createSchemaGenerationPrompt(metadata) {
         return `
         You are a MongoDB schema expert. Analyze this dataset and create an optimized MongoDB schema.
@@ -257,6 +313,240 @@ class GeminiInterface {
                 {"$match": {}},
                 {"$group": {}},
                 {"$sort": {}}
+            ]
+        }`;
+    }
+
+    _createInsightsPrompt(metadata) {
+        return `
+        You are a data analysis expert. Analyze this dataset and provide comprehensive insights.
+        Your response MUST be valid JSON with no additional text.
+        
+        Dataset Info:
+        - Total Rows: ${metadata.totalRows}
+        - Columns: ${metadata.columns.join(', ')}
+        - Schema: ${JSON.stringify(metadata.schema, null, 2)}
+        
+        Sample Data:
+        ${JSON.stringify(metadata.sampleData, null, 2)}
+        
+        Return ONLY the following JSON structure:
+        {
+            "key_patterns": [
+                {
+                    "title": "pattern_title",
+                    "description": "pattern_description",
+                    "confidence": "high/medium/low",
+                    "evidence": ["evidence1", "evidence2"]
+                }
+            ],
+            "anomalies": [
+                {
+                    "title": "anomaly_title",
+                    "description": "anomaly_description",
+                    "severity": "high/medium/low",
+                    "affected_fields": ["field1", "field2"]
+                }
+            ],
+            "trends": [
+                {
+                    "title": "trend_title",
+                    "description": "trend_description",
+                    "direction": "increasing/decreasing/stable",
+                    "timeframe": "timeframe_description"
+                }
+            ],
+            "statistical_summary": {
+                "numeric_fields": {
+                    "field_name": {
+                        "mean": number,
+                        "median": number,
+                        "std_dev": number,
+                        "min": number,
+                        "max": number
+                    }
+                },
+                "categorical_fields": {
+                    "field_name": {
+                        "unique_values": number,
+                        "most_common": ["value1", "value2"],
+                        "distribution": {
+                            "value1": percentage,
+                            "value2": percentage
+                        }
+                    }
+                }
+            },
+            "recommendations": [
+                {
+                    "title": "recommendation_title",
+                    "description": "recommendation_description",
+                    "priority": "high/medium/low",
+                    "action_items": ["action1", "action2"]
+                }
+            ],
+            "analysis_summary": "Overall summary of the dataset analysis"
+        }`;
+    }
+
+    _createQueryConversionPrompt(naturalQuery, collectionName, schema) {
+        return `
+        Convert this natural language query into a MongoDB query.
+        Your response MUST be valid JSON with no additional text.
+        
+        Natural Language Query: "${naturalQuery}"
+        Collection Name: ${collectionName}
+        Schema: ${JSON.stringify(schema, null, 2)}
+        
+        Return ONLY the following JSON structure:
+        {
+            "query": {
+                "type": "find/aggregate",
+                "pipeline": [
+                    // For aggregate queries
+                ],
+                "filter": {
+                    // For find queries
+                },
+                "projection": {
+                    // Fields to include/exclude
+                },
+                "sort": {
+                    // Sort criteria
+                },
+                "limit": number
+            },
+            "explanation": "Brief explanation of the query"
+        }`;
+    }
+
+    _createForecastPrompt(metadata, forecastPeriods) {
+        return `
+        Analyze this time-series data and generate forecasts.
+        Your response MUST be valid JSON with no additional text.
+        
+        Dataset Info:
+        - Total Rows: ${metadata.totalRows}
+        - Columns: ${metadata.columns.join(', ')}
+        - Schema: ${JSON.stringify(metadata.schema, null, 2)}
+        
+        Sample Data:
+        ${JSON.stringify(metadata.sampleData, null, 2)}
+        
+        Forecast Periods: ${forecastPeriods}
+        
+        Return ONLY the following JSON structure:
+        {
+            "time_series_analysis": {
+                "time_column": "column_name",
+                "value_columns": ["column1", "column2"],
+                "frequency": "daily/weekly/monthly/yearly",
+                "trend": "increasing/decreasing/stable",
+                "seasonality": true/false
+            },
+            "forecasts": {
+                "column_name": {
+                    "historical_data": [
+                        {
+                            "timestamp": "date",
+                            "value": number,
+                            "actual": true
+                        }
+                    ],
+                    "forecast_data": [
+                        {
+                            "timestamp": "date",
+                            "value": number,
+                            "lower_bound": number,
+                            "upper_bound": number,
+                            "actual": false
+                        }
+                    ],
+                    "metrics": {
+                        "mae": number,
+                        "rmse": number,
+                        "mape": number
+                    }
+                }
+            },
+            "insights": [
+                "insight1",
+                "insight2"
+            ],
+            "recommendations": [
+                "recommendation1",
+                "recommendation2"
+            ]
+        }`;
+    }
+
+    _createAnomalyDetectionPrompt(metadata, sensitivity) {
+        return `
+        Analyze this dataset and detect anomalies.
+        Your response MUST be valid JSON with no additional text.
+        
+        Dataset Info:
+        - Total Rows: ${metadata.totalRows}
+        - Columns: ${metadata.columns.join(', ')}
+        - Schema: ${JSON.stringify(metadata.schema, null, 2)}
+        
+        Sample Data:
+        ${JSON.stringify(metadata.sampleData, null, 2)}
+        
+        Sensitivity: ${sensitivity}
+        
+        Return ONLY the following JSON structure:
+        {
+            "data_summary": {
+                "numeric_columns": ["column1", "column2"],
+                "categorical_columns": ["column3", "column4"],
+                "date_columns": ["column5"]
+            },
+            "anomalies": {
+                "point_anomalies": [
+                    {
+                        "id": "anomaly_id",
+                        "type": "point",
+                        "column": "column_name",
+                        "value": "anomalous_value",
+                        "expected_range": {
+                            "min": number,
+                            "max": number
+                        },
+                        "score": number,
+                        "severity": "high/medium/low",
+                        "explanation": "explanation of the anomaly"
+                    }
+                ],
+                "contextual_anomalies": [
+                    {
+                        "id": "anomaly_id",
+                        "type": "contextual",
+                        "columns": ["column1", "column2"],
+                        "pattern": "description of anomalous pattern",
+                        "score": number,
+                        "severity": "high/medium/low",
+                        "explanation": "explanation of the anomaly"
+                    }
+                ]
+            },
+            "statistical_summary": {
+                "column_name": {
+                    "mean": number,
+                    "median": number,
+                    "std_dev": number,
+                    "min": number,
+                    "max": number,
+                    "iqr": number
+                }
+            },
+            "insights": [
+                "insight1",
+                "insight2"
+            ],
+            "recommendations": [
+                "recommendation1",
+                "recommendation2"
             ]
         }`;
     }

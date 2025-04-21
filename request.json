@@ -1,0 +1,28 @@
+{
+    "title": "Custom Value Distribution",
+    "description": "Distribution of values",
+    "type": "bar_chart",
+    "dimensions": ["name", "value"],
+    "collectionName": "data_entries",
+    "configuration": {
+        "title": {
+            "text": "Value Distribution by Name"
+        },
+        "tooltip": {
+            "trigger": "axis"
+        },
+        "xAxis": {
+            "type": "category",
+            "data": [],
+            "title": "Category"
+        },
+        "yAxis": {
+            "type": "value",
+            "title": "Value"
+        },
+        "series": [{
+            "type": "bar",
+            "data": []
+        }]
+    }
+} 
