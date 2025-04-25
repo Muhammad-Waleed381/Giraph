@@ -100,9 +100,9 @@ class GeminiInterface {
         }
     }
 
-    async generateVisualizationDataQuery(visualization, dbHandler, collectionName) {
+    async generateVisualizationDataQuery(visualization, dbHandler, collectionName, schema) {
         try {
-            const prompt = this._createQueryGenerationPrompt(visualization, collectionName);
+            const prompt = this._createQueryGenerationPrompt(visualization, collectionName, schema);
             const result = await this.model.generateContent(prompt);
             const response = await result.response;
             const text = response.text();
@@ -171,50 +171,65 @@ class GeminiInterface {
     }
 
     _createSchemaGenerationPrompt(metadata) {
+        // Ensure column names are strings for the prompt
+        const columnNamesString = metadata.columns.map(String).join(', ');
+        
         return `
         You are a MongoDB schema expert. Analyze this dataset and create an optimized MongoDB schema.
         Your response MUST be valid JSON following the exact format below.
         
         Dataset Overview:
         - Total Rows: ${metadata.totalRows}
-        - Columns: ${metadata.columns.join(', ')}
+        - Columns: ${columnNamesString} 
         
-        Data Types:
+        IMPORTANT: Use the exact column names provided above as the field names in the "schema" and "properties" objects you generate. Do not modify them.
+        
+        Data Types (Detected from Sample):
         ${JSON.stringify(metadata.dataTypes, null, 2)}
         
-        Null Value Analysis:
+        Null Value Analysis (From Sample):
         ${JSON.stringify(metadata.nullCounts, null, 2)}
         
-        Sample Data:
+        Sample Data (First ${metadata.sampleSize} rows):
         ${JSON.stringify(metadata.sampleData, null, 2)}
+        
+        Instructions:
+        1. Determine the most appropriate MongoDB BSON type for each column based on the sample data and data types.
+        2. Suggest a suitable collection name (use underscores, lowercase, e.g., 'sales_data').
+        3. Define the schema structure using the exact column names provided.
+        4. Suggest relevant indexes based on potential query patterns (e.g., fields used for filtering, sorting).
+        5. Generate basic validation rules.
         
         Return ONLY the following JSON structure with no additional text or explanation:
         {
             "collection_name": "suggested_name",
             "schema": {
-                "field_name": {
-                    "type": "mongodb_type",
+                "COLUMN_NAME_EXACTLY_AS_PROVIDED": {
+                    "type": "mongodb_bson_type",
                     "required": boolean,
                     "unique": boolean,
                     "index": boolean,
-                    "description": "field_description"
+                    "description": "Description of the field based on its name and data."
                 }
+                // ... other fields exactly matching provided columns
             },
             "indexes": [
                 {
-                    "fields": ["field1", "field2"],
-                    "type": "index_type"
+                    "fields": ["exact_column_name_1", "exact_column_name_2"],
+                    "type": "single or compound"
                 }
+                // ... other suggested indexes
             ],
             "validation_rules": {
                 "$jsonSchema": {
                     "bsonType": "object",
-                    "required": ["field1", "field2"],
+                    "required": [/* list of exact required column names */],
                     "properties": {
-                        "field_name": {
-                            "bsonType": "string",
-                            "description": "field description"
+                         "COLUMN_NAME_EXACTLY_AS_PROVIDED": {
+                            "bsonType": "mongodb_bson_type_for_validation",
+                            "description": "Description of the field."
                         }
+                         // ... other properties exactly matching provided columns
                     }
                 }
             }
@@ -266,36 +281,32 @@ class GeminiInterface {
         }`;
     }
 
-    _createQueryGenerationPrompt(visualization, collectionName = 'unknown') {
+    _createQueryGenerationPrompt(visualization, collectionName = 'unknown', schema = null) {
+        // Include schema information in the prompt if available
+        const schemaContext = schema ? `
+        Collection Schema:
+        ${JSON.stringify(schema, null, 2)}
+        ` : '';
+
         return `
-        Generate a MongoDB aggregation pipeline query for this visualization.
+        Generate a MongoDB aggregation pipeline query for the specified visualization.
         
         Collection Name: ${collectionName}
-        
+        ${schemaContext} 
         Visualization Details:
         Title: ${visualization.title}
         Type: ${visualization.type}
         Description: ${visualization.description}
+        Requested Dimensions: ${visualization.data?.dimensions?.join(', ') || 'Not specified'}
         
-        IMPORTANT: 
-        1. Use only standard JSON in your response. Do NOT use MongoDB-specific syntax like:
-           - ISODate() - use ISO string format like "2022-01-01T00:00:00Z" instead
-           - ObjectId() - use string representation instead
-           - NumberLong(), NumberInt(), NumberDecimal() - use plain numbers instead
-        
-        2. Create a working aggregation pipeline that will return actual data for this specific visualization.
-           For example:
-           - For bar charts: Group by categories with $group and calculate summaries like $sum
-           - For line charts: Group by time periods with proper date formatting
-           - For pie charts: Calculate proportions and percentages
-           - For scatter plots: Provide individual data points with relevant dimensions
-        
-        3. For best results, use a pipeline with stages like:
-           - $match to filter relevant data
-           - $group to aggregate data
-           - $project to shape the output
-           - $sort to order results
-           - $limit to avoid too many data points (max 50)
+        IMPORTANT INSTRUCTIONS:
+        1. Use the EXACT field names provided in the Collection Schema above (if provided) or common variations if schema is absent.
+        2. Create a MongoDB aggregation pipeline ([{...}, {...}]) that calculates the data needed for the visualization.
+        3. For aggregations (bar, pie, etc.), use $group correctly. Use $sum, $avg, or $count as appropriate for the dimensions.
+        4. For scatter plots, ensure the final documents contain the requested dimension fields.
+        5. The FINAL stage of the pipeline ($project or $group output) MUST output documents where the field names EXACTLY MATCH the requested dimensions. For example, if dimensions are ["industry", "totalRevenue"], the final documents should look like { "industry": "some_value", "totalRevenue": number }.
+        6. Use ONLY standard JSON. Do NOT use ISODate(), ObjectId(), NumberLong(), etc.
+        7. Limit the results if appropriate (e.g., $limit: 50) unless the aggregation naturally limits results (like grouping by a few categories).
         
         Return ONLY the following JSON structure with no additional text:
         {
@@ -303,16 +314,24 @@ class GeminiInterface {
                 "id": "${visualization.id}",
                 "type": "${visualization.type}",
                 "data": {
-                    "dimensions": ["dimension1", "dimension2"] 
+                    "dimensions": [/* array of field names matching final pipeline output */] 
                 },
                 "option": {
-                    "series": []
+                    "title": { "text": "${visualization.title}" },
+                    "tooltip": { }, 
+                    "legend": { "data": [] },
+                    "grid": { "left": "3%", "right": "4%", "bottom": "3%", "containLabel": true },
+                    "xAxis": { }, 
+                    "yAxis": { }, 
+                    "series": [/* Series configurations based on type */]
                 }
             },
             "pipeline": [
+                // MongoDB aggregation pipeline stages
                 {"$match": {}},
                 {"$group": {}},
-                {"$sort": {}}
+                {"$sort": {}},
+                {"$limit": 50} 
             ]
         }`;
     }

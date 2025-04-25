@@ -1,5 +1,6 @@
 import { MongoClient } from 'mongodb';
 import { logger } from './logger.js';
+import { cleanHeaderName } from './commonUtils.js';
 
 class DatabaseHandler {
     constructor(connectionString = 'mongodb://localhost:27017/') {
@@ -119,28 +120,64 @@ class DatabaseHandler {
 
     _convertDataTypes(data, schema) {
         const typeMapping = {
-            'date': value => new Date(value),
-            'int': value => parseInt(value, 10),
-            'double': value => parseFloat(value),
+            'date': value => {
+                if (value === null || value === undefined || String(value).trim() === '') return null;
+                const date = new Date(value);
+                return isNaN(date.getTime()) ? null : date;
+            },
+            'int': value => {
+                if (value === null || value === undefined || String(value).trim() === '') return null;
+                const num = parseInt(String(value).replace(/[,\$]/g, ''), 10);
+                return isNaN(num) ? null : num;
+            },
+            'double': value => {
+                if (value === null || value === undefined || String(value).trim() === '') return null;
+                const num = parseFloat(String(value).replace(/[,\$]/g, ''));
+                return isNaN(num) ? null : num;
+            },
             'string': value => String(value),
-            'boolean': value => Boolean(value)
+            'boolean': value => {
+                 if (value === null || value === undefined) return null;
+                 const strVal = String(value).toLowerCase().trim();
+                 if (strVal === 'true' || strVal === '1') return true;
+                 if (strVal === 'false' || strVal === '0') return false;
+                 return null;
+            }
         };
+        
+        // Create a mapping from cleaned schema field names to original schema field names
+        const cleanedSchemaFieldsMap = {};
+        if (schema && schema.schema) {
+            for (const field in schema.schema) {
+                cleanedSchemaFieldsMap[cleanHeaderName(field)] = field;
+            }
+        }
 
         return data.map(doc => {
             const converted = {};
-            for (const [field, fieldSchema] of Object.entries(schema.schema)) {
-                if (field in doc) {
+            for (const rawKey in doc) {
+                const cleanedKey = cleanHeaderName(rawKey);
+                const originalSchemaField = cleanedSchemaFieldsMap[cleanedKey];
+
+                if (schema && schema.schema && originalSchemaField && schema.schema[originalSchemaField]) {
+                    const fieldSchema = schema.schema[originalSchemaField];
                     const mongoType = (fieldSchema.type || 'string').toLowerCase();
+                    
                     if (mongoType in typeMapping) {
                         try {
-                            converted[field] = typeMapping[mongoType](doc[field]);
+                            converted[originalSchemaField] = typeMapping[mongoType](doc[rawKey]);
                         } catch (error) {
-                            logger.warn(`Could not convert ${field} to ${mongoType}:`, error);
-                            converted[field] = doc[field];
+                            logger.warn(`Could not convert ${originalSchemaField} ('${doc[rawKey]}') to ${mongoType}:`, error);
+                            converted[originalSchemaField] = doc[rawKey];
                         }
                     } else {
-                        converted[field] = doc[field];
+                        converted[originalSchemaField] = doc[rawKey];
                     }
+                } else if (!originalSchemaField) {
+                    // Handle cases where a key from the data doesn't match any schema field
+                    // logger.warn(`Data key '${rawKey}' (cleaned: '${cleanedKey}') not found in schema.`);
+                    // Optionally include these fields anyway, maybe in a separate 'unmapped' subdocument
+                    // converted[rawKey] = doc[rawKey]; 
                 }
             }
             return converted;

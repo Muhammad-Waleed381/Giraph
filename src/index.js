@@ -9,6 +9,26 @@ import { logger } from './utils/logger.js';
 import path from 'path';
 import { existsSync, readFileSync, mkdirSync } from 'fs';
 import multer from 'multer';
+import { cleanHeaderName } from './utils/commonUtils.js';
+import crypto from 'crypto';
+
+// --- Simple In-Memory Cache for Recommendations --- 
+const recommendationCache = new Map();
+const CACHE_TTL_MS = 30 * 60 * 1000; // 30 minutes
+
+// Function to clean up expired cache entries (can be called periodically or on access)
+function cleanupRecommendationCache() {
+    const now = Date.now();
+    for (const [key, { timestamp }] of recommendationCache.entries()) {
+        if (now - timestamp > CACHE_TTL_MS) {
+            recommendationCache.delete(key);
+            logger.info(`Removed expired recommendation cache entry: ${key}`);
+        }
+    }
+}
+// Simple interval cleanup
+setInterval(cleanupRecommendationCache, 5 * 60 * 1000); // Clean every 5 minutes
+// --------------------------------------------------
 
 // Load environment variables
 dotenv.config();
@@ -91,6 +111,14 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
+// Helper function to format file size
+function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' bytes';
+    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+    else return (bytes / 1073741824).toFixed(1) + ' GB';
+}
+
 // Initialize components
 const gemini = new GeminiInterface();
 const dbHandler = new DatabaseHandler(process.env.MONGODB_URI);
@@ -100,7 +128,7 @@ const googleSheets = new GoogleSheetsHandler();
 await dbHandler.connect();
 
 // File Upload Endpoint
-app.post('/api/upload', upload.single('file'), handleMulterError, async (req, res) => {
+app.post('/api/datasources/files', upload.single('file'), handleMulterError, async (req, res) => {
     try {
         logger.info('File upload request received');
         
@@ -177,16 +205,8 @@ app.post('/api/upload', upload.single('file'), handleMulterError, async (req, re
     }
 });
 
-// Helper function to format file size
-function formatFileSize(bytes) {
-    if (bytes < 1024) return bytes + ' bytes';
-    else if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-    else if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
-    else return (bytes / 1073741824).toFixed(1) + ' GB';
-}
-
 // Get uploaded files
-app.get('/api/uploads', async (req, res) => {
+app.get('/api/datasources/files', async (req, res) => {
     try {
         const fs = await import('fs/promises');
         
@@ -212,11 +232,13 @@ app.get('/api/uploads', async (req, res) => {
             }
             
             return {
-                id: filename, // Use filename as ID
+                id: `file:${filename}`,
                 name: filename,
                 path: filePath,
-                type: fileType,
+                type: 'file_upload',
+                fileType: fileType,
                 size: stats.size,
+                sizeFormatted: formatFileSize(stats.size),
                 uploadedAt: stats.mtime.toISOString()
             };
         });
@@ -226,20 +248,29 @@ app.get('/api/uploads', async (req, res) => {
         // Sort by upload date (newest first)
         fileInfos.sort((a, b) => new Date(b.uploadedAt) - new Date(a.uploadedAt));
         
-        res.json(fileInfos);
+        res.json({
+            success: true,
+            files: fileInfos
+        });
     } catch (error) {
         logger.error('Error listing uploads:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
 // Delete an uploaded file
-app.delete('/api/uploads/:fileId', async (req, res) => {
+app.delete('/api/datasources/files/:fileId', async (req, res) => {
     try {
         const { fileId } = req.params;
         
         if (!fileId) {
-            return res.status(400).json({ error: 'File ID is required' });
+            return res.status(400).json({ 
+                success: false,
+                error: 'File ID is required' 
+            });
         }
         
         // Prevent directory traversal attacks
@@ -252,17 +283,200 @@ app.delete('/api/uploads/:fileId', async (req, res) => {
             await fs.access(filePath);
         } catch (error) {
             logger.error(`File not found: ${filePath}`);
-            return res.status(404).json({ error: 'File not found' });
+            return res.status(404).json({ 
+                success: false,
+                error: 'File not found' 
+            });
         }
         
         // Delete the file
         await fs.unlink(filePath);
         logger.info(`File deleted: ${filePath}`);
         
-        res.json({ message: 'File deleted successfully' });
+        res.json({ 
+            success: true,
+            message: 'File deleted successfully' 
+        });
     } catch (error) {
         logger.error('Error deleting file:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
+    }
+});
+
+// Get all data sources (combined endpoint)
+app.get('/api/datasources', async (req, res) => {
+    try {
+        logger.info('Request to list all data sources');
+        
+        // Get all collections
+        const collections = await dbHandler.db.listCollections().toArray();
+        const collectionInfo = await Promise.all(collections.map(async col => {
+            const collection = dbHandler.db.collection(col.name);
+            const count = await collection.countDocuments();
+            const sample = await collection.find().limit(1).toArray();
+            const columns = sample.length > 0 ? Object.keys(sample[0]).filter(k => k !== '_id') : [];
+            
+            return {
+                id: `collection:${col.name}`,
+                name: col.name,
+                type: 'mongodb_collection',
+                documentCount: count,
+                columns: columns,
+                lastModified: col.info ? col.info.lastModified : null
+            };
+        }));
+        
+        // Get all uploads
+        const fs = await import('fs/promises');
+        let uploads = [];
+        try {
+            const files = await fs.readdir(uploadsDir);
+            
+            uploads = await Promise.all(files.map(async (filename) => {
+                const filePath = path.join(uploadsDir, filename);
+                const stats = await fs.stat(filePath);
+                
+                // Get file extension
+                const ext = path.extname(filename).toLowerCase();
+                
+                // Determine file type
+                let fileType;
+                if (ext === '.csv') {
+                    fileType = 'CSV';
+                } else if (ext === '.xlsx' || ext === '.xls') {
+                    fileType = 'Excel';
+                } else {
+                    fileType = 'Unknown';
+                }
+                
+                return {
+                    id: `file:${filename}`,
+                    name: filename,
+                    path: filePath,
+                    type: 'file_upload',
+                    fileType: fileType,
+                    size: stats.size,
+                    sizeFormatted: formatFileSize(stats.size),
+                    uploadedAt: stats.mtime.toISOString()
+                };
+            }));
+        } catch (error) {
+            logger.error('Error listing uploads:', error);
+            uploads = []; // Continue even if uploads directory can't be read
+        }
+        
+        // Get Google Sheets if authenticated
+        let googleSheetSources = [];
+        try {
+            if (googleSheets.oauth2Client && googleSheets.oauth2Client.credentials) {
+                const spreadsheets = await googleSheets.listSpreadsheets();
+                googleSheetSources = spreadsheets.map(sheet => ({
+                    id: `googlesheet:${sheet.id}`,
+                    name: sheet.name,
+                    type: 'google_sheet',
+                    webViewLink: sheet.webViewLink,
+                    createdTime: sheet.createdTime,
+                    modifiedTime: sheet.modifiedTime
+                }));
+            }
+        } catch (error) {
+            logger.error('Error listing Google Sheets:', error);
+            googleSheetSources = []; // Continue even if Google Sheets can't be listed
+        }
+        
+        // Combine all data sources
+        const allSources = [
+            ...collectionInfo,
+            ...uploads,
+            ...googleSheetSources
+        ];
+        
+        res.json({
+            success: true,
+            sources: allSources
+        });
+    } catch (error) {
+        logger.error('Error in /api/datasources:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
+    }
+});
+
+// Delete any data source
+app.delete('/api/datasources/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        if (!id) {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Source ID is required' 
+            });
+        }
+        
+        // Parse the ID to determine the source type
+        if (id.startsWith('file:')) {
+            // Delete file
+            const fileId = id.replace('file:', '');
+            const normalizedFileId = path.normalize(fileId).replace(/^(\.\.(\/|\\|$))+/, '');
+            const filePath = path.join(uploadsDir, normalizedFileId);
+            
+            const fs = await import('fs/promises');
+            try {
+                await fs.access(filePath);
+                await fs.unlink(filePath);
+                logger.info(`File deleted: ${filePath}`);
+                return res.json({ 
+                    success: true, 
+                    message: 'File deleted successfully' 
+                });
+            } catch (error) {
+                logger.error(`File not found or could not be deleted: ${filePath}`, error);
+                return res.status(404).json({ 
+                    success: false,
+                    error: 'File not found or could not be deleted' 
+                });
+            }
+        } else if (id.startsWith('collection:')) {
+            // Delete collection
+            const collectionName = id.replace('collection:', '');
+            try {
+                await dbHandler.db.collection(collectionName).drop();
+                logger.info(`Collection '${collectionName}' deleted successfully`);
+                return res.json({
+                    success: true,
+                    message: `Collection '${collectionName}' deleted successfully`
+                });
+            } catch (error) {
+                logger.error(`Error deleting collection ${collectionName}:`, error);
+                return res.status(500).json({ 
+                    success: false,
+                    error: 'Failed to delete collection' 
+                });
+            }
+        } else if (id.startsWith('googlesheet:')) {
+            // Google Sheets cannot be deleted through our API
+            return res.status(400).json({ 
+                success: false,
+                error: 'Deleting Google Sheets is not supported through this API' 
+            });
+        } else {
+            return res.status(400).json({ 
+                success: false,
+                error: 'Invalid data source ID format' 
+            });
+        }
+    } catch (error) {
+        logger.error('Error in /api/datasources/:id:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
@@ -352,6 +566,101 @@ app.post('/api/analyze/schema', async (req, res) => {
     }
 });
 
+// New Schema Analysis Endpoint with consistent API structure
+app.post('/api/analysis/schema', async (req, res) => {
+    const { filePath, fileId, sampleSize = 100 } = req.body;
+
+    try {
+        logger.info('Received schema analysis request to /api/analysis/schema:', req.body);
+        
+        let normalizedPath;
+        
+        // Handle either direct filePath or uploaded fileId
+        if (filePath) {
+            normalizedPath = path.normalize(filePath);
+            logger.info(`Using provided file path: ${normalizedPath}`);
+        } else if (fileId) {
+            normalizedPath = path.join(uploadsDir, fileId);
+            logger.info(`Using uploaded file: ${normalizedPath}`);
+        } else {
+            logger.error('No filePath or fileId provided in request');
+            return res.status(400).json({ 
+                success: false,
+                error: 'Missing file information', 
+                message: 'Either filePath or fileId is required' 
+            });
+        }
+        
+        // Check if file exists
+        if (!existsSync(normalizedPath)) {
+            logger.error(`File not found at path: ${normalizedPath}`);
+            return res.status(400).json({ 
+                success: false,
+                error: 'File not found',
+                path: normalizedPath,
+                message: 'Please check if the file exists and the path is correct'
+            });
+        }
+
+        // Check file permissions
+        try {
+            readFileSync(normalizedPath, 'utf-8');
+        } catch (error) {
+            logger.error(`Cannot read file at path: ${normalizedPath}`, error);
+            return res.status(400).json({ 
+                success: false,
+                error: 'Cannot read file',
+                path: normalizedPath,
+                message: error.message
+            });
+        }
+        
+        logger.info('Analyzing file schema:', normalizedPath);
+        const { data, metadata } = await FileLoader.loadFile(normalizedPath, sampleSize);
+        logger.info('File loaded successfully. Metadata:', metadata);
+        
+        logger.info('Generating MongoDB schema using Gemini AI...');
+        const schema = await gemini.analyzeDataAndGenerateSchema(metadata);
+        logger.info('Schema generated:', schema);
+        
+        // Create a user-friendly response with column information
+        const columnInfo = {};
+        for (const [field, fieldSchema] of Object.entries(schema.schema)) {
+            columnInfo[field] = {
+                type: fieldSchema.type,
+                description: fieldSchema.description,
+                isRequired: fieldSchema.required || false, 
+                isUnique: fieldSchema.unique || false,
+                isIndex: fieldSchema.index || false,
+                nullCount: metadata.nullCounts[field] || 0,
+                suitableForVisualization: isSuitableForVisualization(field, fieldSchema.type)
+            };
+        }
+        
+        const schemaInfo = {
+            success: true,
+            suggestedCollectionName: schema.collection_name,
+            totalRows: metadata.totalRows,
+            sampleSize: metadata.sampleSize,
+            columns: columnInfo,
+            sampleData: metadata.sampleData.slice(0, 5), // First 5 rows as sample
+            fileInfo: {
+                path: normalizedPath,
+                id: fileId || path.basename(normalizedPath)
+            }
+        };
+        
+        res.json(schemaInfo);
+    } catch (error) {
+        logger.error('Error in /api/analysis/schema:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message,
+            stack: error.stack
+        });
+    }
+});
+
 // Helper function to determine if a column is suitable for visualization
 function isSuitableForVisualization(field, type) {
     // Numeric fields are good for measures (y-axis, sizes, etc)
@@ -398,98 +707,140 @@ function isSuitableForVisualization(field, type) {
     };
 }
 
-// Visualization Recommendations Endpoint
-app.post('/api/analyze/recommendations', async (req, res) => {
-    const { filePath, fileId, schemaInfo, sampleSize = 100 } = req.body;
+// Visualization Recommendations Endpoint (New Structure)
+app.post('/api/visualizations/recommend', async (req, res) => {
+    const { filePath, fileId, collectionName, sampleSize = 100 } = req.body;
 
     try {
         logger.info('Received visualization recommendations request:', req.body);
         
-        let normalizedPath;
         let metadata;
         let schema;
+        let sourceInfo = {};
         
-        // If schema information is already provided, use it
-        if (schemaInfo) {
-            logger.info('Using provided schema information');
-            schema = {
-                collection_name: schemaInfo.suggestedCollectionName,
-                schema: {}
-            };
-            
-            // Convert the user-friendly schema back to the format expected by the AI
-            for (const [field, info] of Object.entries(schemaInfo.columns)) {
-                schema.schema[field] = {
-                    type: info.type,
-                    description: info.description,
-                    required: info.isRequired,
-                    unique: info.isUnique,
-                    index: info.isIndex
-                };
+        if (collectionName) {
+            // Using existing collection
+            logger.info(`Analyzing existing collection: ${collectionName}`);
+            const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+            if (!collectionInfo) {
+                return res.status(404).json({ success: false, error: `Collection '${collectionName}' not found` });
             }
-            
-            // Create minimal metadata
+            if (collectionInfo.count === 0) {
+                return res.status(400).json({ success: false, error: 'Collection is empty' });
+            }
+            const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
             metadata = {
-                totalRows: schemaInfo.totalRows,
-                columns: Object.keys(schemaInfo.columns),
-                sampleData: schemaInfo.sampleData || [],
-                sampleSize: schemaInfo.sampleData ? schemaInfo.sampleData.length : 0
+                totalRows: collectionInfo.count,
+                columns: Object.keys(collectionInfo.schema || {}),
+                sampleData: sampleData,
+                sampleSize: sampleData.length,
+                schema: collectionInfo.schema // Include schema for context
             };
+            schema = { // Construct schema object expected by Gemini
+                collection_name: collectionName,
+                schema: collectionInfo.schema
+            };
+            sourceInfo = { type: 'collection', name: collectionName };
         } else {
-            // Otherwise, we need to load the file and analyze it first
+            // Using file path or ID
+            let normalizedPath;
             if (filePath) {
                 normalizedPath = path.normalize(filePath);
                 logger.info(`Using provided file path: ${normalizedPath}`);
+                sourceInfo = { type: 'file', path: normalizedPath };
             } else if (fileId) {
                 normalizedPath = path.join(uploadsDir, fileId);
                 logger.info(`Using uploaded file: ${normalizedPath}`);
+                 sourceInfo = { type: 'file', id: fileId, path: normalizedPath };
             } else {
-                logger.error('No file information or schema provided');
+                logger.error('No file or collection information provided');
                 return res.status(400).json({ 
+                    success: false,
                     error: 'Missing information', 
-                    message: 'Either file information or schema is required' 
+                    message: 'Either file information (filePath/fileId) or collectionName is required' 
                 });
             }
+
+            // Check file existence and permissions
+            if (!existsSync(normalizedPath)) {
+                return res.status(400).json({ success: false, error: 'File not found', path: normalizedPath });
+            }
+            try { readFileSync(normalizedPath); } catch (e) { 
+                return res.status(400).json({ success: false, error: 'Cannot read file', path: normalizedPath, message: e.message });
+            }
             
-            // Load and analyze the file
+            // Load file and generate schema
             logger.info('Loading file for recommendations:', normalizedPath);
             const fileData = await FileLoader.loadFile(normalizedPath, sampleSize);
             metadata = fileData.metadata;
             
-            logger.info('Generating schema from file');
+            logger.info('Generating schema from file metadata');
             schema = await gemini.analyzeDataAndGenerateSchema(metadata);
         }
         
         // Generate visualization recommendations
-        logger.info('Generating visualization recommendations...');
-        const visualizations = await gemini.generateVisualizationRecommendations(metadata, schema);
-        logger.info('Visualization recommendations generated');
+        logger.info('Generating visualization recommendations via Gemini...');
+        const recommendationsResult = await gemini.generateVisualizationRecommendations(metadata, schema);
+        logger.info('Visualization recommendations generated successfully.');
         
-        // Prepare simplified response without data queries
-        const recommendations = {
-            dataset_info: visualizations.dataset_info,
-            visualizations: visualizations.visualizations.map(vis => ({
+        // --- Caching Logic --- 
+        const recommendationCacheId = crypto.randomBytes(16).toString('hex');
+        const detailedRecommendations = recommendationsResult.visualizations.map(vis => ({
+             // Store all relevant details needed for generation later
                 id: vis.id,
+             title: vis.title,
+             description: vis.description,
+             type: vis.type,
+             dimensions: vis.data ? vis.data.dimensions : [],
+             echartsConfigHints: vis.echarts_config ? {
+                 title: vis.echarts_config.title,
+                 tooltip: vis.echarts_config.tooltip || { trigger: 'axis' },
+                 legend: vis.echarts_config.legend,
+                 xAxis: vis.echarts_config.xAxis,
+                 yAxis: vis.echarts_config.yAxis
+             } : {}
+             // Note: We don't store the static preview data in the cache
+         }));
+         
+         recommendationCache.set(recommendationCacheId, { 
+             timestamp: Date.now(),
+             collectionName: schema.collection_name, // Store associated collection
+             recommendations: detailedRecommendations 
+         });
+         logger.info(`Stored recommendations under cache ID: ${recommendationCacheId}`);
+         // ---------------------
+        
+        // Prepare simplified response suitable for frontend recommendations
+        const responsePayload = {
+            recommendationCacheId: recommendationCacheId, // <-- Return the cache ID
+            source_info: sourceInfo,
+            dataset_info: recommendationsResult.dataset_info,
+            analysis_summary: recommendationsResult.analysis_summary,
+            // Return simplified recommendations for UI display (as before)
+            recommended_visualizations: recommendationsResult.visualizations.map(vis => ({
+                id: vis.id, // This is the ID within the set
                 title: vis.title,
                 description: vis.description,
                 type: vis.type,
                 suggestedDimensions: vis.data ? vis.data.dimensions : [],
-                configuration: vis.echarts_config ? {
+                echartsConfigHints: vis.echarts_config ? {
                     title: vis.echarts_config.title,
+                    tooltip: vis.echarts_config.tooltip || { trigger: 'axis' }, 
+                    legend: vis.echarts_config.legend,
                     xAxis: vis.echarts_config.xAxis,
                     yAxis: vis.echarts_config.yAxis
                 } : {},
                 preview: generatePreviewForVisualization(vis.type)
-            })),
-            analysis_summary: visualizations.analysis_summary
+            }))
         };
         
-        res.json(recommendations);
+        res.json({ success: true, recommendations: responsePayload }); // Embed under 'recommendations'
     } catch (error) {
-        logger.error('Error in /api/analyze/recommendations:', error);
+        logger.error('Error in /api/visualizations/recommend:', error);
         res.status(500).json({ 
+            success: false,
             error: error.message,
-            stack: error.stack
+            stack: error.stack // Include stack in dev mode maybe
         });
     }
 });
@@ -546,230 +897,170 @@ function generatePreviewForVisualization(type) {
     }
 }
 
-// Generate Visualizations Endpoint
-app.post('/api/analyze/visualizations', async (req, res) => {
-    const { fileId, filePath, collectionName, selectedVisualizations, customConfigurations, dropCollection = false } = req.body;
+// Generate Visualizations Endpoint (New Structure)
+app.post('/api/visualizations/generate', async (req, res) => {
+    // Input options: 
+    // 1. recommendationCacheId + selectedRecommendationIds
+    // 2. collectionName + visualizations: [{ id, type, title, ... }]
+    const { recommendationCacheId, selectedRecommendationIds, collectionName: collectionNameFromBody, visualizations: visualizationsFromBody } = req.body;
+
+    let collectionName; 
+    let visualizationsToGenerate = [];
 
     try {
         logger.info('Received visualization generation request:', req.body);
-        
-        let importData = true;
-        let normalizedPath;
-        
-        // Handle either direct filePath or uploaded fileId
-        if (filePath) {
-            normalizedPath = path.normalize(filePath);
-            logger.info(`Using provided file path: ${normalizedPath}`);
-        } else if (fileId) {
-            normalizedPath = path.join(uploadsDir, fileId);
-            logger.info(`Using uploaded file: ${normalizedPath}`);
-        } else if (collectionName) {
-            // If collectionName is provided, we'll use existing data from MongoDB
-            importData = false;
-            logger.info(`Using existing collection: ${collectionName}`);
+
+        // --- Logic to determine input type and prepare visualizations --- 
+        if (recommendationCacheId && Array.isArray(selectedRecommendationIds)) {
+            logger.info(`Generating based on cache ID: ${recommendationCacheId} and selected IDs: ${selectedRecommendationIds.join(', ')}`);
+            
+            // Retrieve from cache
+            const cachedData = recommendationCache.get(recommendationCacheId);
+            if (!cachedData) {
+                return res.status(404).json({ 
+                    success: false, 
+                    error: 'Recommendations not found or expired', 
+                    message: `Cache ID ${recommendationCacheId} is invalid or has expired.` 
+                });
+            }
+            
+            collectionName = cachedData.collectionName; // Get collection name from cache
+            const allCachedRecommendations = cachedData.recommendations;
+            
+            // Filter based on selected IDs and reconstruct needed details
+            visualizationsToGenerate = allCachedRecommendations
+                .filter(rec => selectedRecommendationIds.includes(rec.id))
+                .map(rec => ({ // Rebuild structure needed for generation loop
+                    id: rec.id,
+                    type: rec.type,
+                    title: rec.title,
+                    description: rec.description,
+                    dimensions: rec.dimensions, // Use dimensions from cache
+                    optionsOverride: rec.echartsConfigHints // Can use hints as base override if needed
+                }));
+            
+             if (visualizationsToGenerate.length !== selectedRecommendationIds.length) {
+                 logger.warn(`Some selected IDs not found in cache ${recommendationCacheId}`);
+                 // Decide if this is an error or just generate the ones found
+             }
+             if (visualizationsToGenerate.length === 0) {
+                 return res.status(400).json({ success: false, error: 'No matching recommendations found for selected IDs in cache.' });
+             }
+
+        } else if (collectionNameFromBody && Array.isArray(visualizationsFromBody)) {
+            logger.info(`Generating based on provided visualization details for collection: ${collectionNameFromBody}`);
+            collectionName = collectionNameFromBody;
+            visualizationsToGenerate = visualizationsFromBody;
         } else {
-            logger.error('No file or collection information provided');
+            // Neither valid input format was provided
             return res.status(400).json({ 
-                error: 'Missing information', 
-                message: 'Either file information or collection name is required' 
+                success: false, 
+                error: 'Invalid parameters', 
+                message: 'Request must contain either (recommendationCacheId and selectedRecommendationIds) or (collectionName and visualizations array).' 
+            });
+        }
+        // --- End of input preparation logic ---
+
+        // Ensure we have a collection name at this point
+        if (!collectionName) {
+             return res.status(400).json({ success: false, error: 'Collection name could not be determined.' });
+        }
+        
+        // Check if collection exists (using the determined collectionName)
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({ success: false, error: `Collection '${collectionName}' not found` });
+        }
+        if (collectionInfo.count === 0) {
+             return res.status(400).json({ success: false, error: `Collection '${collectionName}' is empty, cannot generate visualizations.` });
+        }
+        // --- >>>> Get the schema from collectionInfo
+        const schemaForQuery = collectionInfo.schema;
+
+        const collection = dbHandler.db.collection(collectionName);
+        const generatedCharts = [];
+
+        logger.info('Generating data queries and ECharts options for visualizations...');
+        // Use the prepared 'visualizationsToGenerate' array for the loop
+        for (const visConfig of visualizationsToGenerate) {
+             let chartOption = null;
+             let error = null;
+            try {
+                logger.info(`Processing visualization request: ${visConfig.title || visConfig.type}`);
+                
+                // Prepare visualization object for query generation
+                const visForQuery = {
+                     id: visConfig.id || new Date().getTime().toString(),
+                     type: visConfig.type,
+                     title: visConfig.title,
+                     description: visConfig.description,
+                     echarts_config: visConfig.optionsOverride || { title: { text: visConfig.title } } 
+                 };
+                 
+                 // Use dimensions from the prepared visConfig
+                 if (visConfig.dimensions) {
+                     visForQuery.data = { dimensions: visConfig.dimensions };
+                 }
+
+                // 1. Generate query configuration using Gemini
+                // --- >>>> Pass the schema to the query generation function
+                const queryConfigResult = await gemini.generateVisualizationDataQuery(visForQuery, dbHandler, collectionName, schemaForQuery);
+                logger.info('Query config generated:', JSON.stringify(queryConfigResult));
+                
+                if (!queryConfigResult || !queryConfigResult.pipeline || !Array.isArray(queryConfigResult.pipeline)) {
+                    throw new Error(`Invalid query configuration received from AI for ${visForQuery.title}.`);
+                }
+
+                // 2. Execute the MongoDB query
+                const queryResults = await dbHandler.executeQuery(collection, { aggregate: queryConfigResult.pipeline });
+                logger.info(`Query executed for ${visForQuery.title}. Results count: ${queryResults.length}`);
+                
+                // 3. Construct the final ECharts option object
+                chartOption = {
+                    ...(queryConfigResult.visualization?.option || {}),
+                    ...(visConfig.optionsOverride || {}),
+                    title: { text: visConfig.title || visForQuery.title, ...(visConfig.optionsOverride?.title || queryConfigResult.visualization?.option?.title || {}) },
+                    tooltip: { ...(queryConfigResult.visualization?.option?.tooltip || { trigger: 'axis' }), ...(visConfig.optionsOverride?.tooltip || {}) },
+                    legend: { ...(queryConfigResult.visualization?.option?.legend || {}), ...(visConfig.optionsOverride?.legend || {}) },
+                    grid: { ...(queryConfigResult.visualization?.option?.grid || { containLabel: true }), ...(visConfig.optionsOverride?.grid || {}) }, 
+                    dataset: {
+                        source: queryResults, 
+                        dimensions: queryConfigResult.visualization?.data?.dimensions 
+                    },
+                    series: queryConfigResult.visualization?.option?.series || [] 
+                };
+                
+                 if (chartOption.series.length === 0 && queryResults.length > 0) {
+                     logger.warn(`AI did not provide series configuration for ${visConfig.title}. Applying basic series.`);
+                     const firstDimension = queryConfigResult.visualization?.data?.dimensions[0];
+                     const otherDimensions = queryConfigResult.visualization?.data?.dimensions.slice(1);
+                     chartOption.series = otherDimensions.map(dim => ({ type: visConfig.type || 'bar' })); 
+                 }
+                 
+            } catch (e) {
+                logger.error(`Error processing visualization ${visConfig.title || visConfig.id}:`, e);
+                error = { message: e.message, stack: e.stack };
+            }
+            generatedCharts.push({ 
+                 id: visConfig.id, 
+                 title: visConfig.title,
+                 type: visConfig.type,
+                 options: chartOption, 
+                 error: error
             });
         }
         
-        let schema;
-        let data;
-        let metadata;
-        let collection;
-        
-        if (importData) {
-            // Check if file exists
-            if (!existsSync(normalizedPath)) {
-                logger.error(`File not found at path: ${normalizedPath}`);
-                return res.status(400).json({ 
-                    error: 'File not found',
-                    path: normalizedPath
-                });
-            }
-            
-            // Load file and analyze
-            logger.info('Loading and analyzing data file');
-            const fileData = await FileLoader.loadFile(normalizedPath);
-            data = fileData.data;
-            metadata = fileData.metadata;
-            
-            // Generate schema
-            logger.info('Generating MongoDB schema');
-            schema = await gemini.analyzeDataAndGenerateSchema(metadata);
-            
-            // Drop existing collection if requested
-            if (dropCollection && schema.collection_name) {
-                try {
-                    logger.info(`Dropping collection ${schema.collection_name} as requested`);
-                    await dbHandler.db.collection(schema.collection_name).drop();
-                } catch (error) {
-                    // Ignore if collection doesn't exist
-                    if (error.code !== 26) {
-                        logger.warn(`Error dropping collection: ${error.message}`);
-                    }
-                }
-            }
-            
-            // Create collection and import data
-            logger.info('Creating MongoDB collection and importing data');
-            collection = await dbHandler.createCollectionWithSchema(schema);
-            await dbHandler.insertData(collection, data, schema);
-        } else {
-            // Using existing collection
-            collection = dbHandler.db.collection(collectionName);
-            
-            // Get collection info
-            const info = await dbHandler.getCollectionInfo(collectionName);
-            if (info.count === 0) {
-                return res.status(400).json({
-                    error: 'Empty collection',
-                    message: 'The specified collection does not contain any data'
-                });
-            }
-            
-            // Get a sample of the data
-            const sampleData = await collection.find({}).limit(100).toArray();
-            
-            // Create minimal metadata and schema
-            metadata = {
-                totalRows: info.count,
-                columns: Object.keys(sampleData[0] || {}),
-                sampleData: sampleData,
-                sampleSize: sampleData.length
-            };
-            
-            schema = {
-                collection_name: collectionName
-            };
-        }
-        
-        // Generate visualization recommendations if none were provided
-        let visualizations;
-        if (!selectedVisualizations || selectedVisualizations.length === 0) {
-            logger.info('Generating new visualization recommendations');
-            visualizations = await gemini.generateVisualizationRecommendations(metadata, schema);
-        } else {
-            logger.info('Using provided visualization selections');
-            visualizations = {
-                dataset_info: {
-                    name: schema.collection_name,
-                    total_rows: metadata.totalRows,
-                    columns: metadata.columns
-                },
-                visualizations: selectedVisualizations,
-                analysis_summary: {
-                    key_insights: [],
-                    recommended_order: selectedVisualizations.map(v => v.id)
-                }
-            };
-        }
-        
-        // Apply custom configurations if provided
-        if (customConfigurations) {
-            logger.info('Applying custom visualization configurations');
-            for (const visId in customConfigurations) {
-                const vis = visualizations.visualizations.find(v => v.id === visId);
-                if (vis) {
-                    // Merge the custom configuration with the existing one
-                    vis.title = customConfigurations[visId].title || vis.title;
-                    vis.description = customConfigurations[visId].description || vis.description;
-                    vis.type = customConfigurations[visId].type || vis.type;
-                    
-                    if (customConfigurations[visId].dimensions) {
-                        vis.data = vis.data || {};
-                        vis.data.dimensions = customConfigurations[visId].dimensions;
-                    }
-                    
-                    if (customConfigurations[visId].configuration) {
-                        vis.echarts_config = {
-                            ...(vis.echarts_config || {}),
-                            ...customConfigurations[visId].configuration
-                        };
-                    }
-                }
-            }
-        }
-        
-        // Generate and execute MongoDB queries for each visualization
-        logger.info('Generating data queries for visualizations');
-        for (const vis of visualizations.visualizations) {
-            try {
-                logger.info(`Processing visualization: ${vis.title}`);
-                const collectionName = schema.collection_name;
-                
-                // Generate query configuration
-                const queryConfig = await gemini.generateVisualizationDataQuery(vis, dbHandler, collectionName);
-                logger.info('Query config generated');
-                
-                if (!queryConfig || !queryConfig.pipeline || !Array.isArray(queryConfig.pipeline)) {
-                    logger.warn(`Invalid query configuration for ${vis.title}. Using default query.`);
-                    queryConfig.pipeline = [{ $limit: 50 }];
-                }
-                
-                // Execute query
-                const queryResults = await dbHandler.executeQuery(collection, { aggregate: queryConfig.pipeline });
-                logger.info(`Query executed. Results count: ${queryResults.length}`);
-                
-                // Add fallback sample data if no results
-                if (queryResults.length === 0) {
-                    logger.warn(`No data returned for ${vis.title}. Using sample data.`);
-                    const sampleData = generatePreviewForVisualization(vis.type).data;
-                    vis.data = {
-                        source: sampleData,
-                        dimensions: queryConfig.visualization.data.dimensions
-                    };
-                } else {
-                    vis.data = {
-                        source: queryResults,
-                        dimensions: queryConfig.visualization.data.dimensions
-                    };
-                }
-                
-                // Update ECharts configuration
-                vis.option = {
-                    ...vis.echarts_config,
-                    dataset: {
-                        source: queryResults,
-                        dimensions: queryConfig.visualization.data.dimensions
-                    }
-                };
-                
-                if (!vis.option.series && queryConfig.visualization.option && queryConfig.visualization.option.series) {
-                    vis.option.series = queryConfig.visualization.option.series;
-                }
-            } catch (error) {
-                logger.error(`Error processing visualization ${vis.title}:`, error);
-                // Continue with next visualization, but mark this one as failed
-                vis.error = {
-                    message: error.message,
-                    hasError: true
-                };
-            }
-        }
-        
         const output = {
-            dataset_info: visualizations.dataset_info,
-            visualizations: visualizations.visualizations.map(vis => {
-                return {
-                    id: vis.id,
-                    title: vis.title,
-                    description: vis.description,
-                    type: vis.type,
-                    data: vis.data || { source: [], dimensions: [] },
-                    option: vis.option || vis.echarts_config || {},
-                    error: vis.error || null
-                };
-            }),
-            analysis_summary: visualizations.analysis_summary
+            success: true,
+            collection: collectionName,
+            generatedVisualizations: generatedCharts
         };
         
         res.json(output);
     } catch (error) {
-        logger.error('Error in /api/analyze/visualizations:', error);
+        logger.error('Error in /api/visualizations/generate:', error);
         res.status(500).json({ 
+            success: false,
             error: error.message,
             stack: error.stack
         });
@@ -967,20 +1258,60 @@ app.post('/api/analyze', async (req, res) => {
 app.get('/api/collections', async (req, res) => {
     try {
         const collections = await dbHandler.db.listCollections().toArray();
-        res.json(collections.map(col => col.name));
+        // Fetch additional info for each collection
+        const collectionsInfo = await Promise.all(collections.map(async (col) => {
+            try {
+                 const info = await dbHandler.getCollectionInfo(col.name);
+                 return {
+                     name: col.name,
+                     count: info.count || 0,
+                     schema: info.schema || {}
+                     // Add other relevant info if needed, e.g., size, indexes
+                 };
+            } catch (infoError) {
+                 logger.error(`Error getting info for collection ${col.name}:`, infoError);
+                 return { name: col.name, count: 0, schema: {}, error: 'Failed to retrieve details' };
+            }
+        }));
+        
+        res.json({
+            success: true, 
+            collections: collectionsInfo
+        });
     } catch (error) {
         logger.error('Error in /api/collections:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
 app.get('/api/collections/:name', async (req, res) => {
     try {
-        const info = await dbHandler.getCollectionInfo(req.params.name);
-        res.json(info);
+        const collectionName = req.params.name;
+        const collectionsList = await dbHandler.db.listCollections({ name: collectionName }).toArray();
+        if (collectionsList.length === 0) {
+            return res.status(404).json({ 
+                success: false,
+                error: `Collection '${collectionName}' not found` 
+            });
+        }
+        
+        const info = await dbHandler.getCollectionInfo(collectionName);
+        res.json({ 
+            success: true, 
+            collection: {
+                name: collectionName,
+                ...info
+            }
+        });
     } catch (error) {
         logger.error('Error in /api/collections/:name:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
@@ -993,9 +1324,12 @@ app.get('/api/collections/:name/data', async (req, res) => {
         logger.info(`Fetching data from collection ${name} with params:`, { limit, skip, sort, filter });
         
         // Check if collection exists
-        const collections = await dbHandler.db.listCollections({ name }).toArray();
-        if (collections.length === 0) {
-            return res.status(404).json({ error: `Collection '${name}' not found` });
+        const collectionsList = await dbHandler.db.listCollections({ name }).toArray();
+        if (collectionsList.length === 0) {
+            return res.status(404).json({ 
+                 success: false,
+                 error: `Collection '${name}' not found` 
+            });
         }
         
         const collection = dbHandler.db.collection(name);
@@ -1004,28 +1338,53 @@ app.get('/api/collections/:name/data', async (req, res) => {
         const queryOptions = {
             limit: parseInt(limit),
             skip: parseInt(skip),
-            sort: sort ? JSON.parse(sort) : { _id: 1 } // Default sort by _id ascending
+            sort: {} // Initialize sort object
         };
         
-        // Parse filter if provided
-        const queryFilter = filter ? JSON.parse(filter) : {};
+        // Parse sort parameter safely
+        if (sort) {
+            try {
+                 queryOptions.sort = JSON.parse(sort);
+            } catch (sortError) {
+                 logger.warn('Invalid sort parameter format. Using default sort.');
+                 queryOptions.sort = { _id: 1 };
+            }
+        } else {
+            queryOptions.sort = { _id: 1 }; // Default sort
+        }
+        
+        // Parse filter parameter safely
+        let queryFilter = {};
+        if (filter) {
+            try {
+                 queryFilter = JSON.parse(filter);
+            } catch (filterError) {
+                 logger.warn('Invalid filter parameter format. Ignoring filter.');
+                 queryFilter = {};
+            }
+        }
         
         // Execute query
         const data = await collection.find(queryFilter, queryOptions).toArray();
         const total = await collection.countDocuments(queryFilter);
         
         res.json({
+            success: true,
             data,
             metadata: {
+                collection: name,
                 total,
                 limit: queryOptions.limit,
                 skip: queryOptions.skip,
+                filter: queryFilter,
+                sort: queryOptions.sort,
                 hasMore: total > (queryOptions.skip + data.length)
             }
         });
     } catch (error) {
         logger.error(`Error fetching data from collection ${req.params.name}:`, error);
         res.status(500).json({ 
+            success: false,
             error: error.message,
             message: 'Failed to fetch collection data'
         });
@@ -1041,9 +1400,13 @@ app.delete('/api/collections/:name', async (req, res) => {
         logger.info(`Request to delete collection: ${name}`);
         
         // Check if collection exists
-        const collections = await dbHandler.db.listCollections({ name }).toArray();
-        if (collections.length === 0) {
-            return res.status(404).json({ error: `Collection '${name}' not found` });
+        const collectionsList = await dbHandler.db.listCollections({ name }).toArray();
+        if (collectionsList.length === 0) {
+            logger.warn(`Collection '${name}' not found during delete request (case-sensitive).`); // Added log
+            return res.status(404).json({ 
+                success: false,
+                error: `Collection '${name}' not found` 
+            });
         }
         
         // Get document count to warn about large collections
@@ -1053,6 +1416,7 @@ app.delete('/api/collections/:name', async (req, res) => {
         // If collection has more than 1000 documents and force is not true, return a warning
         if (count > 1000 && force !== 'true') {
             return res.status(400).json({
+                success: false, // Indicate failure due to needing force
                 error: 'Collection is large',
                 message: `Collection '${name}' contains ${count} documents. Use 'force=true' query parameter to confirm deletion.`,
                 documentCount: count
@@ -1060,140 +1424,49 @@ app.delete('/api/collections/:name', async (req, res) => {
         }
         
         // Delete the collection
-        await dbHandler.db.collection(name).drop();
-        logger.info(`Collection '${name}' deleted successfully`);
+        const dropResult = await dbHandler.db.collection(name).drop();
         
+        if (dropResult) {
+             logger.info(`Collection '${name}' deleted successfully`);
         res.json({
             success: true,
             message: `Collection '${name}' deleted successfully`,
             documentCount: count
         });
-    } catch (error) {
+        } else {
+             logger.error(`Failed to drop collection '${name}'`);
+             // This case might be rare if listCollections check passes, but good to handle
+        res.status(500).json({ 
+                success: false,
+                error: `Failed to drop collection '${name}'. It might have been deleted concurrently.`
+             });
+        }
+       
+        } catch (error) {
+        // Handle potential errors during drop operation (e.g., permissions)
         logger.error(`Error deleting collection ${req.params.name}:`, error);
         res.status(500).json({ 
+            success: false,
             error: error.message,
             message: 'Failed to delete collection'
         });
     }
 });
 
-// Data Source Management Endpoint
-app.get('/api/datasource', async (req, res) => {
-    try {
-        logger.info('Request to list all data sources');
-        
-        // Get all collections
-        const collections = await dbHandler.db.listCollections().toArray();
-        const collectionInfo = await Promise.all(collections.map(async col => {
-            const collection = dbHandler.db.collection(col.name);
-            const count = await collection.countDocuments();
-            const sample = await collection.find().limit(1).toArray();
-            const columns = sample.length > 0 ? Object.keys(sample[0]).filter(k => k !== '_id') : [];
-            
-            return {
-                id: col.name,
-                name: col.name,
-                type: 'mongodb_collection',
-                documentCount: count,
-                columns: columns,
-                lastModified: col.info ? col.info.lastModified : null
-            };
-        }));
-        
-        // Get all uploads
-        const fs = await import('fs/promises');
-        let uploads = [];
-        try {
-            const files = await fs.readdir(uploadsDir);
-            
-            uploads = await Promise.all(files.map(async (filename) => {
-                const filePath = path.join(uploadsDir, filename);
-                const stats = await fs.stat(filePath);
-                
-                // Get file extension
-                const ext = path.extname(filename).toLowerCase();
-                
-                // Determine file type
-                let fileType;
-                if (ext === '.csv') {
-                    fileType = 'CSV';
-                } else if (ext === '.xlsx' || ext === '.xls') {
-                    fileType = 'Excel';
-                } else {
-                    fileType = 'Unknown';
-                }
-                
-                return {
-                    id: filename,
-                    name: filename,
-                    path: filePath,
-                    type: 'file_upload',
-                    fileType: fileType,
-                    size: stats.size,
-                    sizeFormatted: formatFileSize(stats.size),
-                    uploadedAt: stats.mtime.toISOString()
-                };
-            }));
-        } catch (error) {
-            logger.error('Error listing uploads:', error);
-            uploads = []; // Continue even if uploads directory can't be read
-        }
-        
-        // Get Google Sheets if authenticated
-        let googleSheetSources = [];
-        try {
-            if (googleSheets.oauth2Client && googleSheets.oauth2Client.credentials) {
-                const spreadsheets = await googleSheets.listSpreadsheets();
-                googleSheetSources = spreadsheets.map(sheet => ({
-                    id: sheet.id,
-                    name: sheet.name,
-                    type: 'google_sheet',
-                    webViewLink: sheet.webViewLink,
-                    createdTime: sheet.createdTime,
-                    modifiedTime: sheet.modifiedTime
-                }));
-            }
-        } catch (error) {
-            logger.error('Error listing Google Sheets:', error);
-            googleSheetSources = []; // Continue even if Google Sheets can't be listed
-        }
-        
-        // Combine all data sources
-        const allSources = [
-            ...collectionInfo,
-            ...uploads,
-            ...googleSheetSources
-        ];
-        
-        // Sort by name
-        allSources.sort((a, b) => a.name.localeCompare(b.name));
-        
-        res.json({
-            sources: allSources,
-            counts: {
-                total: allSources.length,
-                collections: collectionInfo.length,
-                uploads: uploads.length,
-                googleSheets: googleSheetSources.length
-            }
-        });
-    } catch (error) {
-        logger.error('Error listing data sources:', error);
-        res.status(500).json({ 
-            error: error.message,
-            message: 'Failed to list data sources'
-        });
-    }
-});
-
 // Google Sheets API Routes
-app.get('/api/google/auth', (req, res) => {
+app.get('/api/datasources/google/auth', (req, res) => {
     try {
         const authUrl = googleSheets.getAuthUrl();
-        res.json({ authUrl });
+        res.json({ 
+            success: true,
+            authUrl 
+        });
     } catch (error) {
         logger.error('Error getting Google auth URL:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
@@ -1202,7 +1475,10 @@ app.get('/api/google/callback', async (req, res) => {
         const { code } = req.query;
         
         if (!code) {
-            return res.status(400).json({ error: 'Authorization code is required' });
+            return res.status(400).json({ 
+                success: false,
+                error: 'Authorization code is required' 
+            });
         }
         
         const tokens = await googleSheets.exchangeCode(code);
@@ -1216,7 +1492,10 @@ app.get('/api/google/callback', async (req, res) => {
         });
     } catch (error) {
         logger.error('Error in Google auth callback:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
@@ -1225,44 +1504,71 @@ app.post('/api/google/set-credentials', (req, res) => {
         const { tokens } = req.body;
         
         if (!tokens) {
-            return res.status(400).json({ error: 'Tokens are required' });
+            return res.status(400).json({ 
+                success: false,
+                error: 'Tokens are required' 
+            });
         }
         
         googleSheets.setCredentials(tokens);
         res.json({ success: true });
     } catch (error) {
         logger.error('Error setting Google credentials:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
-app.get('/api/google/spreadsheets', async (req, res) => {
+app.get('/api/datasources/google/sheets', async (req, res) => {
     try {
         const spreadsheets = await googleSheets.listSpreadsheets();
-        res.json(spreadsheets);
+        res.json({
+            success: true,
+            sheets: spreadsheets.map(sheet => ({
+                id: sheet.id,
+                name: sheet.name,
+                createdTime: sheet.createdTime,
+                modifiedTime: sheet.modifiedTime,
+                webViewLink: sheet.webViewLink
+            }))
+        });
     } catch (error) {
         logger.error('Error listing Google spreadsheets:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
-app.get('/api/google/spreadsheets/:id/sheets', async (req, res) => {
+app.get('/api/datasources/google/sheets/:id/tabs', async (req, res) => {
     try {
         const { id } = req.params;
         const sheets = await googleSheets.listSheets(id);
-        res.json(sheets);
+        res.json({
+            success: true,
+            spreadsheetId: id,
+            tabs: sheets
+        });
     } catch (error) {
-        logger.error(`Error listing sheets for spreadsheet ${req.params.id}:`, error);
-        res.status(500).json({ error: error.message });
+        logger.error(`Error listing tabs for spreadsheet ${req.params.id}:`, error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
-app.post('/api/google/analyze', async (req, res) => {
+// Analyze a Google Sheet
+app.post('/api/datasources/google/sheets/analyze', async (req, res) => {
     try {
         const { spreadsheetId, sheetName, sampleSize = 100 } = req.body;
         
         if (!spreadsheetId || !sheetName) {
             return res.status(400).json({ 
+                success: false,
                 error: 'Missing parameters', 
                 message: 'Both spreadsheetId and sheetName are required' 
             });
@@ -1273,6 +1579,7 @@ app.post('/api/google/analyze', async (req, res) => {
         
         if (!data || data.length === 0) {
             return res.status(400).json({ 
+                success: false,
                 error: 'Empty sheet', 
                 message: 'The specified sheet contains no data or is improperly formatted' 
             });
@@ -1299,31 +1606,36 @@ app.post('/api/google/analyze', async (req, res) => {
         }
         
         const schemaInfo = {
+            success: true,
             suggestedCollectionName: schema.collection_name,
             totalRows: metadata.totalRows,
             sampleSize: metadata.sampleSize,
             columns: columnInfo,
             sampleData: metadata.sampleData.slice(0, 5), // First 5 rows as sample
-            source: {
-                type: 'google_sheets',
-                spreadsheetId,
-                sheetName
+            fileInfo: {
+                path: spreadsheetId,
+                id: sheetName
             }
         };
         
         res.json(schemaInfo);
     } catch (error) {
         logger.error('Error analyzing Google sheet:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
-app.post('/api/google/import', async (req, res) => {
+// Import data from Google Sheets
+app.post('/api/import/google', async (req, res) => {
     try {
         const { spreadsheetId, sheetName, collectionName, dropCollection = false } = req.body;
         
         if (!spreadsheetId || !sheetName) {
             return res.status(400).json({ 
+                success: false,
                 error: 'Missing parameters', 
                 message: 'Both spreadsheetId and sheetName are required' 
             });
@@ -1334,6 +1646,7 @@ app.post('/api/google/import', async (req, res) => {
         
         if (!data || data.length === 0) {
             return res.status(400).json({ 
+                success: false,
                 error: 'Empty sheet', 
                 message: 'The specified sheet contains no data or is improperly formatted' 
             });
@@ -1372,21 +1685,34 @@ app.post('/api/google/import', async (req, res) => {
             message: `Successfully imported ${insertedCount} documents`,
             collection: schema.collection_name,
             totalRows: data.length,
-            insertedCount
+            insertedCount,
+            schema: {
+                name: schema.collection_name,
+                fields: Object.keys(schema.schema || {}),
+                source: {
+                    type: 'google_sheets',
+                    spreadsheetId,
+                    sheetName
+                }
+            }
         });
     } catch (error) {
         logger.error('Error importing Google sheet:', error);
-        res.status(500).json({ error: error.message });
+        res.status(500).json({ 
+            success: false,
+            error: error.message 
+        });
     }
 });
 
 // Get data directly from a Google Sheet without importing
-app.get('/api/google/data', async (req, res) => {
+app.get('/api/datasources/google/sheets/data', async (req, res) => {
     try {
         const { spreadsheetId, sheetName, limit = 100 } = req.query;
         
         if (!spreadsheetId || !sheetName) {
             return res.status(400).json({ 
+                success: false,
                 error: 'Missing parameters', 
                 message: 'Both spreadsheetId and sheetName are required' 
             });
@@ -1395,6 +1721,7 @@ app.get('/api/google/data', async (req, res) => {
         // Check if credentials are set
         if (!googleSheets.oauth2Client.credentials) {
             return res.status(401).json({
+                success: false,
                 error: 'Unauthorized',
                 message: 'You need to authenticate with Google first'
             });
@@ -1405,6 +1732,7 @@ app.get('/api/google/data', async (req, res) => {
         
         if (!data || data.length === 0) {
             return res.status(400).json({ 
+                success: false,
                 error: 'Empty sheet', 
                 message: 'The specified sheet contains no data or is improperly formatted' 
             });
@@ -1427,6 +1755,7 @@ app.get('/api/google/data', async (req, res) => {
         }));
         
         res.json({
+            success: true,
             data: limitedData,
             metadata: {
                 spreadsheetId,
@@ -1441,207 +1770,9 @@ app.get('/api/google/data', async (req, res) => {
     } catch (error) {
         logger.error('Error fetching Google sheet data:', error);
         res.status(500).json({ 
+            success: false,
             error: error.message,
             message: 'Failed to fetch data from Google Sheet'
-        });
-    }
-});
-
-// Get Recommended Visualizations for a Collection
-app.get('/api/visualizations/:collectionName', async (req, res) => {
-    const { collectionName } = req.params;
-    const { sampleSize = 100 } = req.query;
-
-    try {
-        logger.info(`Getting visualization recommendations for collection: ${collectionName}`);
-        
-        // Get collection metadata and schema from database
-        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
-        if (!collectionInfo) {
-            return res.status(404).json({
-                error: 'Collection not found',
-                message: `Collection '${collectionName}' does not exist`
-            });
-        }
-
-        // Get sample data from the collection
-        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
-        
-        // Prepare metadata in the format expected by the visualization recommendation system
-        const metadata = {
-            totalRows: collectionInfo.count,
-            columns: Object.keys(collectionInfo.schema),
-            sampleData: sampleData,
-            sampleSize: sampleData.length
-        };
-
-        // Generate visualization recommendations using the existing Gemini interface
-        logger.info('Generating visualization recommendations...');
-        const visualizations = await gemini.generateVisualizationRecommendations(metadata, {
-            collection_name: collectionName,
-            schema: collectionInfo.schema
-        });
-        
-        // Prepare the response
-        const recommendations = {
-            dataset_info: {
-                collection_name: collectionName,
-                total_rows: collectionInfo.count,
-                columns: Object.keys(collectionInfo.schema),
-                schema: collectionInfo.schema
-            },
-            visualizations: visualizations.visualizations.map(vis => ({
-                id: vis.id,
-                title: vis.title,
-                description: vis.description,
-                type: vis.type,
-                suggestedDimensions: vis.data ? vis.data.dimensions : [],
-                configuration: vis.echarts_config ? {
-                    title: vis.echarts_config.title,
-                    xAxis: vis.echarts_config.xAxis,
-                    yAxis: vis.echarts_config.yAxis
-                } : {},
-                preview: generatePreviewForVisualization(vis.type)
-            })),
-            analysis_summary: visualizations.analysis_summary
-        };
-
-        res.json(recommendations);
-    } catch (error) {
-        logger.error(`Error in /api/visualizations/${collectionName}:`, error);
-        res.status(500).json({
-            error: 'Failed to generate visualization recommendations',
-            message: error.message
-        });
-    }
-});
-
-// Customize Specific Visualization Endpoint
-app.post('/api/visualizations/:id/customize', async (req, res) => {
-    const { id } = req.params;
-    const { 
-        title,
-        description,
-        type,
-        dimensions,
-        configuration,
-        collectionName,
-        sampleSize = 100
-    } = req.body;
-
-    try {
-        logger.info(`Customizing visualization ${id} with configuration:`, req.body);
-
-        // Validate required parameters
-        if (!collectionName) {
-            return res.status(400).json({
-                error: 'Missing required parameter',
-                message: 'collectionName is required'
-            });
-        }
-
-        // Get collection metadata and schema
-        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
-        if (!collectionInfo) {
-            return res.status(404).json({
-                error: 'Collection not found',
-                message: `Collection '${collectionName}' does not exist`
-            });
-        }
-
-        // Get sample data
-        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
-
-        // Prepare metadata
-        const metadata = {
-            totalRows: collectionInfo.count,
-            columns: Object.keys(collectionInfo.schema),
-            sampleData: sampleData,
-            sampleSize: sampleData.length
-        };
-
-        // Create the customized visualization object
-        const customizedVisualization = {
-            id,
-            title: title || `Customized ${id}`,
-            description: description || `Customized visualization for ${collectionName}`,
-            type: type || 'bar_chart',
-            data: {
-                dimensions: dimensions || Object.keys(collectionInfo.schema),
-                source: sampleData
-            },
-            echarts_config: configuration || {
-                title: {
-                    text: title || `Customized ${id}`
-                },
-                tooltip: {},
-                legend: {
-                    data: dimensions || Object.keys(collectionInfo.schema)
-                },
-                xAxis: {},
-                yAxis: {},
-                series: []
-            }
-        };
-
-        // Generate query configuration for the customized visualization
-        const queryConfig = await gemini.generateVisualizationDataQuery(
-            customizedVisualization,
-            dbHandler,
-            collectionName
-        );
-
-        // Execute query
-        const collection = dbHandler.db.collection(collectionName);
-        const queryResults = await dbHandler.executeQuery(collection, { 
-            aggregate: queryConfig.pipeline 
-        });
-
-        // Update visualization with actual data
-        customizedVisualization.data = {
-            source: queryResults,
-            dimensions: queryConfig.visualization.data.dimensions
-        };
-
-        // Update ECharts configuration
-        customizedVisualization.option = {
-            ...customizedVisualization.echarts_config,
-            dataset: {
-                source: queryResults,
-                dimensions: queryConfig.visualization.data.dimensions
-            }
-        };
-
-        if (!customizedVisualization.option.series && 
-            queryConfig.visualization.option && 
-            queryConfig.visualization.option.series) {
-            customizedVisualization.option.series = queryConfig.visualization.option.series;
-        }
-
-        // Prepare response
-        const response = {
-            visualization: {
-                id: customizedVisualization.id,
-                title: customizedVisualization.title,
-                description: customizedVisualization.description,
-                type: customizedVisualization.type,
-                data: customizedVisualization.data,
-                option: customizedVisualization.option
-            },
-            dataset_info: {
-                collection_name: collectionName,
-                total_rows: collectionInfo.count,
-                columns: Object.keys(collectionInfo.schema),
-                schema: collectionInfo.schema
-            }
-        };
-
-        res.json(response);
-    } catch (error) {
-        logger.error(`Error customizing visualization ${id}:`, error);
-        res.status(500).json({
-            error: 'Failed to customize visualization',
-            message: error.message
         });
     }
 });
@@ -1986,6 +2117,214 @@ app.get('/api/anomalies/:collectionName', async (req, res) => {
         res.status(500).json({
             error: 'Failed to detect anomalies',
             message: error.message
+        });
+    }
+});
+
+// Get Visualization Recommendations for a specific Collection
+app.get('/api/collections/:name/visualizations', async (req, res) => {
+    const { name: collectionName } = req.params;
+    const { sampleSize = 100 } = req.query;
+
+    try {
+        logger.info(`Getting visualization recommendations for collection: ${collectionName}`);
+        
+        // Get collection metadata and schema from database
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({ success: false, error: `Collection '${collectionName}' not found` });
+        }
+        if (collectionInfo.count === 0) {
+            return res.status(400).json({ success: false, error: 'Collection is empty, cannot generate recommendations.' });
+        }
+
+        // Get sample data from the collection
+        const sampleData = await dbHandler.getSampleData(collectionName, sampleSize);
+        
+        // Prepare metadata in the format expected by the visualization recommendation system
+        const metadata = {
+            totalRows: collectionInfo.count,
+            columns: Object.keys(collectionInfo.schema || {}),
+            sampleData: sampleData,
+            sampleSize: sampleData.length,
+            schema: collectionInfo.schema // Pass schema context
+        };
+        
+        // Construct schema object for Gemini
+        const schema = { 
+            collection_name: collectionName,
+            schema: collectionInfo.schema
+        };
+
+        // Generate visualization recommendations using the existing Gemini interface
+        logger.info('Generating visualization recommendations via Gemini...');
+        const recommendationsResult = await gemini.generateVisualizationRecommendations(metadata, schema);
+        logger.info('Visualization recommendations generated successfully.');
+        
+        // --- Caching Logic --- 
+        const recommendationCacheId = crypto.randomBytes(16).toString('hex');
+        const detailedRecommendations = recommendationsResult.visualizations.map(vis => ({
+             id: vis.id, 
+             title: vis.title,
+             description: vis.description,
+             type: vis.type,
+             dimensions: vis.data ? vis.data.dimensions : [],
+             echartsConfigHints: vis.echarts_config ? {
+                 title: vis.echarts_config.title,
+                 tooltip: vis.echarts_config.tooltip || { trigger: 'axis' },
+                 legend: vis.echarts_config.legend,
+                 xAxis: vis.echarts_config.xAxis,
+                 yAxis: vis.echarts_config.yAxis
+             } : {}
+         }));
+         
+         recommendationCache.set(recommendationCacheId, { 
+             timestamp: Date.now(),
+             collectionName: collectionName, // Store associated collection
+             recommendations: detailedRecommendations 
+         });
+         logger.info(`Stored recommendations under cache ID: ${recommendationCacheId} for collection ${collectionName}`);
+         // ---------------------
+
+        // Prepare the response (similar structure to POST /recommend)
+        const responsePayload = {
+            recommendationCacheId: recommendationCacheId, // <-- Return the cache ID
+            source_info: { type: 'collection', name: collectionName },
+            dataset_info: recommendationsResult.dataset_info,
+            analysis_summary: recommendationsResult.analysis_summary,
+            recommended_visualizations: recommendationsResult.visualizations.map(vis => ({
+                id: vis.id,
+                title: vis.title,
+                description: vis.description,
+                type: vis.type,
+                suggestedDimensions: vis.data ? vis.data.dimensions : [],
+                echartsConfigHints: vis.echarts_config ? {
+                    title: vis.echarts_config.title,
+                    tooltip: vis.echarts_config.tooltip || { trigger: 'axis' },
+                    legend: vis.echarts_config.legend,
+                    xAxis: vis.echarts_config.xAxis,
+                    yAxis: vis.echarts_config.yAxis
+                } : {},
+                preview: generatePreviewForVisualization(vis.type)
+            }))
+        };
+
+        res.json({ success: true, recommendations: responsePayload }); // Embed under 'recommendations'
+    } catch (error) {
+        logger.error(`Error in /api/collections/${collectionName}/visualizations:`, error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to generate visualization recommendations',
+            message: error.message
+        });
+    }
+});
+
+// Regenerate a single Visualization with customizations
+app.post('/api/visualizations/regenerate', async (req, res) => {
+    // Input: collectionName, visualizationConfig: { id (optional), type, title, description, dimensions, optionsOverride }
+    const { collectionName, visualizationConfig } = req.body;
+
+    try {
+        // ... validation ...
+        
+         // Check if collection exists AND get schema
+        const collectionInfo = await dbHandler.getCollectionInfo(collectionName);
+        if (!collectionInfo) {
+            return res.status(404).json({ success: false, error: `Collection '${collectionName}' not found` });
+        }
+        if (collectionInfo.count === 0) {
+             return res.status(400).json({ success: false, error: 'Cannot generate visualization for an empty collection' });
+        }
+        // --- >>>> Get the schema from collectionInfo
+        const schemaForQuery = collectionInfo.schema;
+
+        const collection = dbHandler.db.collection(collectionName);
+        const generatedCharts = [];
+
+        logger.info('Generating data queries and ECharts options for visualizations...');
+        // Use the prepared 'visualizationsToGenerate' array for the loop
+        for (const visConfig of visualizationConfig) {
+             let chartOption = null;
+             let error = null;
+            try {
+                logger.info(`Processing visualization request: ${visConfig.title || visConfig.type}`);
+                
+                // Prepare visualization object for query generation
+                const visForQuery = {
+                     id: visConfig.id || new Date().getTime().toString(),
+                     type: visConfig.type,
+                     title: visConfig.title,
+                     description: visConfig.description,
+                     echarts_config: visConfig.optionsOverride || { title: { text: visConfig.title } } 
+                 };
+                 
+                 // Use dimensions from the prepared visConfig
+                 if (visConfig.dimensions) {
+                     visForQuery.data = { dimensions: visConfig.dimensions };
+                 }
+
+                // 1. Generate query configuration using Gemini
+                // --- >>>> Pass the schema to the query generation function
+                const queryConfigResult = await gemini.generateVisualizationDataQuery(visForQuery, dbHandler, collectionName, schemaForQuery);
+                logger.info('Query config generated:', JSON.stringify(queryConfigResult));
+                
+                if (!queryConfigResult || !queryConfigResult.pipeline || !Array.isArray(queryConfigResult.pipeline)) {
+                    throw new Error(`Invalid query configuration received from AI for ${visForQuery.title}.`);
+                }
+
+                // 2. Execute the MongoDB query
+                const queryResults = await dbHandler.executeQuery(collection, { aggregate: queryConfigResult.pipeline });
+                logger.info(`Query executed for ${visForQuery.title}. Results count: ${queryResults.length}`);
+                
+                // 3. Construct the final ECharts option object
+                chartOption = {
+                    ...(queryConfigResult.visualization?.option || {}),
+                    ...(visConfig.optionsOverride || {}),
+                    title: { text: visConfig.title || visForQuery.title, ...(visConfig.optionsOverride?.title || queryConfigResult.visualization?.option?.title || {}) },
+                    tooltip: { ...(queryConfigResult.visualization?.option?.tooltip || { trigger: 'axis' }), ...(visConfig.optionsOverride?.tooltip || {}) },
+                    legend: { ...(queryConfigResult.visualization?.option?.legend || {}), ...(visConfig.optionsOverride?.legend || {}) },
+                    grid: { ...(queryConfigResult.visualization?.option?.grid || { containLabel: true }), ...(visConfig.optionsOverride?.grid || {}) }, 
+                    dataset: {
+                        source: queryResults, 
+                        dimensions: queryConfigResult.visualization?.data?.dimensions 
+                    },
+                    series: queryConfigResult.visualization?.option?.series || [] 
+                };
+                
+                 if (chartOption.series.length === 0 && queryResults.length > 0) {
+                     logger.warn(`AI did not provide series configuration for ${visConfig.title}. Applying basic series.`);
+                     const firstDimension = queryConfigResult.visualization?.data?.dimensions[0];
+                     const otherDimensions = queryConfigResult.visualization?.data?.dimensions.slice(1);
+                     chartOption.series = otherDimensions.map(dim => ({ type: visConfig.type || 'bar' })); 
+                 }
+                 
+            } catch (e) {
+                logger.error(`Error processing visualization ${visConfig.title || visConfig.id}:`, e);
+                error = { message: e.message, stack: e.stack };
+            }
+            generatedCharts.push({ 
+                 id: visConfig.id, 
+                 title: visConfig.title,
+                 type: visConfig.type,
+                 options: chartOption, 
+                 error: error
+            });
+        }
+        
+        const output = {
+            success: true,
+            collection: collectionName,
+            generatedVisualizations: generatedCharts
+        };
+        
+        res.json(output);
+    } catch (error) {
+        logger.error('Error in /api/visualizations/regenerate:', error);
+        res.status(500).json({ 
+            success: false,
+            error: error.message,
+            stack: error.stack
         });
     }
 });
