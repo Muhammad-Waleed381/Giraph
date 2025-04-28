@@ -34,40 +34,34 @@ class GeminiInterface {
         try {
             logger.info('Processing response for JSON extraction');
             
-            // First, clean the text by removing markdown code blocks if present
-            let cleanText = responseText;
-            if (cleanText.includes('```json')) {
-                cleanText = cleanText.split('```json')[1].split('```')[0].trim();
-            } else if (cleanText.includes('```')) {
-                cleanText = cleanText.split('```')[1].split('```')[0].trim();
-            }
-            
-            // Find the first { and last }
+            // Minimal cleaning: Trim and find first { and last }
+            let cleanText = responseText.trim();
             const startIndex = cleanText.indexOf('{');
             const endIndex = cleanText.lastIndexOf('}');
             
-            if (startIndex === -1 || endIndex === -1) {
-                throw new Error('No valid JSON object found in response');
+            if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
+                logger.error("Could not find valid JSON object boundaries {'...'} for parsing.", { originalText: responseText });
+                throw new Error('No valid JSON object boundaries found in response');
             }
             
-            // Extract just the JSON part
             cleanText = cleanText.substring(startIndex, endIndex + 1);
             
             // Pre-process MongoDB-specific syntax that's not valid JSON
             cleanText = this._preprocessMongoDBSyntax(cleanText);
             
+            // *** Log the exact string before parsing ***
+            logger.info('Attempting to parse cleaned JSON:', cleanText);
+            
             // Parse the JSON
-            try {
-                return JSON.parse(cleanText);
-            } catch (parseError) {
-                logger.error('JSON Parse Error:', parseError);
-                logger.error('Attempted to parse:', cleanText);
-                throw new Error(`Failed to parse JSON: ${parseError.message}`);
-            }
+            return JSON.parse(cleanText);
+            
         } catch (error) {
-            logger.error('Error extracting JSON:', error);
-            logger.error('Original response:', responseText);
-            throw error;
+            // Log the text that caused the error if it was a JSON.parse error
+            if (error instanceof SyntaxError) {
+                 logger.error('SyntaxError during JSON.parse. Text attempted:', cleanText);
+            }
+            logger.error('Error during _extractJsonFromResponse processing:', error);
+            throw error; // Re-throw the error to be caught by the caller
         }
     }
     
@@ -134,10 +128,26 @@ class GeminiInterface {
             const result = await this.model.generateContent(prompt);
             const response = await result.response;
             const text = response.text();
-            logger.info('Raw query conversion response:', text);
-            return this._extractJsonFromResponse(text);
+            logger.info('Raw query conversion response from Gemini:', text);
+            
+            let parsedResult;
+            try {
+                // Attempt to parse the response
+                parsedResult = this._extractJsonFromResponse(text);
+            } catch (parsingError) {
+                logger.error('*** Error occurred during _extractJsonFromResponse ***', parsingError);
+                logger.error('Original text causing parsing error:', text);
+                // Re-throw a more specific error perhaps
+                throw new Error(`Failed to parse or extract JSON from Gemini response: ${parsingError.message}`);
+            }
+            
+            return parsedResult; // Return the successfully parsed result
         } catch (error) {
-            logger.error('Error in convertNaturalLanguageToQuery:', error);
+            // This outer catch handles errors from generateContent or re-thrown parsing errors
+            logger.error('Error in convertNaturalLanguageToQuery (outer catch):', error);
+            if (typeof text !== 'undefined' && !(error.message.startsWith('Failed to parse'))) {
+                 logger.error('Original text (if available):', text);
+            }
             throw error;
         }
     }
@@ -442,8 +452,11 @@ class GeminiInterface {
         4.  Generate a MongoDB aggregation pipeline to retrieve the necessary data for the lookup OR the analysis. For analysis queries, this pipeline should fetch the relevant entities and their analysis fields.
         5.  Use EXACT field names from the schema in the pipeline and analysis_fields.
         6.  For string fields (like 'public_private'), use case-insensitive matching in $match stages by using $regex and $options: 'i' (e.g., { "public_private": { "$regex": "^public$", "$options": "i" } }) if the value is user-supplied or ambiguous in case.
-        7.  Suggest a visualization only if it makes sense for the *retrieved data* (even if the final answer is text-based analysis).
-
+        7.  **IMPORTANT**: If a field in the provided schema is of type 'date' or 'datetime', use MongoDB date operators (e.g., $year, $month, $dayOfMonth, $dateToString) directly on the field. **DO NOT** use $dateFromString on fields already identified as date types.
+        8.  Provide a boolean flag "visualization_recommended_by_ai" indicating if the *nature* of the query (e.g., aggregation, comparison) makes visualization inherently useful, versus a simple lookup (e.g., "CEO of X").
+        9.  If visualization is recommended, provide a detailed ECharts "option" object within the "visualization" field, suitable for direct use. Include basic structure for title, tooltip, legend, grid, xAxis, yAxis, and dataset (with dimensions), plus placeholder series based on the chart type.
+        10. **CRITICAL JSON FORMATTING**: The entire response MUST be a single, valid JSON object. ALL keys, including MongoDB operators (like $match, $project, $group, $year, $month, etc.), MUST be enclosed in double quotes (e.g., "$match"). Do not include any text before or after the JSON object.
+        
         Return ONLY the following JSON structure:
         {
             "interpretation": "Brief explanation of how you interpreted the query's intent",
@@ -457,11 +470,24 @@ class GeminiInterface {
                 {"$limit": 50} // Limit data retrieval for analysis efficiency
             ],
             "explanation": "Explanation of the pipeline and the analysis needed (if any)",
-            "visualization": { // Optional: Suggest visualization for the retrieved data
-                "type": "bar/line/scatter/etc",
+            "visualization_recommended_by_ai": boolean, // True if the query type suggests visualization
+            "visualization": { // Detailed structure if visualization_recommended_by_ai is true, otherwise null or minimal
+                "type": "bar/line/scatter/etc", 
                 "title": "Suggested visualization title for retrieved data",
-                "data": {
-                    "dimensions": ["field1", "field2"]
+                "option": { // ECharts option structure
+                    "title": { "text": "Suggested title" },
+                    "tooltip": { "trigger": "axis" }, // Or "item"
+                    "legend": { "data": [ /* Optional: series names */ ] },
+                    "grid": { "left": "3%", "right": "4%", "bottom": "3%", "containLabel": true },
+                    "xAxis": { "type": "category" /* or 'value' */, "data": [ /* optional if using dataset */ ] },
+                    "yAxis": { "type": "value" },
+                    "dataset": {
+                         // Data will be injected here later by the service
+                        "dimensions": ["field1", "field2"] // Dimensions from query results
+                    },
+                    "series": [ 
+                        // Placeholder series based on type, e.g., { "type": "bar" }
+                    ]
                 }
             }
         }`;

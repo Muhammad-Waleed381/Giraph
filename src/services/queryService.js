@@ -1,12 +1,15 @@
 import { logger } from '../utils/logger.js';
 import { getDatabase } from '../config/database.js';
+// Import GeminiInterface statically
+import { GeminiInterface } from '../utils/geminiInterface.js'; 
 
 /**
  * Service for natural language querying
  */
 export class QueryService {
     constructor() {
-        this.geminiInterface = null; // Will be lazily initialized
+        // Initialize directly in constructor
+        this.geminiInterface = new GeminiInterface(); 
     }
 
     /**
@@ -39,8 +42,8 @@ export class QueryService {
                 return acc;
             }, {});
             
-            // Process natural language query
-            await this._initGeminiInterface();
+            // Process natural language query using the already initialized interface
+            // await this._initGeminiInterface(); // Remove this call
             logger.info(`Processing natural language query for collection ${collectionName}: "${query}"`);
             
             const queryResult = await this.geminiInterface.convertNaturalLanguageToQuery(
@@ -70,25 +73,42 @@ export class QueryService {
                 queryResult.interpretation
             );
 
-            // Improved visualization recommendation
-            let visualization = null;
+            // Improved visualization recommendation logic
+            let finalVisualization = null;
             let canVisualize = false;
-            // Check if visualization was suggested AND results are suitable (more than 1 row or grouped)
-            if (queryResult.visualization && queryResults.length > 0) {
-                // Heuristic: Visualize if multiple results OR if single result has multiple fields (likely grouped)
-                if (queryResults.length > 1 || (queryResults.length === 1 && Object.keys(queryResults[0]).length > 2)) {
-                    visualization = {
-                        ...queryResult.visualization,
-                        dataset: {
-                            source: queryResults,
-                            dimensions: queryResult.visualization.data?.dimensions || []
-                        }
-                    };
-                    canVisualize = true;
-                    logger.info('Visualization is recommended for this query result.');
-                } else {
-                    logger.info('Visualization is possible but likely not meaningful for this single-result query.');
+            
+            // Check if AI recommended visualization AND results exist
+            if (queryResult.visualization_recommended_by_ai && queryResults.length > 0) {
+                logger.info('AI recommended visualization for this query type and results exist.');
+                canVisualize = true;
+                
+                // Start with the structure provided by AI
+                finalVisualization = queryResult.visualization || {}; // Use Gemini's suggestion
+                finalVisualization.option = finalVisualization.option || {}; // Ensure option object exists
+                
+                // Ensure dataset structure exists within option
+                finalVisualization.option.dataset = finalVisualization.option.dataset || {};
+                
+                // Inject actual data and ensure dimensions are set
+                finalVisualization.option.dataset.source = queryResults;
+                if (!finalVisualization.option.dataset.dimensions) {
+                    finalVisualization.option.dataset.dimensions = queryResult.visualization?.option?.dataset?.dimensions || Object.keys(queryResults[0] || {}).filter(k => k !== '_id');
+                    logger.info(`Inferred dimensions: ${finalVisualization.option.dataset.dimensions.join(', ')}`);
                 }
+                
+                // Ensure title is set
+                finalVisualization.option.title = finalVisualization.option.title || {};
+                finalVisualization.option.title.text = finalVisualization.title || queryResult.interpretation;
+
+                // Add default series if missing
+                if (!finalVisualization.option.series || finalVisualization.option.series.length === 0) {
+                    const defaultType = finalVisualization.type || 'bar'; // Default to bar if type missing
+                    finalVisualization.option.series = [{ type: defaultType }];
+                    logger.warn(`AI did not provide series configuration. Added default series: ${defaultType}`);
+                }
+
+            } else if (queryResult.visualization) {
+                logger.info('AI did not recommend visualization for this query type, or no results returned.');
             }
 
             return {
@@ -97,7 +117,7 @@ export class QueryService {
                 interpretation: queryResult.interpretation || 'Query processed successfully',
                 naturalLanguageAnswer, // Use the AI-generated answer
                 results: queryResults,
-                visualization,
+                visualization: finalVisualization, // Use the detailed object (or null)
                 canVisualize, // Use the refined flag
                 explanation: queryResult.explanation || 'No additional explanation available',
                 mongoQuery: queryResult.pipeline
@@ -105,30 +125,6 @@ export class QueryService {
         } catch (error) {
             logger.error(`Error processing natural language query:`, error);
             throw error;
-        }
-    }
-    
-    /**
-     * Initialize GeminiInterface lazily
-     */
-    async _initGeminiInterface() {
-        if (!this.geminiInterface) {
-            try {
-                // Try to import as named export first
-                const { GeminiInterface } = await import('../utils/geminiInterface.js');
-                this.geminiInterface = new GeminiInterface();
-                logger.info('GeminiInterface initialized from named export');
-            } catch (error) {
-                // Fall back to default export if named export fails
-                logger.warn('Failed to import GeminiInterface as named export, trying default export', error);
-                const DefaultGeminiInterface = (await import('../utils/geminiInterface.js')).default;
-                if (!DefaultGeminiInterface) {
-                    logger.error('Failed to import GeminiInterface');
-                    throw new Error('Could not initialize GeminiInterface');
-                }
-                this.geminiInterface = new DefaultGeminiInterface();
-                logger.info('GeminiInterface initialized from default export');
-            }
         }
     }
 }

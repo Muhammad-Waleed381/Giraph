@@ -380,3 +380,200 @@
 2025-04-28T20:14:22.138Z [INFO]: Raw visualization response:
 2025-04-28T20:14:22.139Z [INFO]: Processing response for JSON extraction
 2025-04-28T20:15:44.440Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-04-28T20:23:38.390Z [INFO]: Connected to MongoDB successfully
+2025-04-28T20:23:38.392Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:23:38.393Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:23:38.394Z [INFO]: Application initialized successfully
+2025-04-28T20:23:38.394Z [INFO]: Server running on port 3000
+2025-04-28T20:24:58.277Z [INFO]: Processing natural language query: "top 7 companies by revenue" on collection: companies
+2025-04-28T20:24:58.354Z [INFO]: GeminiInterface initialized successfully
+2025-04-28T20:24:58.354Z [INFO]: GeminiInterface initialized from named export
+2025-04-28T20:24:58.354Z [INFO]: Processing natural language query for collection companies: "top 7 companies by revenue"
+2025-04-28T20:25:02.571Z [INFO]: Raw query conversion response:
+2025-04-28T20:25:02.571Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:25:02.572Z [INFO]: Raw query result: {"interpretation":"Find the top 7 companies with the highest revenue.","requires_analysis":false,"analysis_fields":[],"pipeline":[{"$sort":{"revenue":-1}},{"$limit":7},{"$project":{"_id":0,"company_name":1,"revenue":1}}],"explanation":"The pipeline sorts the companies in descending order based on revenue and then limits the result set to the top 7 companies. The $project stage selects only the company name and revenue for the output.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Top 7 Companies by Revenue","option":{"title":{"text":"Top 7 Companies by Revenue"},"tooltip":{"trigger":"axis"},"legend":{"data":[]},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category","data":[]},"yAxis":{"type":"value"},"dataset":{"dimensions":["company_name","revenue"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:25:02.572Z [INFO]: Executing generated query pipeline: [{"$sort":{"revenue":-1}},{"$limit":7},{"$project":{"_id":0,"company_name":1,"revenue":1}}]
+2025-04-28T20:25:02.593Z [INFO]: Query executed successfully, got 7 results
+2025-04-28T20:25:03.401Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:25:03.401Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:26:03.382Z [INFO]: Processing natural language query: "top 5 cities by profit" on collection: sales_data
+2025-04-28T20:26:03.407Z [INFO]: Processing natural language query for collection sales_data: "top 5 cities by profit"
+2025-04-28T20:26:09.519Z [INFO]: Raw query conversion response:
+2025-04-28T20:26:09.519Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:26:09.520Z [INFO]: Raw query result: {"interpretation":"Find the top 5 cities with the highest total profit based on the sales data.","requires_analysis":true,"analysis_fields":["City","Profit"],"pipeline":[{"$group":{"_id":"$City","totalProfit":{"$sum":{"$toDouble":"$Profit"}}}},{"$sort":{"totalProfit":-1}},{"$limit":5},{"$project":{"_id":0,"City":"$_id","totalProfit":1}}],"explanation":"The pipeline first groups the sales data by city and calculates the total profit for each city using $group and $sum.  The $toDouble operator is used to convert the string 'Profit' values to numbers for accurate summation. It then sorts the cities in descending order of total profit using $sort and limits the result to the top 5 cities using $limit. Finally, it restructures the output using $project to only include the city name and its total profit, removing the internal _id field.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Top 5 Cities by Profit","option":{"title":{"text":"Top 5 Cities by Profit"},"tooltip":{"trigger":"axis"},"legend":{},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category"},"yAxis":{"type":"value"},"dataset":{"dimensions":["City","totalProfit"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:26:09.520Z [INFO]: Executing generated query pipeline: [{"$group":{"_id":"$City","totalProfit":{"$sum":{"$toDouble":"$Profit"}}}},{"$sort":{"totalProfit":-1}},{"$limit":5},{"$project":{"_id":0,"City":"$_id","totalProfit":1}}]
+2025-04-28T20:26:09.551Z [INFO]: Query executed successfully, got 5 results
+2025-04-28T20:26:10.331Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:26:10.331Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:26:41.993Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:26:42.011Z [INFO]: Processing natural language query for collection sales_data: "which month had most orders"
+2025-04-28T20:26:46.581Z [INFO]: Raw query conversion response:
+2025-04-28T20:26:46.582Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:26:46.582Z [INFO]: Raw query result: {"interpretation":"Determine the month with the highest number of orders from the sales_data collection.","requires_analysis":true,"analysis_fields":["Order ID","Order Date"],"pipeline":[{"$addFields":{"month":{"$month":{"$dateFromString":{"dateString":"$Order Date","format":"%Y-%m-%d"}}}}},{"$group":{"_id":"$month","orderCount":{"$sum":1}}},{"$sort":{"orderCount":-1}},{"$limit":1}],"explanation":"The pipeline first extracts the month from the 'Order Date' field using $dateFromString and $month.  Then, it groups the data by month and counts the number of orders in each month using $group and $sum. Finally, it sorts the results in descending order based on order count and limits the output to the top 1 month using $sort and $limit.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Month with the Most Orders","option":{"title":{"text":"Month with the Most Orders"},"tooltip":{"trigger":"axis"},"legend":{"data":["Order Count"]},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category","data":[]},"yAxis":{"type":"value"},"dataset":{"dimensions":["_id","orderCount"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:26:46.582Z [INFO]: Executing generated query pipeline: [{"$addFields":{"month":{"$month":{"$dateFromString":{"dateString":"$Order Date","format":"%Y-%m-%d"}}}}},{"$group":{"_id":"$month","orderCount":{"$sum":1}}},{"$sort":{"orderCount":-1}},{"$limit":1}]
+2025-04-28T20:26:46.613Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:26:46.614Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:26:53.999Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:26:54.011Z [INFO]: Processing natural language query for collection sales_data: "which month had most orders"
+2025-04-28T20:26:58.669Z [INFO]: Raw query conversion response:
+2025-04-28T20:26:58.669Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:26:58.670Z [INFO]: Raw query result: {"interpretation":"Determine the month with the highest number of orders from the sales_data collection.","requires_analysis":true,"analysis_fields":["Order Date"],"pipeline":[{"$addFields":{"month":{"$month":{"$dateFromString":{"dateString":"$Order Date","format":"%Y-%m-%d"}}}}},{"$group":{"_id":"$month","orderCount":{"$sum":1}}},{"$sort":{"orderCount":-1}},{"$limit":1}],"explanation":"The pipeline first extracts the month from the 'Order Date' field using $dateFromString and $month.  Then, it groups the data by month and counts the number of orders in each month using $group and $sum. Finally, it sorts the results in descending order of order count and limits the result to the top 1 month using $sort and $limit.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Month with Most Orders","option":{"title":{"text":"Month with Most Orders"},"tooltip":{"trigger":"axis"},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category"},"yAxis":{"type":"value"},"dataset":{"dimensions":["_id","orderCount"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:26:58.670Z [INFO]: Executing generated query pipeline: [{"$addFields":{"month":{"$month":{"$dateFromString":{"dateString":"$Order Date","format":"%Y-%m-%d"}}}}},{"$group":{"_id":"$month","orderCount":{"$sum":1}}},{"$sort":{"orderCount":-1}},{"$limit":1}]
+2025-04-28T20:26:58.675Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:26:58.677Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:28:28.332Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-04-28T20:28:31.005Z [INFO]: Connected to MongoDB successfully
+2025-04-28T20:28:31.007Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:28:31.007Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:28:31.008Z [INFO]: Application initialized successfully
+2025-04-28T20:28:31.009Z [INFO]: Server running on port 3000
+2025-04-28T20:28:35.203Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:28:35.224Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:28:35.225Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:35.226Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:37.893Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:28:37.904Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:28:37.904Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:37.905Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:38.634Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:28:38.647Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:28:38.647Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:38.648Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:39.007Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:28:39.020Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:28:39.021Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:39.021Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:40.284Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:28:40.299Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:28:40.299Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:40.300Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:32.268Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:29:32.283Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:29:32.284Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:32.284Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:33.068Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:29:33.081Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:29:33.082Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:33.082Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:33.836Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:29:33.848Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:29:33.848Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:33.849Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:36.213Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-04-28T20:29:39.000Z [INFO]: Connected to MongoDB successfully
+2025-04-28T20:29:39.003Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:29:39.003Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:29:39.004Z [INFO]: Application initialized successfully
+2025-04-28T20:29:39.004Z [INFO]: Server running on port 3000
+2025-04-28T20:29:41.503Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:29:41.527Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:29:41.527Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:41.528Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:42.248Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:29:42.262Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:29:42.262Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:42.263Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:42.981Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:29:42.993Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:29:42.994Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:42.994Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:31:27.263Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:31:27.279Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:31:27.279Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:31:27.280Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:31:28.079Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:31:28.091Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:31:28.092Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:31:28.092Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:31:30.403Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-04-28T20:31:34.837Z [INFO]: Connected to MongoDB successfully
+2025-04-28T20:31:34.839Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:31:34.839Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:31:34.840Z [INFO]: Application initialized successfully
+2025-04-28T20:31:34.840Z [INFO]: Server running on port 3000
+2025-04-28T20:31:37.255Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:31:37.276Z [WARN]: Failed to import GeminiInterface as named export, trying default export Unexpected identifier '$year'
+2025-04-28T20:31:37.277Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:31:37.277Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:34:29.982Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-04-28T20:34:33.295Z [INFO]: Connected to MongoDB successfully
+2025-04-28T20:34:33.297Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:34:33.297Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:34:33.298Z [INFO]: Application initialized successfully
+2025-04-28T20:34:33.299Z [INFO]: Server running on port 3000
+2025-04-28T20:34:48.308Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:34:48.419Z [WARN]: Failed to import GeminiInterface as named export, trying default export missing ) after argument list
+2025-04-28T20:34:48.420Z [ERROR]: Error processing natural language query: missing ) after argument list
+2025-04-28T20:34:48.421Z [ERROR]: API Error: missing ) after argument list
+2025-04-28T20:34:49.728Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:34:49.739Z [WARN]: Failed to import GeminiInterface as named export, trying default export missing ) after argument list
+2025-04-28T20:34:49.739Z [ERROR]: Error processing natural language query: missing ) after argument list
+2025-04-28T20:34:49.740Z [ERROR]: API Error: missing ) after argument list
+2025-04-28T20:35:55.098Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-04-28T20:40:10.525Z [INFO]: Connected to MongoDB successfully
+2025-04-28T20:40:10.527Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:40:10.528Z [INFO]: Loaded Google OAuth tokens from storage
+2025-04-28T20:40:10.528Z [INFO]: GeminiInterface initialized successfully
+2025-04-28T20:40:10.529Z [INFO]: Application initialized successfully
+2025-04-28T20:40:10.529Z [INFO]: Server running on port 3000
+2025-04-28T20:44:09.529Z [INFO]: Processing natural language query: "which month had most orders" on collection: sales_data
+2025-04-28T20:44:09.640Z [INFO]: Processing natural language query for collection sales_data: "which month had most orders"
+2025-04-28T20:44:14.161Z [INFO]: Raw query conversion response from Gemini:
+2025-04-28T20:44:14.162Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:44:14.163Z [INFO]: Attempting to parse cleaned JSON:
+2025-04-28T20:44:14.163Z [INFO]: Raw query result: {"interpretation":"Determine the month with the highest number of orders in the sales_data collection.","requires_analysis":true,"analysis_fields":["Order ID","$month"],"pipeline":[{"$addFields":{"month":{"$month":{"$toDate":"$Order Date"}}}},{"$group":{"_id":"$month","orderCount":{"$sum":1}}},{"$sort":{"orderCount":-1}},{"$limit":1}],"explanation":"The pipeline first converts the 'Order Date' field into a date object and then extracts the month using the $month operator. It groups the data by month and counts the number of orders for each month using $sum. The results are sorted in descending order of order count and limited to the top 1 document, representing the month with the most orders.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Month with Most Orders","option":{"title":{"text":"Month with Most Orders"},"tooltip":{"trigger":"axis"},"legend":{"data":["Order Count"]},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category","data":[]},"yAxis":{"type":"value"},"dataset":{"dimensions":["_id","orderCount"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:44:14.163Z [INFO]: Executing generated query pipeline: [{"$addFields":{"month":{"$month":{"$toDate":"$Order Date"}}}},{"$group":{"_id":"$month","orderCount":{"$sum":1}}},{"$sort":{"orderCount":-1}},{"$limit":1}]
+2025-04-28T20:44:14.214Z [INFO]: Query executed successfully, got 1 results
+2025-04-28T20:44:14.860Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:44:14.861Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:44:35.682Z [INFO]: Processing natural language query: "which day had most orders" on collection: sales_data
+2025-04-28T20:44:35.694Z [INFO]: Processing natural language query for collection sales_data: "which day had most orders"
+2025-04-28T20:44:39.589Z [INFO]: Raw query conversion response from Gemini:
+2025-04-28T20:44:39.589Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:44:39.589Z [INFO]: Attempting to parse cleaned JSON:
+2025-04-28T20:44:39.589Z [INFO]: Raw query result: {"interpretation":"Find the day with the maximum number of orders.","requires_analysis":true,"analysis_fields":["Order Date"],"pipeline":[{"$group":{"_id":{"$dateToString":{"format":"%Y-%m-%d","date":"$Order Date"}},"count":{"$sum":1}}},{"$sort":{"count":-1}},{"$limit":1}],"explanation":"The pipeline groups the sales data by day using the $dateToString operator to format the 'Order Date' field.  It then counts the number of orders for each day using $sum. Finally, it sorts the results in descending order by the order count and limits the result to the top 1 document, which represents the day with the most orders.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Day with Most Orders","option":{"title":{"text":"Day with Most Orders"},"tooltip":{"trigger":"axis"},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category"},"yAxis":{"type":"value"},"dataset":{"dimensions":["_id","count"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:44:39.589Z [INFO]: Executing generated query pipeline: [{"$group":{"_id":{"$dateToString":{"format":"%Y-%m-%d","date":"$Order Date"}},"count":{"$sum":1}}},{"$sort":{"count":-1}},{"$limit":1}]
+2025-04-28T20:44:39.619Z [INFO]: Query executed successfully, got 1 results
+2025-04-28T20:44:40.234Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:44:40.234Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:45:14.889Z [INFO]: Processing natural language query: "which top 5 days had most orders" on collection: sales_data
+2025-04-28T20:45:14.905Z [INFO]: Processing natural language query for collection sales_data: "which top 5 days had most orders"
+2025-04-28T20:45:19.061Z [INFO]: Raw query conversion response from Gemini:
+2025-04-28T20:45:19.062Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:45:19.062Z [INFO]: Attempting to parse cleaned JSON:
+2025-04-28T20:45:19.062Z [INFO]: Raw query result: {"interpretation":"Find the 5 days with the most orders.","requires_analysis":true,"analysis_fields":["Order Date"],"pipeline":[{"$group":{"_id":{"$dateToString":{"format":"%Y-%m-%d","date":"$Order Date"}},"totalOrders":{"$sum":1}}},{"$sort":{"totalOrders":-1}},{"$limit":5}],"explanation":"The pipeline first groups the sales data by day using $dateToString to format the 'Order Date' field. Then it sums the number of orders for each day using $sum. Finally it sorts the results in descending order by the total number of orders and limits the result to the top 5 days.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Top 5 Days with Most Orders","option":{"title":{"text":"Top 5 Days with Most Orders"},"tooltip":{"trigger":"axis"},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category"},"yAxis":{"type":"value"},"dataset":{"dimensions":["_id","totalOrders"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:45:19.062Z [INFO]: Executing generated query pipeline: [{"$group":{"_id":{"$dateToString":{"format":"%Y-%m-%d","date":"$Order Date"}},"totalOrders":{"$sum":1}}},{"$sort":{"totalOrders":-1}},{"$limit":5}]
+2025-04-28T20:45:19.090Z [INFO]: Query executed successfully, got 5 results
+2025-04-28T20:45:20.185Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:45:20.186Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:45:30.574Z [INFO]: Processing natural language query: "which top 10 days had most orders" on collection: sales_data
+2025-04-28T20:45:30.584Z [INFO]: Processing natural language query for collection sales_data: "which top 10 days had most orders"
+2025-04-28T20:45:34.831Z [INFO]: Raw query conversion response from Gemini:
+2025-04-28T20:45:34.831Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:45:34.831Z [INFO]: Attempting to parse cleaned JSON:
+2025-04-28T20:45:34.832Z [INFO]: Raw query result: {"interpretation":"Find the 10 days with the highest number of orders.","requires_analysis":true,"analysis_fields":["Order Date"],"pipeline":[{"$group":{"_id":{"$dateToString":{"format":"%Y-%m-%d","date":"$Order Date"}},"totalOrders":{"$sum":1}}},{"$sort":{"totalOrders":-1}},{"$limit":10}],"explanation":"The pipeline first groups the sales data by date, counting the number of orders for each day. Then it sorts the results in descending order based on the total number of orders and limits the output to the top 10 days.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Top 10 Days with Most Orders","option":{"title":{"text":"Top 10 Days with Most Orders"},"tooltip":{"trigger":"axis"},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category"},"yAxis":{"type":"value"},"dataset":{"dimensions":["_id","totalOrders"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:45:34.832Z [INFO]: Executing generated query pipeline: [{"$group":{"_id":{"$dateToString":{"format":"%Y-%m-%d","date":"$Order Date"}},"totalOrders":{"$sum":1}}},{"$sort":{"totalOrders":-1}},{"$limit":10}]
+2025-04-28T20:45:34.859Z [INFO]: Query executed successfully, got 10 results
+2025-04-28T20:45:35.964Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:45:35.964Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:46:13.144Z [INFO]: Processing natural language query: "give me the sales by month" on collection: sales_data
+2025-04-28T20:46:13.186Z [INFO]: Processing natural language query for collection sales_data: "give me the sales by month"
+2025-04-28T20:46:18.046Z [INFO]: Raw query conversion response from Gemini:
+2025-04-28T20:46:18.047Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:46:18.047Z [INFO]: Attempting to parse cleaned JSON:
+2025-04-28T20:46:18.048Z [INFO]: Raw query result: {"interpretation":"The query asks for sales data aggregated by month.","requires_analysis":true,"analysis_fields":["Sales","Order Date"],"pipeline":[{"$addFields":{"month":{"$month":{"$toDate":"$Order Date"}}}},{"$group":{"_id":"$month","totalSales":{"$sum":{"$toDouble":"$Sales"}}}},{"$project":{"_id":0,"month":"$_id","totalSales":1}},{"$sort":{"month":1}}],"explanation":"The pipeline first converts the 'Order Date' string to a date object and extracts the month using $month.  Then, it groups the data by month and sums the sales for each month. Finally, it restructures the output to only include the month and total sales, sorting by month for clarity. The use of $toDouble is for handling potential cases where the 'Sales' field isn't properly formatted as a number","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Monthly Sales","option":{"title":{"text":"Monthly Sales"},"tooltip":{"trigger":"axis"},"legend":{"data":["Sales"]},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category","data":[]},"yAxis":{"type":"value"},"dataset":{"dimensions":["month","totalSales"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:46:18.048Z [INFO]: Executing generated query pipeline: [{"$addFields":{"month":{"$month":{"$toDate":"$Order Date"}}}},{"$group":{"_id":"$month","totalSales":{"$sum":{"$toDouble":"$Sales"}}}},{"$project":{"_id":0,"month":"$_id","totalSales":1}},{"$sort":{"month":1}}]
+2025-04-28T20:46:18.094Z [INFO]: Query executed successfully, got 12 results
+2025-04-28T20:46:18.772Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:46:18.772Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:46:58.723Z [INFO]: Processing natural language query: "top 5 best selling products" on collection: sales_data
+2025-04-28T20:46:58.743Z [INFO]: Processing natural language query for collection sales_data: "top 5 best selling products"
+2025-04-28T20:47:03.000Z [INFO]: Raw query conversion response from Gemini:
+2025-04-28T20:47:03.000Z [INFO]: Processing response for JSON extraction
+2025-04-28T20:47:03.000Z [INFO]: Attempting to parse cleaned JSON:
+2025-04-28T20:47:03.001Z [INFO]: Raw query result: {"interpretation":"Find the 5 products with the highest total sales.","requires_analysis":true,"analysis_fields":["Product Name","Sales"],"pipeline":[{"$group":{"_id":"$Product Name","totalSales":{"$sum":{"$toDouble":"$Sales"}}}},{"$sort":{"totalSales":-1}},{"$limit":5}],"explanation":"The pipeline first groups the sales data by \"Product Name\" and calculates the total sales for each product using $sum and converting the \"Sales\" field (which is a string) to a double using $toDouble.  Then it sorts the results in descending order based on total sales and finally limits the results to the top 5 products.","visualization_recommended_by_ai":true,"visualization":{"type":"bar","title":"Top 5 Best Selling Products","option":{"title":{"text":"Top 5 Best Selling Products"},"tooltip":{"trigger":"axis"},"legend":{},"grid":{"left":"3%","right":"4%","bottom":"3%","containLabel":true},"xAxis":{"type":"category"},"yAxis":{"type":"value"},"dataset":{"dimensions":["Product Name","totalSales"]},"series":[{"type":"bar"}]}}}
+2025-04-28T20:47:03.001Z [INFO]: Executing generated query pipeline: [{"$group":{"_id":"$Product Name","totalSales":{"$sum":{"$toDouble":"$Sales"}}}},{"$sort":{"totalSales":-1}},{"$limit":5}]
+2025-04-28T20:47:03.051Z [INFO]: Query executed successfully, got 5 results
+2025-04-28T20:47:03.993Z [INFO]: Generated Natural Language Summary:
+2025-04-28T20:47:03.993Z [INFO]: AI recommended visualization for this query type and results exist.
+2025-04-28T20:47:22.556Z [INFO]: SIGINT signal received. Closing MongoDB connection...
