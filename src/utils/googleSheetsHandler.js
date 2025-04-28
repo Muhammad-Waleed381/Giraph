@@ -1,6 +1,8 @@
 import { google } from 'googleapis';
 import { OAuth2Client } from 'google-auth-library';
 import { logger } from './logger.js';
+import fs from 'fs';
+import path from 'path';
 
 class GoogleSheetsHandler {
     constructor() {
@@ -13,6 +15,46 @@ class GoogleSheetsHandler {
         
         // Initialize sheets API
         this.sheets = google.sheets({ version: 'v4', auth: this.oauth2Client });
+
+        // Try to load tokens from storage
+        this._loadTokensFromStorage();
+    }
+    
+    /**
+     * Load tokens from storage and set them if available
+     * @private
+     */
+    _loadTokensFromStorage() {
+        try {
+            const tokenPath = path.join(process.cwd(), '.google-tokens.json');
+            if (fs.existsSync(tokenPath)) {
+                const tokens = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
+                // Only set if not expired
+                if (tokens.expiry_date && tokens.expiry_date > Date.now()) {
+                    this.oauth2Client.setCredentials(tokens);
+                    logger.info('Loaded Google OAuth tokens from storage');
+                } else {
+                    logger.info('Stored Google OAuth tokens are expired');
+                }
+            }
+        } catch (error) {
+            logger.error('Error loading Google OAuth tokens from storage:', error);
+        }
+    }
+    
+    /**
+     * Save tokens to storage for persistence between server restarts
+     * @private
+     * @param {Object} tokens - OAuth2 tokens object
+     */
+    _saveTokensToStorage(tokens) {
+        try {
+            const tokenPath = path.join(process.cwd(), '.google-tokens.json');
+            fs.writeFileSync(tokenPath, JSON.stringify(tokens), 'utf8');
+            logger.info('Saved Google OAuth tokens to storage');
+        } catch (error) {
+            logger.error('Error saving Google OAuth tokens to storage:', error);
+        }
     }
     
     /**
@@ -38,9 +80,25 @@ class GoogleSheetsHandler {
         try {
             const { tokens } = await this.oauth2Client.getToken(code);
             this.oauth2Client.setCredentials(tokens);
+            // Save tokens for persistence
+            this._saveTokensToStorage(tokens);
             return tokens;
         } catch (error) {
             logger.error('Error exchanging code for tokens:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Handle OAuth2 callback: exchange code for tokens and set credentials
+     */
+    async handleAuthCallback(code) {
+        try {
+            const tokens = await this.exchangeCode(code);
+            this.setCredentials(tokens);
+            return tokens;
+        } catch (error) {
+            logger.error('Error handling OAuth2 callback:', error);
             throw error;
         }
     }
@@ -122,7 +180,8 @@ class GoogleSheetsHandler {
                 return item;
             });
             
-            return { data, headers, rawData: rows };
+            // Return rows instead of rawData for consistency
+            return { data, headers, rows };
         } catch (error) {
             logger.error(`Error fetching data for spreadsheet ${spreadsheetId}, range ${range}:`, error);
             throw error;
@@ -207,4 +266,4 @@ class GoogleSheetsHandler {
     }
 }
 
-export { GoogleSheetsHandler }; 
+export { GoogleSheetsHandler };

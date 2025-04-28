@@ -170,6 +170,22 @@ class GeminiInterface {
         }
     }
 
+    async generateNaturalLanguageSummary(originalQuery, resultsSample, totalResultsCount, interpretation) {
+        try {
+            const prompt = this._createNLSummaryPrompt(originalQuery, resultsSample, totalResultsCount, interpretation);
+            const result = await this.model.generateContent(prompt);
+            const response = await result.response;
+            const text = response.text().trim();
+            logger.info('Generated Natural Language Summary:', text);
+            // Return the raw text summary, no JSON extraction needed here
+            return text;
+        } catch (error) {
+            logger.error('Error in generateNaturalLanguageSummary:', error);
+            // Fallback answer in case of error
+            return `Found ${totalResultsCount} result(s) for your query: ${interpretation || ''}`;
+        }
+    }
+
     _createSchemaGenerationPrompt(metadata) {
         // Ensure column names are strings for the prompt
         const columnNamesString = metadata.columns.map(String).join(', ');
@@ -289,40 +305,42 @@ class GeminiInterface {
         ` : '';
 
         return `
-        Generate a MongoDB aggregation pipeline query for the specified visualization.
-        
+               Generate a MongoDB aggregation pipeline query for the specified visualization.
+
         Collection Name: ${collectionName}
-        ${schemaContext} 
+        ${schemaContext}
         Visualization Details:
         Title: ${visualization.title}
         Type: ${visualization.type}
         Description: ${visualization.description}
         Requested Dimensions: ${visualization.data?.dimensions?.join(', ') || 'Not specified'}
-        
+
         IMPORTANT INSTRUCTIONS:
         1. Use the EXACT field names provided in the Collection Schema above (if provided) or common variations if schema is absent.
         2. Create a MongoDB aggregation pipeline ([{...}, {...}]) that calculates the data needed for the visualization.
         3. For aggregations (bar, pie, etc.), use $group correctly. Use $sum, $avg, or $count as appropriate for the dimensions.
         4. For scatter plots, ensure the final documents contain the requested dimension fields.
-        5. The FINAL stage of the pipeline ($project or $group output) MUST output documents where the field names EXACTLY MATCH the requested dimensions. For example, if dimensions are ["industry", "totalRevenue"], the final documents should look like { "industry": "some_value", "totalRevenue": number }.
-        6. Use ONLY standard JSON. Do NOT use ISODate(), ObjectId(), NumberLong(), etc.
-        7. Limit the results if appropriate (e.g., $limit: 50) unless the aggregation naturally limits results (like grouping by a few categories).
-        
+        5. ALL string comparisons within any $match stage, you MUST use case-insensitive matching.** Use the $regex operator with the i option. **DO NOT use simple key-value pairs for string matching.** For example, to match 'public' in a field named 'status', use { "$match": { "status": { "$regex": "^public$", "$options": "i" } } }, **NOT** { "$match": { "status": "public" } }. VERY IMPORTANT: DO NOT use $expr or $where or $match for string comparisons.
+        6. The FINAL stage of the pipeline ($project or $group output) MUST output documents where the field names EXACTLY MATCH the requested dimensions. For example, if dimensions are ["industry", "totalRevenue"], the final documents should look like { "industry": "some_value", "totalRevenue": number }.
+        7. Use ONLY standard JSON. Do NOT use ISODate(), ObjectId(), NumberLong(), etc.
+        8. Limit the results if appropriate (e.g., $limit: 50) unless the aggregation naturally limits results (like grouping by a few categories).
+
+
         Return ONLY the following JSON structure with no additional text:
         {
             "visualization": {
                 "id": "${visualization.id}",
                 "type": "${visualization.type}",
                 "data": {
-                    "dimensions": [/* array of field names matching final pipeline output */] 
+                    "dimensions": [/* array of field names matching final pipeline output */]
                 },
                 "option": {
                     "title": { "text": "${visualization.title}" },
-                    "tooltip": { }, 
+                    "tooltip": { },
                     "legend": { "data": [] },
                     "grid": { "left": "3%", "right": "4%", "bottom": "3%", "containLabel": true },
-                    "xAxis": { }, 
-                    "yAxis": { }, 
+                    "xAxis": { },
+                    "yAxis": { },
                     "series": [/* Series configurations based on type */]
                 }
             },
@@ -331,7 +349,7 @@ class GeminiInterface {
                 {"$match": {}},
                 {"$group": {}},
                 {"$sort": {}},
-                {"$limit": 50} 
+                {"$limit": 50}
             ]
         }`;
     }
@@ -410,32 +428,42 @@ class GeminiInterface {
 
     _createQueryConversionPrompt(naturalQuery, collectionName, schema) {
         return `
-        Convert this natural language query into a MongoDB query.
+        You are a MongoDB query and data analysis expert. Convert this natural language query into a MongoDB aggregation pipeline AND determine if the query requires further analysis beyond simple data retrieval.
         Your response MUST be valid JSON with no additional text.
-        
+
         Natural Language Query: "${naturalQuery}"
         Collection Name: ${collectionName}
         Schema: ${JSON.stringify(schema, null, 2)}
-        
+
+        IMPORTANT INSTRUCTIONS:
+        1.  Interpret the user's core intent.
+        2.  Determine if the query is a direct data lookup (e.g., "what is the CEO of X?") or requires analysis/inference (e.g., "which companies are best to invest in?", "compare growth of software vs hardware companies"). Set "requires_analysis" accordingly.
+        3.  If analysis is required, identify the key fields from the schema needed for this analysis (e.g., for investment: 'Annual Growth (%)', 'Market Value ($M)'). List these in "analysis_fields".
+        4.  Generate a MongoDB aggregation pipeline to retrieve the necessary data for the lookup OR the analysis. For analysis queries, this pipeline should fetch the relevant entities and their analysis fields.
+        5.  Use EXACT field names from the schema in the pipeline and analysis_fields.
+        6.  For string fields (like 'public_private'), use case-insensitive matching in $match stages by using $regex and $options: 'i' (e.g., { "public_private": { "$regex": "^public$", "$options": "i" } }) if the value is user-supplied or ambiguous in case.
+        7.  Suggest a visualization only if it makes sense for the *retrieved data* (even if the final answer is text-based analysis).
+
         Return ONLY the following JSON structure:
         {
-            "query": {
-                "type": "find/aggregate",
-                "pipeline": [
-                    // For aggregate queries
-                ],
-                "filter": {
-                    // For find queries
-                },
-                "projection": {
-                    // Fields to include/exclude
-                },
-                "sort": {
-                    // Sort criteria
-                },
-                "limit": number
-            },
-            "explanation": "Brief explanation of the query"
+            "interpretation": "Brief explanation of how you interpreted the query's intent",
+            "requires_analysis": boolean, // True if analysis/inference is needed, false for direct lookup
+            "analysis_fields": ["field1", "field2"], // List of fields needed for analysis (empty if requires_analysis is false)
+            "pipeline": [
+                // MongoDB aggregation pipeline stages to retrieve data for lookup or analysis
+                {"$match": { /* e.g., filter for hardware companies, use $regex for case-insensitive string match */ }},
+                {"$project": { /* include analysis_fields and identifying fields */ }},
+                {"$sort": { /* optional */ }},
+                {"$limit": 50} // Limit data retrieval for analysis efficiency
+            ],
+            "explanation": "Explanation of the pipeline and the analysis needed (if any)",
+            "visualization": { // Optional: Suggest visualization for the retrieved data
+                "type": "bar/line/scatter/etc",
+                "title": "Suggested visualization title for retrieved data",
+                "data": {
+                    "dimensions": ["field1", "field2"]
+                }
+            }
         }`;
     }
 
@@ -569,6 +597,42 @@ class GeminiInterface {
             ]
         }`;
     }
+
+    _createNLSummaryPrompt(originalQuery, resultsSample, totalResultsCount, interpretation) {
+        // Limit sample size for prompt efficiency
+        const sample = resultsSample.slice(0, 5);
+        const sampleString = JSON.stringify(sample, null, 2);
+
+        return `
+        You are an AI assistant summarizing database query results in a natural, conversational way.
+        The user asked the following question: "${originalQuery}"
+        We interpreted this as: "${interpretation || 'Fetching relevant data'}"
+        The query returned a total of ${totalResultsCount} results.
+        Here is a sample of the results (up to 5 entries):
+        \`\`\`json
+        ${sampleString}
+        \`\`\`
+
+        Instructions:
+        1.  Analyze the original query and the results sample.
+        2.  Generate a concise, natural language answer that directly addresses the user's query.
+        3.  If it's a single result (totalResultsCount = 1), focus on the key information requested (e.g., "The youngest business is X, founded in Y.").
+        4.  If there are multiple results, summarize the findings (e.g., "Found 15 companies. The top one is X...", "There are 5 regions, with the highest count in Y.").
+        5.  If there are no results (totalResultsCount = 0), state that clearly.
+        6.  Keep the response friendly and easy to understand for a non-technical user.
+        7.  Do NOT just repeat the JSON data. Synthesize the information.
+        8.  Do NOT include phrases like "Based on the data..." unless necessary for clarity.
+        9.  Respond ONLY with the natural language summary text, no extra formatting or explanations.
+
+        Example for "which business is the youngest?" with one result:
+        "The youngest business is [Business Name], founded in [Year]."
+
+        Example for "how many customers per region?" with multiple results:
+        "We found customers across [Number] regions. The region with the most customers is [Region Name] with [Count] customers."
+
+        Generate the natural language summary now:
+        `;
+    }
 }
 
-export { GeminiInterface }; 
+export { GeminiInterface };
