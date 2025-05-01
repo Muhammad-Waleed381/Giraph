@@ -36,9 +36,10 @@ export function Navbar() {
             Use Cases
           </Link>
           <Button variant="outline" className="text-teal-600 border-teal-600 hover:bg-teal-50">
-            Log In
+            <a href="/login"> Log In</a>
           </Button>
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white">Try for Free</Button>
+          <Button className="bg-orange-500 hover:bg-orange-600 text-white">
+            <a href="signup">Try for Free</a></Button>
         </nav>
 
         {/* Mobile Menu Button */}
