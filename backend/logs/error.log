@@ -1,0 +1,242 @@
+2025-04-28T18:58:12.719Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Orders: The caller does not have permission
+2025-04-28T18:58:12.721Z [ERROR]: Google Sheets API error: The caller does not have permission
+2025-04-28T18:58:14.302Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Orders: The caller does not have permission
+2025-04-28T18:58:14.303Z [ERROR]: Google Sheets API error: The caller does not have permission
+2025-04-28T18:58:15.101Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Orders: The caller does not have permission
+2025-04-28T18:58:15.102Z [ERROR]: Google Sheets API error: The caller does not have permission
+2025-04-28T18:58:16.861Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Orders: The caller does not have permission
+2025-04-28T18:58:16.863Z [ERROR]: Google Sheets API error: The caller does not have permission
+2025-04-28T18:58:35.883Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-04-28T18:58:35.884Z [ERROR]: API Error: Collection name is required in options
+2025-04-28T18:58:37.351Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-04-28T18:58:37.351Z [ERROR]: API Error: Collection name is required in options
+2025-04-28T18:58:37.869Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-04-28T18:58:37.870Z [ERROR]: API Error: Collection name is required in options
+2025-04-28T18:59:56.158Z [ERROR]: API Error: Expected ',' or '}' after property value in JSON at position 101 (line 4 column 5)
+2025-04-28T18:59:57.195Z [ERROR]: API Error: Expected ',' or '}' after property value in JSON at position 101 (line 4 column 5)
+2025-04-28T19:00:19.772Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Orders: The caller does not have permission
+2025-04-28T19:00:19.774Z [ERROR]: Google Sheets API error: The caller does not have permission
+2025-04-28T19:00:19.775Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: The caller does not have permission
+2025-04-28T19:04:13.075Z [ERROR]: API Error: Retrieved invalid data structure (headers/rows) from Google Sheet
+2025-04-28T19:08:48.746Z [ERROR]: Error fetching data for spreadsheet 1YkjUBVX7L9-H1DbVw9okHHQo-i2m-Gy8pj1fv9V-KTE, range sample: The caller does not have permission
+2025-04-28T19:08:48.748Z [ERROR]: Google Sheets API error: The caller does not have permission
+2025-04-28T19:08:48.749Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: The caller does not have permission
+2025-04-28T19:17:31.310Z [ERROR]: Error in importFromGoogleSheet: data is not defined
+2025-04-28T19:17:31.310Z [ERROR]: Import from Google failed: data is not defined
+2025-04-28T19:17:31.311Z [ERROR]: API Error: Import from Google failed: data is not defined
+2025-04-28T19:49:00.017Z [ERROR]: API Error: Query text is required
+2025-04-28T19:50:31.165Z [ERROR]: API Error: Collection name is required
+2025-04-28T19:51:53.750Z [ERROR]: Error in convertNaturalLanguageToQuery: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-28T19:51:53.752Z [ERROR]: Error processing natural language query: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-28T19:51:53.753Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-28T20:12:57.016Z [ERROR]: API Error: Missing file information. Either filePath or fileId is required
+2025-04-28T20:26:46.613Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:26:46.614Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:26:58.675Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:26:58.677Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-28T20:28:35.225Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:35.226Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:37.904Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:37.905Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:38.647Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:38.648Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:39.021Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:39.021Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:28:40.299Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:28:40.300Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:32.284Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:32.284Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:33.082Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:33.082Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:33.848Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:33.849Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:41.527Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:41.528Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:42.262Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:42.263Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:29:42.994Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:29:42.994Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:31:27.279Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:31:27.280Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:31:28.092Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:31:28.092Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:31:37.277Z [ERROR]: Error processing natural language query: Unexpected identifier '$year'
+2025-04-28T20:31:37.277Z [ERROR]: API Error: Unexpected identifier '$year'
+2025-04-28T20:34:48.420Z [ERROR]: Error processing natural language query: missing ) after argument list
+2025-04-28T20:34:48.421Z [ERROR]: API Error: missing ) after argument list
+2025-04-28T20:34:49.739Z [ERROR]: Error processing natural language query: missing ) after argument list
+2025-04-28T20:34:49.740Z [ERROR]: API Error: missing ) after argument list
+2025-04-29T17:34:50.296Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-04-29T17:34:50.298Z [ERROR]: API Error: Collection name is required in options
+2025-04-29T17:35:06.589Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Returns: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:35:06.590Z [ERROR]: Google Sheets API error: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:35:06.592Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:26.453Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Returns: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:26.454Z [ERROR]: Google Sheets API error: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:26.455Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:27.189Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Returns: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:27.189Z [ERROR]: Google Sheets API error: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:27.190Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:27.782Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Returns: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:27.782Z [ERROR]: Google Sheets API error: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:39:27.783Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:16.416Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Returns: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:16.417Z [ERROR]: Google Sheets API error: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:16.418Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:17.189Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Returns: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:17.189Z [ERROR]: Google Sheets API error: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:17.190Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:17.536Z [ERROR]: Error fetching data for spreadsheet 13TmctmevkXZHHxf15nP5VCqFT0y4pDgR6AB5g-Zukh8, range Returns: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:17.537Z [ERROR]: Google Sheets API error: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:42:17.537Z [ERROR]: API Error: Failed to retrieve data from Google Sheet: No access, refresh token, API key or refresh handler callback is set.
+2025-04-29T17:48:35.253Z [ERROR]: API Error: Collection name is required
+2025-04-29T17:53:26.544Z [ERROR]: Error in convertNaturalLanguageToQuery (outer catch): [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-29T17:53:26.545Z [ERROR]: Error processing natural language query: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-29T17:53:26.548Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-29T18:58:02.592Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T18:58:02.594Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:07:41.453Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:07:41.454Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:11:18.578Z [ERROR]: Error in convertNaturalLanguageToQuery (outer catch): [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-29T19:11:18.579Z [ERROR]: Error processing natural language query: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-29T19:11:18.580Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-29T19:11:25.659Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T19:11:25.660Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T19:12:51.214Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:12:51.215Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:12:52.179Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T19:12:52.180Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T19:13:19.744Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:13:19.745Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:02.491Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:02.492Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:09.437Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:09.438Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:19.366Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:19.367Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:52.959Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:17:52.960Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:18:12.485Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T19:18:12.486Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:47:09.740Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:47:09.741Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:47:18.104Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:47:18.106Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:47:24.755Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:47:24.756Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:48:37.817Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-29T20:48:37.819Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-29T20:48:57.601Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:48:57.602Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:51:04.472Z [ERROR]: Error in convertNaturalLanguageToQuery (outer catch): availableSchemas is not defined
+2025-04-29T20:51:04.472Z [ERROR]: Error processing natural language query: availableSchemas is not defined
+2025-04-29T20:51:04.473Z [ERROR]: API Error: availableSchemas is not defined
+2025-04-29T20:51:05.745Z [ERROR]: Error in convertNaturalLanguageToQuery (outer catch): availableSchemas is not defined
+2025-04-29T20:51:05.745Z [ERROR]: Error processing natural language query: availableSchemas is not defined
+2025-04-29T20:51:05.745Z [ERROR]: API Error: availableSchemas is not defined
+2025-04-29T20:51:06.464Z [ERROR]: Error in convertNaturalLanguageToQuery (outer catch): availableSchemas is not defined
+2025-04-29T20:51:06.465Z [ERROR]: Error processing natural language query: availableSchemas is not defined
+2025-04-29T20:51:06.465Z [ERROR]: API Error: availableSchemas is not defined
+2025-04-29T20:52:25.225Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:52:25.227Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:56:05.678Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:56:05.679Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:59:58.269Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T20:59:58.270Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T21:00:05.914Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-29T21:00:05.916Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-29T21:00:15.756Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T21:00:15.758Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T21:00:41.507Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T21:00:41.508Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2016-11-07T19:00:00.000Z'; 10: Trailing data 'T'
+2025-04-29T21:00:48.700Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T21:00:48.701Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: $dateFromString requires that 'dateString' be a string, found: date with value 2016-11-07T19:00:00.000Z
+2025-04-29T21:04:44.433Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:04:44.435Z [ERROR]: API Error: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:04:51.141Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:04:51.142Z [ERROR]: API Error: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:05:28.526Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:05:28.527Z [ERROR]: API Error: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:06:07.298Z [ERROR]: Error processing natural language query: Unrecognized expression '$field'
+2025-04-29T21:06:07.299Z [ERROR]: API Error: Unrecognized expression '$field'
+2025-04-29T21:10:22.222Z [ERROR]: Error processing natural language query: Invalid $project :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:10:22.223Z [ERROR]: API Error: Invalid $project :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:10:54.587Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:10:54.588Z [ERROR]: API Error: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:12:11.812Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:12:11.813Z [ERROR]: API Error: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:16:39.353Z [ERROR]: Error processing natural language query: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:39.355Z [ERROR]: API Error: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:47.575Z [ERROR]: Error processing natural language query: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:47.576Z [ERROR]: API Error: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:48.468Z [ERROR]: Error processing natural language query: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:48.468Z [ERROR]: API Error: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:48.884Z [ERROR]: Error processing natural language query: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:48.885Z [ERROR]: API Error: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:49.052Z [ERROR]: Error processing natural language query: None of the specified collections exist: [salesdata]
+2025-04-29T21:16:49.053Z [ERROR]: API Error: None of the specified collections exist: [salesdata]
+2025-04-29T21:20:05.167Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:20:05.169Z [ERROR]: API Error: Invalid $addFields :: caused by :: Unrecognized expression '$field'
+2025-04-29T21:22:01.116Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:22:01.118Z [ERROR]: API Error: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:23:00.055Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:23:00.055Z [ERROR]: API Error: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:23:15.824Z [ERROR]: Error processing natural language query: Failed to optimize pipeline :: caused by :: Unsupported conversion from object to date in $convert with no onError value
+2025-04-29T21:23:15.825Z [ERROR]: API Error: Failed to optimize pipeline :: caused by :: Unsupported conversion from object to date in $convert with no onError value
+2025-04-29T21:24:31.342Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-29T21:24:31.343Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-29T21:24:46.035Z [ERROR]: Error processing natural language query: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:24:46.036Z [ERROR]: API Error: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:24:52.411Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:24:52.411Z [ERROR]: API Error: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:30:55.106Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:30:55.108Z [ERROR]: API Error: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-29T21:40:57.582Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2025-04-01 0:00:00'; 10: Trailing data ' '
+2025-04-29T21:40:57.586Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2025-04-01 0:00:00'; 10: Trailing data ' '
+2025-04-29T21:41:06.618Z [ERROR]: Error processing natural language query: Invalid $project :: caused by :: Unrecognized expression '$pad'
+2025-04-29T21:41:06.620Z [ERROR]: API Error: Invalid $project :: caused by :: Unrecognized expression '$pad'
+2025-04-29T21:41:14.648Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2025-04-01 0:00:00'; 10: Trailing data ' '
+2025-04-29T21:41:14.649Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2025-04-01 0:00:00'; 10: Trailing data ' '
+2025-04-29T21:41:20.959Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2025-04-01 0:00:00'; 10: Trailing data ' '
+2025-04-29T21:41:20.960Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: Error parsing date string '2025-04-01 0:00:00'; 10: Trailing data ' '
+2025-04-30T06:32:39.917Z [ERROR]: Invalid query result format from Gemini: {"interpretation":"The query aims to find all product categories purchased by customers in Kentucky.  Since there's no customer or order information provided in the given schemas, it's impossible to answer this question.  Additional collections with customer and order data are needed.","primary_collection":null,"requires_analysis":false,"analysis_fields":[],"pipeline":[],"explanation":"The provided schemas lack the necessary collections (customers and orders) to fulfill the query.  A 'customers' collection with a 'state' field and an 'orders' collection linking to products and customers would be required to construct a pipeline using $lookup and $unwind.","visualization_recommended_by_ai":false,"visualization":{"type":null,"title":null,"option":{"title":{"text":null},"tooltip":{},"legend":{},"grid":{},"xAxis":{"type":"category","data":[]},"yAxis":{"type":"value","data":[]},"dataset":{"dimensions":[]},"series":[]}}}
+2025-04-30T06:32:39.919Z [ERROR]: Error processing natural language query: Failed to convert natural language query to a valid MongoDB query pipeline
+2025-04-30T06:32:39.926Z [ERROR]: API Error: Failed to convert natural language query to a valid MongoDB query pipeline
+2025-04-30T06:32:44.867Z [ERROR]: Invalid query result format from Gemini: {"interpretation":"The query aims to find all product categories purchased by customers residing in Kentucky.  Since there's no customer or order information in the provided schema, it's impossible to fulfill this request.  The query requires additional collections (e.g., customers, orders, products) with appropriate relationships to process the request.","primary_collection":null,"requires_analysis":false,"analysis_fields":[],"pipeline":[],"explanation":"The provided schema only contains company data; customer and product information is missing, thus preventing the execution of the requested query.","visualization_recommended_by_ai":false,"visualization":{"type":null,"title":null,"option":{"title":{"text":null},"tooltip":{},"legend":{},"grid":{},"xAxis":{"type":"category","data":[]},"yAxis":{"type":"value","data":[]},"dataset":{"dimensions":[]},"series":[]}}}
+2025-04-30T06:32:44.867Z [ERROR]: Error processing natural language query: Failed to convert natural language query to a valid MongoDB query pipeline
+2025-04-30T06:32:44.868Z [ERROR]: API Error: Failed to convert natural language query to a valid MongoDB query pipeline
+2025-04-30T06:33:18.240Z [ERROR]: Invalid query result format from Gemini: {"interpretation":"The query aims to find all product categories purchased by customers residing in Kentucky.  Since there's no customer or product information in the provided schema, it's impossible to answer this query without additional collections.","primary_collection":null,"requires_analysis":false,"analysis_fields":[],"pipeline":[],"explanation":"The provided schema does not contain information about customers or their purchases.  Additional collections are needed (e.g., 'customers' and 'orders' or 'products') to fulfill this query.  The pipeline would need to include $lookup stages to join these collections based on relevant customer and order IDs. The $group stage would then aggregate the categories purchased by Kentucky customers.","visualization_recommended_by_ai":false,"visualization":{"type":null,"title":null,"option":{"title":{"text":null},"tooltip":{},"legend":{},"grid":{},"xAxis":{"type":"category","data":[]},"yAxis":{"type":"value","data":[]},"dataset":{"dimensions":[]},"series":[]}}}
+2025-04-30T06:33:18.241Z [ERROR]: Error processing natural language query: Failed to convert natural language query to a valid MongoDB query pipeline
+2025-04-30T06:33:18.241Z [ERROR]: API Error: Failed to convert natural language query to a valid MongoDB query pipeline
+2025-04-30T06:41:38.291Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: month parameter 'date' must be coercible to date
+2025-04-30T06:41:38.292Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: month parameter 'date' must be coercible to date
+2025-04-30T06:44:47.059Z [ERROR]: Error processing natural language query: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-30T06:44:47.060Z [ERROR]: API Error: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-30T16:00:28.438Z [ERROR]: Error processing natural language query: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:00:28.439Z [ERROR]: API Error: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:00:57.378Z [ERROR]: Error processing natural language query: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:00:57.380Z [ERROR]: API Error: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:01:07.012Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:01:07.012Z [ERROR]: API Error: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:01:24.420Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:01:24.422Z [ERROR]: API Error: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:01:32.658Z [ERROR]: Error processing natural language query: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:01:32.659Z [ERROR]: API Error: Invalid $addFields :: caused by :: missing 'date' argument to $month, provided: $month: {}
+2025-04-30T16:45:24.068Z [ERROR]: Error executing aggregation pipeline for collection "sales_data": PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-30T16:45:24.069Z [ERROR]: Failed Pipeline: [{"$addFields":{"year":{"$year":"$Sales"},"month":{"$month":"$Sales"}}},{"$group":{"_id":{"year":"$year","month":"$month"},"totalSales":{"$sum":{"$toDouble":"$Sales"}}}},{"$sort":{"totalSales":-1}},{"$limit":5},{"$project":{"_id":0,"year":"$_id.year","month":"$_id.month","totalSales":1}}]
+2025-04-30T16:45:24.069Z [ERROR]: Error processing natural language query: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date. Check logs for pipeline details.
+2025-04-30T16:45:24.070Z [ERROR]: API Error: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date. Check logs for pipeline details.
+2025-04-30T16:48:45.439Z [ERROR]: Error in convertNaturalLanguageToQuery (outer catch): [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-30T16:48:45.440Z [ERROR]: Error processing natural language query: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-30T16:48:45.441Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-30T16:48:46.435Z [ERROR]: Error in convertNaturalLanguageToQuery (outer catch): [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-30T16:48:46.436Z [ERROR]: Error processing natural language query: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-30T16:48:46.437Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-04-30T17:22:13.526Z [ERROR]: Error executing aggregation pipeline for collection "sales_data": PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-30T17:22:13.526Z [ERROR]: Failed Pipeline: [{"$addFields":{"dayOfWeek":{"$dayOfWeek":{"$dateToString":{"format":"%Y-%m-%d","date":"$Order Date"}}}}},{"$group":{"_id":"$dayOfWeek","totalSales":{"$sum":{"$toDouble":"$Sales"}}}},{"$sort":{"totalSales":-1}},{"$limit":5},{"$project":{"_id":0,"dayOfWeek":"$_id","totalSales":1}}]
+2025-04-30T17:22:13.527Z [ERROR]: Error processing natural language query: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date. Check logs for pipeline details.
+2025-04-30T17:22:13.527Z [ERROR]: API Error: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date. Check logs for pipeline details.
+2025-04-30T17:22:23.478Z [ERROR]: Error executing aggregation pipeline for collection "sales_data": PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date
+2025-04-30T17:22:23.479Z [ERROR]: Failed Pipeline: [{"$addFields":{"DayOfWeek":{"$dayOfWeek":{"$dateToString":{"format":"%w","date":"$Order Date"}}}}},{"$group":{"_id":"$DayOfWeek","totalSales":{"$sum":{"$toDouble":"$Sales"}}}},{"$sort":{"totalSales":-1}},{"$limit":5},{"$project":{"_id":0,"DayOfWeek":{"$switch":{"branches":[{"case":{"$eq":["$_id","1"]},"then":"Monday"},{"case":{"$eq":["$_id","2"]},"then":"Tuesday"},{"case":{"$eq":["$_id","3"]},"then":"Wednesday"},{"case":{"$eq":["$_id","4"]},"then":"Thursday"},{"case":{"$eq":["$_id","5"]},"then":"Friday"},{"case":{"$eq":["$_id","6"]},"then":"Saturday"},{"case":{"$eq":["$_id","0"]},"then":"Sunday"}],"default":"Unknown"}},"totalSales":1}}]
+2025-04-30T17:22:23.480Z [ERROR]: Error processing natural language query: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date. Check logs for pipeline details.
+2025-04-30T17:22:23.481Z [ERROR]: API Error: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: can't convert from BSON type string to Date. Check logs for pipeline details.
