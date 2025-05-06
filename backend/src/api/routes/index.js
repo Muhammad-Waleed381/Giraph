@@ -8,6 +8,7 @@ import { setupGoogleRoutes } from './googleRoute.js';
 import { setupInsightRoutes } from './insightsRoute.js';
 import { setupQueryRoutes } from './queryRoute.js';
 import { setupAnalysisRoutes } from './analysisRoute.js';
+import authRoutes from './authRoutes.js'; // Import auth routes
 import { errorHandler } from '../middleware/errorHandler.js';
 import { GoogleSheetsHandler } from '../../utils/googleSheetsHandler.js';
 
@@ -21,6 +22,7 @@ export function setupRoutes(app, uploadsDir) {
     const googleSheetsHandler = new GoogleSheetsHandler();
 
     // Register all modular routes with appropriate prefixes
+    app.use('/api/auth', authRoutes); // Add auth routes
     app.use('/api/datasources', setupDataSourceRoutes(uploadsDir));
     app.use('/api/collections', setupCollectionRoutes());
     app.use('/api/visualizations', setupVisualizationRoutes(uploadsDir));

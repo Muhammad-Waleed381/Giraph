@@ -29,14 +29,17 @@ export const responseFormatter = {
      * @param {String} message - Error message
      * @param {Number} statusCode - HTTP status code
      * @param {Object} details - Additional error details
-     * @returns {Object} Formatted error response
+     * @returns {Object} Formatted error response (plain JSON object)
      */
     error: (message = 'An error occurred', statusCode = 500, details = {}) => {
-        // Create error object with appropriate properties
-        const error = new Error(message);
-        error.statusCode = statusCode;
-        error.details = details;
-        
-        return error;
+        // Return a plain JSON object for the response
+        return {
+            success: false,
+            error: {
+                message: message,
+                statusCode: statusCode,
+                details: details
+            }
+        };
     }
 };

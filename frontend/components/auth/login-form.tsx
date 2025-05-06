@@ -1,17 +1,18 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Link from "next/link"
+import { useAuth } from "@/context/AuthContext" // Import useAuth
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff } from "lucide-react"
 import { SocialAuth } from "@/components/auth/social-auth"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
 
 export function LoginForm() {
+  const { login } = useAuth() // Get login function from context
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [formData, setFormData] = useState({
@@ -33,10 +34,15 @@ export function LoginForm() {
     if (errors[name as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [name]: "" }))
     }
+    // Clear general error on any change
+    if (errors.general) {
+      setErrors((prev) => ({ ...prev, general: "" }))
+    }
   }
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({ ...prev, rememberMe: checked }))
+  const handleCheckboxChange = (checked: boolean | "indeterminate") => {
+    // Handle indeterminate state if necessary, otherwise treat as boolean
+    setFormData((prev) => ({ ...prev, rememberMe: !!checked }))
   }
 
   const togglePasswordVisibility = () => {
@@ -45,7 +51,7 @@ export function LoginForm() {
 
   const validateForm = () => {
     let valid = true
-    const newErrors = { ...errors }
+    const newErrors = { email: "", password: "", general: "" } // Reset errors
 
     if (!formData.email) {
       newErrors.email = "Email is required"
@@ -70,22 +76,15 @@ export function LoginForm() {
     if (!validateForm()) return
 
     setIsLoading(true)
-    setErrors({ email: "", password: "", general: "" })
+    setErrors((prev) => ({ ...prev, general: "" })) // Clear previous general errors
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-
-      // For demo purposes, show success and redirect would happen here
-      console.log("Login successful", formData)
-
-      // Redirect would happen here
-      // router.push("/dashboard")
-    } catch (error) {
-      setErrors({
-        ...errors,
-        general: "Invalid email or password. Please try again.",
-      })
+      // Use the login function from AuthContext
+      await login({ email: formData.email, password: formData.password })
+      // Success toast and redirection are handled within AuthContext
+    } catch (error: any) {
+      // Display specific error message from context/API
+      setErrors((prev) => ({ ...prev, general: error.message || "Login failed. Please check your credentials." }))
     } finally {
       setIsLoading(false)
     }
@@ -93,9 +92,11 @@ export function LoginForm() {
 
   return (
     <div className="space-y-6">
+      {/* Display general errors */}
       {errors.general && <div className="rounded-md bg-red-50 p-3 text-sm text-red-500">{errors.general}</div>}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Email Input */}
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
           <Input
@@ -112,6 +113,7 @@ export function LoginForm() {
           {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
         </div>
 
+        {/* Password Input */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
@@ -143,6 +145,7 @@ export function LoginForm() {
           {errors.password && <p className="text-xs text-red-500">{errors.password}</p>}
         </div>
 
+        {/* Remember Me Checkbox */}
         <div className="flex items-center space-x-2">
           <Checkbox
             id="remember"
@@ -158,11 +161,13 @@ export function LoginForm() {
           </label>
         </div>
 
+        {/* Submit Button */}
         <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Log in"}
         </Button>
       </form>
 
+      {/* Social Auth */}
       <SocialAuth isLoading={isLoading} />
     </div>
   )

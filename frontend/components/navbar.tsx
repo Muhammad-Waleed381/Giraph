@@ -35,10 +35,14 @@ export function Navbar() {
           <Link href="#use-cases" className="text-sm font-medium text-gray-600 hover:text-teal-600 transition-colors">
             Use Cases
           </Link>
-          <Button variant="outline" className="text-teal-600 border-teal-600 hover:bg-teal-50">
-            Log In
-          </Button>
-          <Button className="bg-orange-500 hover:bg-orange-600 text-white">Try for Free</Button>
+          <Link href="/login" passHref>
+            <Button variant="outline" className="text-teal-600 border-teal-600 hover:bg-teal-50">
+              Log In
+            </Button>
+          </Link>
+          <Link href="/signup" passHref>
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white">Try for Free</Button>
+          </Link>
         </nav>
 
         {/* Mobile Menu Button */}
@@ -73,10 +77,14 @@ export function Navbar() {
               Use Cases
             </Link>
             <div className="flex flex-col gap-2 pt-2">
-              <Button variant="outline" className="w-full text-teal-600 border-teal-600 hover:bg-teal-50">
-                Log In
-              </Button>
-              <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white">Try for Free</Button>
+              <Link href="/login" passHref>
+                <Button variant="outline" className="w-full text-teal-600 border-teal-600 hover:bg-teal-50" onClick={() => setIsMenuOpen(false)}>
+                  Log In
+                </Button>
+              </Link>
+              <Link href="/signup" passHref>
+                <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white" onClick={() => setIsMenuOpen(false)}>Try for Free</Button>
+              </Link>
             </div>
           </div>
         </div>

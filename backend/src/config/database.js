@@ -15,12 +15,13 @@ let db = null;
 export async function connectToDatabase() {
     try {
         await client.connect();
-        db = client.db('data_warehouse');
+        db = client.db('data_warehouse'); // Ensure database name is specified
         logger.info('Connected to MongoDB successfully');
         return db;
     } catch (error) {
         logger.error('Failed to connect to MongoDB:', error);
-        throw error;
+        // Exit process on initial connection failure
+        process.exit(1);
     }
 }
 

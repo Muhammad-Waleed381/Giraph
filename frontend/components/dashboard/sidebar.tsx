@@ -1,10 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useAuth } from "@/context/AuthContext" // Import useAuth
 import {
   Sidebar,
   SidebarContent,
@@ -57,6 +57,7 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
 function MainSidebar() {
   const pathname = usePathname()
   const { state, toggleSidebar } = useSidebar()
+  const { user, logout, isLoading } = useAuth() // Get user and logout from context
 
   const navItems = [
     {
@@ -90,6 +91,21 @@ function MainSidebar() {
       href: "/dashboard/settings",
     },
   ]
+
+  const handleLogout = async () => {
+    await logout();
+    // Redirection is handled within the logout function in AuthContext
+  }
+
+  // Function to get initials from name
+  const getInitials = (name: string | undefined) => {
+    if (!name) return "?";
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
+  };
 
   return (
     <Sidebar className="border-r border-gray-200">
@@ -136,13 +152,15 @@ function MainSidebar() {
       <SidebarFooter className="border-t border-gray-200 px-3 py-4">
         <div className="flex items-center gap-3">
           <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder.svg?height=32&width=32" alt="User" />
-            <AvatarFallback className="bg-teal-100 text-teal-800">SA</AvatarFallback>
+            <AvatarImage src="/placeholder-user.jpg" alt={user?.name || "User"} />
+            <AvatarFallback className="bg-teal-100 text-teal-800">
+              {getInitials(user?.name)}
+            </AvatarFallback>
           </Avatar>
           {state === "expanded" && (
             <div className="flex-1 overflow-hidden">
-              <p className="truncate text-sm font-medium">Sarah Anderson</p>
-              <p className="truncate text-xs text-gray-500">sarah@example.com</p>
+              <p className="truncate text-sm font-medium">{user?.name || "User"}</p>
+              <p className="truncate text-xs text-gray-500">{user?.email || ""}</p>
             </div>
           )}
         </div>
@@ -153,9 +171,15 @@ function MainSidebar() {
               <HelpCircle className="mr-1 h-4 w-4" />
               Help
             </Button>
-            <Button variant="outline" size="sm" className="flex-1">
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex-1"
+              onClick={handleLogout} // Call handleLogout on click
+              disabled={isLoading} // Disable button while logging out
+            >
               <LogOut className="mr-1 h-4 w-4" />
-              Logout
+              {isLoading ? "Logging out..." : "Logout"}
             </Button>
           </div>
         )}
