@@ -8,6 +8,14 @@ interface SocialAuthProps {
 }
 
 export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
+
+  const handleGoogleAuth = () => {
+    // Redirect the user to the backend Google OAuth endpoint
+    // The backend will handle the Google interaction and redirect back to the frontend
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+    window.location.href = `${apiBaseUrl}/auth/google`;
+  };
+
   return (
     <div className="space-y-4">
       <div className="relative">
@@ -20,7 +28,7 @@ export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" disabled={isLoading} className="w-full" onClick={() => console.log("Google auth")}>
+        <Button variant="outline" disabled={isLoading} className="w-full" onClick={handleGoogleAuth}>
           <svg
             className="mr-2 h-4 w-4"
             aria-hidden="true"

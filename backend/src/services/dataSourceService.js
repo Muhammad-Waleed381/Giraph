@@ -3,7 +3,7 @@ import path from 'path';
 import { logger } from '../utils/logger.js';
 import { FileLoader } from '../utils/fileLoader.js';
 import { formatFileSize } from '../api/middleware/upload.js';
-import { getDatabase } from '../config/database.js';
+import { getDatabase } from '../config/database.js'; // Restore getDatabase import
 
 /**
  * Service for managing data sources (files, collections, Google Sheets)
@@ -18,11 +18,13 @@ export class DataSourceService {
      */
     async getAllDataSources(googleSheets) {
         try {
+            // Use getDatabase()
             const db = getDatabase();
             
             // Get all collections
             const collections = await db.listCollections().toArray();
             const collectionInfo = await Promise.all(collections.map(async col => {
+                // Use getDatabase()
                 const collection = db.collection(col.name);
                 const count = await collection.countDocuments();
                 const sample = await collection.find().limit(1).toArray();
@@ -206,6 +208,7 @@ export class DataSourceService {
             } else if (id.startsWith('collection:')) {
                 // Delete collection
                 const collectionName = id.replace('collection:', '');
+                // Use getDatabase()
                 const db = getDatabase();
                 
                 try {

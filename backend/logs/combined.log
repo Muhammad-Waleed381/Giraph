@@ -4905,3 +4905,346 @@
 2025-04-30T17:44:10.347Z [INFO]: Generated Natural Language Summary:
 2025-04-30T17:44:10.347Z [INFO]: AI recommended visualization and results exist.
 2025-04-30T17:44:10.347Z [INFO]: Identified Roles -> Category: year (Formatted: Year), Value: totalSales (Formatted: Total Sales)
+2025-05-01T17:46:37.833Z [INFO]: Connected to MongoDB successfully
+2025-05-01T17:46:37.847Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:46:37.861Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:46:37.866Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:46:37.870Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T17:46:37.905Z [INFO]: Application initialized successfully
+2025-05-01T17:46:37.908Z [INFO]: Server running on port 3000
+2025-05-01T17:48:53.437Z [ERROR]: Error during user signup: Operation `users.findOne()` buffering timed out after 10000ms
+2025-05-01T17:49:12.642Z [ERROR]: Error during user signup: Operation `users.findOne()` buffering timed out after 10000ms
+2025-05-01T17:55:06.249Z [INFO]: Connected to MongoDB successfully
+2025-05-01T17:55:06.254Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:55:06.259Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:55:06.261Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:55:06.263Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T17:55:06.271Z [INFO]: Application initialized successfully
+2025-05-01T17:55:06.273Z [INFO]: Server running on port 3000
+2025-05-01T17:56:49.782Z [INFO]: Connected to MongoDB successfully
+2025-05-01T17:56:49.786Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:56:49.789Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:56:49.790Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T17:56:49.791Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T17:56:49.796Z [INFO]: Application initialized successfully
+2025-05-01T17:56:49.797Z [INFO]: Server running on port 3000
+2025-05-01T18:01:29.493Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:01:29.497Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:01:29.501Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:01:29.502Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:01:29.504Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:01:29.509Z [INFO]: Application initialized successfully
+2025-05-01T18:01:29.510Z [INFO]: Server running on port 3000
+2025-05-01T18:01:44.451Z [INFO]: User registered successfully: testuser
+2025-05-01T18:02:33.841Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:02:33.845Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:02:33.850Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:02:33.851Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:02:33.853Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:02:33.859Z [INFO]: Application initialized successfully
+2025-05-01T18:02:33.860Z [INFO]: Server running on port 3000
+2025-05-01T18:03:17.643Z [INFO]: User registered successfully: king
+2025-05-01T18:09:53.943Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:09:53.952Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:09:53.965Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:09:53.968Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:09:53.969Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:09:53.980Z [INFO]: Application initialized successfully
+2025-05-01T18:09:53.984Z [INFO]: Server running on port 3000
+2025-05-01T18:12:16.267Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:12:16.308Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:12:16.310Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:12:16.313Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:12:16.316Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:12:16.317Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:12:16.322Z [INFO]: Application initialized successfully
+2025-05-01T18:12:16.323Z [INFO]: Server running on port 3000
+2025-05-01T18:14:11.116Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:14:11.158Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:14:11.160Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:14:11.163Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:14:11.166Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:14:11.168Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:14:11.173Z [INFO]: Application initialized successfully
+2025-05-01T18:14:11.175Z [INFO]: Server running on port 3000
+2025-05-01T18:16:32.606Z [INFO]: User logged in successfully: king
+2025-05-01T18:16:54.019Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:16:54.057Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:16:54.059Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:16:54.062Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:16:54.064Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:16:54.065Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:16:54.071Z [INFO]: Application initialized successfully
+2025-05-01T18:16:54.072Z [INFO]: Server running on port 3000
+2025-05-01T18:17:08.844Z [INFO]: User logged in successfully: king
+2025-05-01T18:42:18.292Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:42:18.334Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:42:18.338Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:42:18.341Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:42:18.343Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:42:18.345Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:42:18.352Z [INFO]: Application initialized successfully
+2025-05-01T18:42:18.355Z [INFO]: Server running on port 3000
+2025-05-01T18:42:44.265Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:42:44.320Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:42:44.323Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:42:44.326Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:42:44.328Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:42:44.330Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:42:44.337Z [INFO]: Application initialized successfully
+2025-05-01T18:42:44.338Z [INFO]: Server running on port 3000
+2025-05-01T18:45:26.956Z [ERROR]: Token verification failed:
+2025-05-01T18:46:11.604Z [INFO]: User logged in successfully: king
+2025-05-01T18:46:59.847Z [ERROR]: Token verification failed:
+2025-05-01T18:48:33.287Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:48:33.325Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:48:33.327Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:48:33.332Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:48:33.334Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:48:33.335Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:48:33.342Z [INFO]: Application initialized successfully
+2025-05-01T18:48:33.344Z [INFO]: Server running on port 3000
+2025-05-01T18:48:44.015Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:48:44.053Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:48:44.054Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:48:44.060Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:48:44.062Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:48:44.063Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:48:44.070Z [INFO]: Application initialized successfully
+2025-05-01T18:48:44.071Z [INFO]: Server running on port 3000
+2025-05-01T18:49:04.747Z [ERROR]: Token verification failed: invalid signature
+2025-05-01T18:49:46.212Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:49:46.254Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:49:46.257Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:49:46.262Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:49:46.264Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:49:46.265Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:49:46.271Z [INFO]: Application initialized successfully
+2025-05-01T18:49:46.273Z [INFO]: Server running on port 3000
+2025-05-01T18:50:40.517Z [WARN]: Authentication failed: User ID 6813b765b55d4e94a95ce016 from token not found
+2025-05-01T18:51:01.552Z [INFO]: User logged in successfully: king
+2025-05-01T18:51:27.622Z [WARN]: Authentication failed: User ID 6813b765b55d4e94a95ce016 from token not found
+2025-05-01T18:53:37.083Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:53:37.128Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:53:37.130Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:53:37.135Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:53:37.136Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:53:37.138Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:53:37.148Z [INFO]: Application initialized successfully
+2025-05-01T18:53:37.149Z [INFO]: Server running on port 3000
+2025-05-01T18:53:52.828Z [INFO]: User authenticated: king
+2025-05-01T18:53:52.830Z [INFO]: Session status requested for user: king
+2025-05-01T18:54:41.926Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T18:54:41.974Z [INFO]: Connected to MongoDB successfully
+2025-05-01T18:54:41.976Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:54:41.982Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:54:41.983Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T18:54:41.984Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T18:54:41.992Z [INFO]: Application initialized successfully
+2025-05-01T18:54:41.993Z [INFO]: Server running on port 3000
+2025-05-01T19:11:50.627Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:11:50.729Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:11:50.734Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:11:50.743Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:11:50.746Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:11:50.750Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:11:50.764Z [INFO]: Application initialized successfully
+2025-05-01T19:11:50.767Z [INFO]: Server running on port 3000
+2025-05-01T19:12:09.543Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:12:09.730Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:12:09.740Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:12:09.750Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:12:09.755Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:12:09.758Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:12:09.780Z [INFO]: Application initialized successfully
+2025-05-01T19:12:09.791Z [INFO]: Server running on port 3000
+2025-05-01T19:13:32.235Z [INFO]: User logged in successfully: king
+2025-05-01T19:14:20.974Z [INFO]: User authenticated: king
+2025-05-01T19:14:20.975Z [INFO]: Logout request received for user: king
+2025-05-01T19:15:26.766Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:15:26.871Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:15:26.874Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:15:26.882Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:15:26.886Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:15:26.888Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:15:26.898Z [INFO]: Application initialized successfully
+2025-05-01T19:15:26.901Z [INFO]: Server running on port 3000
+2025-05-01T19:19:15.682Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:19:15.744Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:19:15.747Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:19:15.753Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:19:15.755Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:19:15.757Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:19:15.765Z [INFO]: Application initialized successfully
+2025-05-01T19:19:15.766Z [INFO]: Server running on port 3000
+2025-05-01T19:19:34.852Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:19:34.940Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:19:34.945Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:19:34.954Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:19:34.957Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:19:34.959Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:19:34.981Z [INFO]: Application initialized successfully
+2025-05-01T19:19:34.983Z [INFO]: Server running on port 3000
+2025-05-01T19:20:08.080Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:20:08.262Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:20:08.267Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:20:08.275Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:20:08.277Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:20:08.279Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:20:08.296Z [INFO]: Application initialized successfully
+2025-05-01T19:20:08.299Z [INFO]: Server running on port 3000
+2025-05-01T19:25:08.103Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:25:13.343Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:25:13.346Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:25:13.352Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:25:13.354Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:25:13.356Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:25:13.368Z [INFO]: Application initialized successfully
+2025-05-01T19:25:13.371Z [INFO]: Server running on port 3000
+2025-05-01T19:33:08.457Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:33:12.665Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:33:12.668Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:33:12.673Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:33:12.676Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:33:12.679Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:33:12.689Z [INFO]: Application initialized successfully
+2025-05-01T19:33:12.691Z [INFO]: Server running on port 3000
+2025-05-01T19:37:40.419Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:37:46.431Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:37:46.436Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:37:46.443Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:37:46.446Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:37:46.448Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:37:46.462Z [INFO]: Application initialized successfully
+2025-05-01T19:37:46.465Z [INFO]: Server running on port 3000
+2025-05-01T19:43:30.508Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:43:37.808Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:43:37.812Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:43:37.819Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:43:37.822Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:43:37.824Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:43:37.836Z [INFO]: Application initialized successfully
+2025-05-01T19:43:37.837Z [INFO]: Server running on port 3000
+2025-05-01T19:48:52.701Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:48:56.592Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:48:56.597Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:48:56.603Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:48:56.606Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:48:56.607Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:48:56.622Z [INFO]: Application initialized successfully
+2025-05-01T19:48:56.624Z [INFO]: Server running on port 3000
+2025-05-01T19:50:43.106Z [INFO]: ---- OTP FOR EMAIL VERIFICATION (Signup) ----
+2025-05-01T19:50:43.108Z [INFO]: Email: waleededits2008@gmail.com
+2025-05-01T19:50:43.109Z [INFO]: OTP: 655167
+2025-05-01T19:50:43.109Z [INFO]: Expires: 2025-05-01T20:00:43.030Z
+2025-05-01T19:50:43.110Z [INFO]: ---- END OTP ----
+2025-05-01T19:50:43.111Z [INFO]: User signup initiated (pending verification): baldeagle
+2025-05-01T19:50:43.111Z [INFO]: Signup initiated for waleededits2008@gmail.com. OTP sent (simulated).
+2025-05-01T19:55:56.409Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:56:00.616Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:56:00.622Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:56:00.630Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:56:00.634Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:56:00.638Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:56:00.653Z [INFO]: Application initialized successfully
+2025-05-01T19:56:00.658Z [INFO]: Server running on port 3000
+2025-05-01T19:58:44.444Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:58:52.422Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:58:52.427Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:58:52.437Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:58:52.442Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:58:52.447Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:58:52.471Z [INFO]: Application initialized successfully
+2025-05-01T19:58:52.473Z [INFO]: Server running on port 3000
+2025-05-01T19:59:42.853Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-01T19:59:48.267Z [INFO]: Connected to MongoDB successfully
+2025-05-01T19:59:48.273Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:59:48.283Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:59:48.286Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-01T19:59:48.288Z [INFO]: GeminiInterface initialized successfully
+2025-05-01T19:59:48.303Z [INFO]: Application initialized successfully
+2025-05-01T19:59:48.306Z [INFO]: Server running on port 3000
+2025-05-02T13:09:28.329Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-02T13:09:31.030Z [INFO]: Connected to MongoDB successfully
+2025-05-02T13:09:31.031Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:09:31.035Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:09:31.036Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:09:31.037Z [INFO]: GeminiInterface initialized successfully
+2025-05-02T13:09:31.043Z [INFO]: Application initialized successfully
+2025-05-02T13:09:31.044Z [INFO]: Server running on port 3000
+2025-05-02T13:09:49.719Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-02T13:09:52.147Z [INFO]: Connected to MongoDB successfully
+2025-05-02T13:09:52.149Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:09:52.152Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:09:52.153Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:09:52.154Z [INFO]: GeminiInterface initialized successfully
+2025-05-02T13:09:52.158Z [INFO]: Application initialized successfully
+2025-05-02T13:09:52.159Z [INFO]: Server running on port 3000
+2025-05-02T13:15:02.957Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-02T13:15:08.361Z [INFO]: Connected to MongoDB successfully
+2025-05-02T13:15:08.365Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:15:08.372Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:15:08.375Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:15:08.378Z [INFO]: GeminiInterface initialized successfully
+2025-05-02T13:15:08.389Z [INFO]: Application initialized successfully
+2025-05-02T13:15:08.391Z [INFO]: Server running on port 3000
+2025-05-02T13:16:09.711Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-02T13:16:15.296Z [INFO]: Connected to MongoDB successfully
+2025-05-02T13:16:15.300Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:16:15.307Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:16:15.309Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T13:16:15.311Z [INFO]: GeminiInterface initialized successfully
+2025-05-02T13:16:15.325Z [INFO]: Application initialized successfully
+2025-05-02T13:16:15.327Z [INFO]: Server running on port 3000
+2025-05-02T13:57:24.913Z [ERROR]: Error during user signup:
+2025-05-02T13:58:05.415Z [ERROR]: Error sending email to waleedraja2008@gmail.com: connect ECONNREFUSED 127.0.0.1:587
+2025-05-02T13:58:05.416Z [INFO]: Verification email sent to waleedraja2008@gmail.com
+2025-05-02T13:58:05.417Z [INFO]: User signed up successfully: waleed. Verification needed.
+2025-05-02T13:58:05.417Z [INFO]: Signup initiated for waleedraja2008@gmail.com. Verification email sent.
+2025-05-02T14:09:33.007Z [ERROR]: Error sending email to cirog84869@exitings.com: connect ECONNREFUSED 127.0.0.1:587
+2025-05-02T14:09:33.009Z [INFO]: Verification email sent to cirog84869@exitings.com
+2025-05-02T14:09:33.010Z [INFO]: User signed up successfully: chad. Verification needed.
+2025-05-02T14:09:33.010Z [INFO]: Signup initiated for cirog84869@exitings.com. Verification email sent.
+2025-05-02T14:12:14.510Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-02T14:12:21.129Z [INFO]: Connected to MongoDB successfully
+2025-05-02T14:12:21.133Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:12:21.140Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:12:21.142Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:12:21.144Z [INFO]: GeminiInterface initialized successfully
+2025-05-02T14:12:21.157Z [INFO]: Application initialized successfully
+2025-05-02T14:12:21.159Z [INFO]: Server running on port 3000
+2025-05-02T14:16:55.401Z [INFO]: Email sent successfully to Clemmie88@tenull.com. Message ID: <c006f273-23fb-fae7-1097-c40ab41fd5fc@gmail.com>
+2025-05-02T14:16:55.404Z [INFO]: Verification email sent to Clemmie88@tenull.com
+2025-05-02T14:16:55.405Z [INFO]: User signed up successfully: chadtag. Verification needed.
+2025-05-02T14:16:55.405Z [INFO]: Signup initiated for Clemmie88@tenull.com. Verification email sent.
+2025-05-02T14:18:05.888Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-02T14:18:09.676Z [INFO]: Connected to MongoDB successfully
+2025-05-02T14:18:09.680Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:18:09.686Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:18:09.689Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:18:09.691Z [INFO]: GeminiInterface initialized successfully
+2025-05-02T14:18:09.702Z [INFO]: Application initialized successfully
+2025-05-02T14:18:09.705Z [INFO]: Server running on port 3000
+2025-05-02T14:58:13.854Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-05-02T14:58:22.924Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-02T14:58:26.098Z [INFO]: Connected to MongoDB successfully
+2025-05-02T14:58:26.102Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:58:26.112Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:58:26.115Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-02T14:58:26.118Z [INFO]: GeminiInterface initialized successfully
+2025-05-02T14:58:26.135Z [INFO]: Application initialized successfully
+2025-05-02T14:58:26.137Z [INFO]: Server running on port 3000
+2025-05-02T14:59:01.885Z [INFO]: Linking Google ID 117679217793288439669 to existing user: waleed
+2025-05-02T14:59:01.906Z [INFO]: User authenticated via Google: waleed (ID: 6814cf6d2f65de49307a72b2)
+2025-05-02T14:59:01.921Z [INFO]: JWT generated successfully for Google user: waleed
+2025-05-03T12:13:11.627Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-03T12:13:15.998Z [INFO]: Connected to MongoDB successfully
+2025-05-03T12:13:52.620Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-03T12:13:55.396Z [INFO]: Connected to MongoDB successfully
+2025-05-03T12:13:55.398Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-03T12:13:55.403Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-03T12:13:55.404Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-03T12:13:55.407Z [INFO]: GeminiInterface initialized successfully
+2025-05-03T12:13:55.418Z [INFO]: Application initialized successfully
+2025-05-03T12:13:55.419Z [INFO]: Server running on port 3000
+2025-05-03T12:21:05.550Z [INFO]: SIGINT signal received. Closing MongoDB connection...
