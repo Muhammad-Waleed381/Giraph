@@ -61,6 +61,7 @@ export const signupUser = async (username, email, password) => {
 
         // Send verification email
         const verificationUrl = `${BACKEND_URL}/api/auth/verify-email/${verificationToken}`;
+        logger.info(`Generated verification URL: ${verificationUrl}`); // Added log
         const emailSubject = 'Verify Your Email Address';
         const emailText = `Hello ${username},
 

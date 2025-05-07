@@ -138,24 +138,24 @@ export const getSessionStatus = async (req, res) => {
 
 // --- Logout Controller ---
 export const logout = async (req, res) => {
-  // For token-based auth (like JWT), logout is typically handled client-side
-  // by discarding the token. Server-side invalidation often requires a
-  // token blacklist, which adds complexity.
-  // This endpoint confirms the server acknowledges the logout request.
-  // If using session cookies, you would clear the cookie here.
   try {
-    // Assuming authenticateToken middleware ran, req.user exists.
     const username = req.user ? req.user.username : 'Unknown user';
     logger.info(`Logout request received for user: ${username}`);
 
-    // Optionally: Add token to a blacklist in the database or cache if implementing server-side invalidation.
+    // Clear the HttpOnly cookie
+    res.clearCookie('jwt_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Match secure flag with cookie setting
+        sameSite: 'lax', // Match sameSite with cookie setting
+        path: '/' // Match path with cookie setting
+    });
 
-    // Clear any potential session cookie (if you were using them)
-    // res.clearCookie('token'); // Example if using cookies
-
-    res.status(200).json(responseFormatter.success(null, 'Logout successful. Please discard your token.'));
+    res.status(200).json(responseFormatter.success(null, 'Logout successful. Session cookie cleared.'));
   } catch (error) {
     logger.error('Error during user logout:', error);
+    // Even if there's an error, attempt to clear the cookie if possible, 
+    // though the error might prevent headers from being sent.
+    // For safety, the client should also clear its state.
     res.status(500).json(responseFormatter.error('Server error during logout', 500));
   }
 };
@@ -188,8 +188,8 @@ export const postGoogleAuth = async (req, res) => {
     // Passport attaches the user object to req.user after successful authentication
     if (!req.user) {
         logger.error('Google auth callback succeeded but req.user is missing.');
-        // Use responseFormatter.error
-        return res.status(500).json(responseFormatter.error('Authentication failed after Google callback.', 500));
+        // Redirect to frontend login with an error query parameter
+        return res.redirect(`${FRONTEND_URL}/login?error=google_auth_failed`);
     }
 
     try {
@@ -204,46 +204,37 @@ export const postGoogleAuth = async (req, res) => {
             // Add other relevant claims
         };
 
-        // Use the same secret and expiration as email login
         const JWT_SECRET = process.env.JWT_SECRET || 'your-default-development-secret-key';
-        const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '1h';
+        const JWT_EXPIRATION = process.env.JWT_EXPIRATION || '1h'; // e.g., '1h', '7d'
         const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION });
 
         logger.info(`JWT generated successfully for Google user: ${user.username}`);
 
-        // Redirect user to the frontend dashboard or send token back
-        // Option 1: Redirect with token in query param (less secure)
-        // res.redirect(`${process.env.FRONTEND_URL}/dashboard?token=${token}`);
-
-        // Option 2: Send token in response body (frontend handles storage)
-        return res.status(200).json(responseFormatter.success({
-            message: "Google authentication successful.",
-            token: token,
-            user: {
-                _id: user._id,
-                username: user.username,
-                email: user.email,
-                firstName: user.firstName,
-                lastName: user.lastName,
-                createdAt: user.createdAt
-                // Include other non-sensitive user details
-            }
-        }, "Google authentication successful."));
-
-        // Option 3: Set HttpOnly cookie (more secure)
-        /*
-        res.cookie('jwt', token, {
+        // Set HttpOnly cookie
+        // Ensure JWT_EXPIRATION is in a format that can be converted to milliseconds for maxAge
+        let maxAgeMs;
+        if (JWT_EXPIRATION.endsWith('h')) {
+            maxAgeMs = parseInt(JWT_EXPIRATION, 10) * 60 * 60 * 1000;
+        } else if (JWT_EXPIRATION.endsWith('d')) {
+            maxAgeMs = parseInt(JWT_EXPIRATION, 10) * 24 * 60 * 60 * 1000;
+        } else {
+            maxAgeMs = 60 * 60 * 1000; // Default to 1 hour if format is unknown
+        }
+        
+        res.cookie('jwt_token', token, { // Using 'jwt_token' as the cookie name
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-            sameSite: 'strict', // Or 'lax' depending on needs
-            maxAge: 3600000 // 1 hour (matches JWT expiration)
+            sameSite: 'lax', // 'lax' is generally recommended for OAuth callbacks
+            maxAge: maxAgeMs, 
+            path: '/' // Cookie accessible for all paths
         });
-        res.redirect(`${process.env.FRONTEND_URL}/dashboard`); // Redirect to frontend
-        */
+
+        // Redirect user to a specific frontend page that will handle the session
+        res.redirect(`${FRONTEND_URL}/auth/social-success`);
 
     } catch (error) {
-        logger.error('Error generating JWT after Google auth:', error);
-        // Use responseFormatter.error
-        return res.status(500).json(responseFormatter.error('Failed to finalize Google authentication.', 500));
+        logger.error('Error processing Google authentication and setting cookie:', error);
+        // Redirect to frontend login with an error query parameter
+        res.redirect(`${FRONTEND_URL}/login?error=google_auth_processing_failed`);
     }
 };

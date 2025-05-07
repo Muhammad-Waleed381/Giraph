@@ -12,7 +12,7 @@ export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
   const handleGoogleAuth = () => {
     // Redirect the user to the backend Google OAuth endpoint
     // The backend will handle the Google interaction and redirect back to the frontend
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api';
+    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'; // Fallback to 5000 if not set, adjust if your API is elsewhere
     window.location.href = `${apiBaseUrl}/auth/google`;
   };
 

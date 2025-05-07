@@ -5248,3 +5248,516 @@
 2025-05-03T12:13:55.418Z [INFO]: Application initialized successfully
 2025-05-03T12:13:55.419Z [INFO]: Server running on port 3000
 2025-05-03T12:21:05.550Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-05-07T12:02:01.161Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T12:02:03.346Z [INFO]: Connected to MongoDB successfully
+2025-05-07T12:02:03.348Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:02:03.350Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:02:03.351Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:02:03.352Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T12:02:03.357Z [INFO]: Application initialized successfully
+2025-05-07T12:02:03.357Z [INFO]: Server running on port 3000
+2025-05-07T12:07:11.944Z [INFO]: Email sent successfully to waleedmods2008@gmail.com. Message ID: <2fcc01d9-e5ab-c57f-6315-362e22aa0984@gmail.com>
+2025-05-07T12:07:11.945Z [INFO]: Verification email sent to waleedmods2008@gmail.com
+2025-05-07T12:07:11.945Z [INFO]: User signed up successfully: Abdullah Khalid. Verification needed.
+2025-05-07T12:07:11.946Z [INFO]: Signup initiated for waleedmods2008@gmail.com. Verification email sent.
+2025-05-07T12:09:09.380Z [WARN]: Login attempt failed for unverified email: waleedmods2008@gmail.com
+2025-05-07T12:09:09.380Z [ERROR]: Login error for email waleedmods2008@gmail.com:
+2025-05-07T12:09:09.381Z [ERROR]: Error during user login:
+2025-05-07T12:12:35.690Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T12:12:37.738Z [INFO]: Connected to MongoDB successfully
+2025-05-07T12:12:37.740Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:12:37.742Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:12:37.743Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:12:37.745Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T12:12:37.750Z [INFO]: Application initialized successfully
+2025-05-07T12:12:37.750Z [INFO]: Server running on port 3000
+2025-05-07T12:16:39.002Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-05-07T12:17:38.602Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T12:17:41.581Z [INFO]: Connected to MongoDB successfully
+2025-05-07T12:17:41.584Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:17:41.590Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:17:41.592Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:17:41.596Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T12:17:41.609Z [INFO]: Application initialized successfully
+2025-05-07T12:17:41.611Z [INFO]: Server running on port 3000
+2025-05-07T12:20:15.119Z [ERROR]: Error during user signup:
+2025-05-07T12:20:43.839Z [INFO]: Generated verification URL: http://localhost:3000/api/auth/verify-email/c324f23c00dffe59f8f0c8d314456ce02ec2ad3acc8adfc91bca40815bfbf833
+2025-05-07T12:20:47.439Z [INFO]: Email sent successfully to waleedplays2008@gmail.com. Message ID: <28c610de-24b5-3351-6e15-bf0d55746321@gmail.com>
+2025-05-07T12:20:47.441Z [INFO]: Verification email sent to waleedplays2008@gmail.com
+2025-05-07T12:20:47.441Z [INFO]: User signed up successfully: cirog. Verification needed.
+2025-05-07T12:20:47.442Z [INFO]: Signup initiated for waleedplays2008@gmail.com. Verification email sent.
+2025-05-07T12:23:51.241Z [INFO]: Email verified successfully for user: cirog
+2025-05-07T12:23:51.242Z [INFO]: Email verification successful for token: c324f23c00dffe59f8f0c8d314456ce02ec2ad3acc8adfc91bca40815bfbf833
+2025-05-07T12:24:18.831Z [INFO]: User logged in successfully: cirog
+2025-05-07T12:33:32.877Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T12:33:40.276Z [INFO]: Connected to MongoDB successfully
+2025-05-07T12:33:40.281Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:33:40.291Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:33:40.299Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:33:40.306Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T12:33:40.329Z [INFO]: Application initialized successfully
+2025-05-07T12:33:40.333Z [INFO]: Server running on port 3000
+2025-05-07T12:40:55.948Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T12:41:01.106Z [INFO]: Connected to MongoDB successfully
+2025-05-07T12:41:01.109Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:41:01.115Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:41:01.117Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:41:01.119Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T12:41:01.127Z [INFO]: Application initialized successfully
+2025-05-07T12:41:01.128Z [INFO]: Server running on port 3000
+2025-05-07T12:47:24.736Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T12:47:28.697Z [INFO]: Connected to MongoDB successfully
+2025-05-07T12:47:28.701Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:47:28.709Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:47:28.712Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T12:47:28.715Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T12:47:28.734Z [INFO]: Application initialized successfully
+2025-05-07T12:47:28.738Z [INFO]: Server running on port 3000
+2025-05-07T12:48:27.632Z [INFO]: Linking Google ID 108470001744773079539 to existing user: cirog
+2025-05-07T12:48:27.652Z [INFO]: User authenticated via Google: cirog (ID: 681b501bc2b404231bfece35)
+2025-05-07T12:48:27.712Z [INFO]: JWT generated successfully for Google user: cirog
+2025-05-07T12:53:30.753Z [INFO]: Found existing user by Google ID: waleed
+2025-05-07T12:53:30.753Z [INFO]: User authenticated via Google: waleed (ID: 6814cf6d2f65de49307a72b2)
+2025-05-07T12:53:30.757Z [INFO]: JWT generated successfully for Google user: waleed
+2025-05-07T12:53:52.125Z [INFO]: Linking Google ID 100197816290685335539 to existing user: baldeagle
+2025-05-07T12:53:52.139Z [INFO]: User authenticated via Google: baldeagle (ID: 6813d09388e8e93688bfd511)
+2025-05-07T12:53:52.150Z [INFO]: JWT generated successfully for Google user: baldeagle
+2025-05-07T12:57:09.358Z [INFO]: Found existing user by Google ID: baldeagle
+2025-05-07T12:57:09.359Z [INFO]: User authenticated via Google: baldeagle (ID: 6813d09388e8e93688bfd511)
+2025-05-07T12:57:09.363Z [INFO]: JWT generated successfully for Google user: baldeagle
+2025-05-07T13:01:41.521Z [INFO]: Found existing user by Google ID: cirog
+2025-05-07T13:01:41.521Z [INFO]: User authenticated via Google: cirog (ID: 681b501bc2b404231bfece35)
+2025-05-07T13:01:41.526Z [INFO]: JWT generated successfully for Google user: cirog
+2025-05-07T13:04:21.405Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T13:04:28.941Z [INFO]: Connected to MongoDB successfully
+2025-05-07T13:04:28.945Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:04:28.953Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:04:28.955Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:04:28.959Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T13:04:28.969Z [INFO]: Application initialized successfully
+2025-05-07T13:04:28.971Z [INFO]: Server running on port 3000
+2025-05-07T13:05:47.758Z [INFO]: Creating new user via Google OAuth for email: mwaleed.bscs23seecs@seecs.edu.pk
+2025-05-07T13:05:47.785Z [INFO]: Successfully created new Google user: Muhammad Waleed
+2025-05-07T13:05:47.787Z [INFO]: User authenticated via Google: Muhammad Waleed (ID: 681b5aabb015c89885ffe0ab)
+2025-05-07T13:05:47.803Z [INFO]: JWT generated successfully for Google user: Muhammad Waleed
+2025-05-07T13:15:36.852Z [INFO]: Found existing user by Google ID: Muhammad Waleed
+2025-05-07T13:15:36.852Z [INFO]: User authenticated via Google: Muhammad Waleed (ID: 681b5aabb015c89885ffe0ab)
+2025-05-07T13:15:36.854Z [INFO]: JWT generated successfully for Google user: Muhammad Waleed
+2025-05-07T13:16:01.364Z [INFO]: Found existing user by Google ID: Muhammad Waleed
+2025-05-07T13:16:01.365Z [INFO]: User authenticated via Google: Muhammad Waleed (ID: 681b5aabb015c89885ffe0ab)
+2025-05-07T13:16:01.368Z [INFO]: JWT generated successfully for Google user: Muhammad Waleed
+2025-05-07T13:17:44.877Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:17:44.877Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:22.523Z [INFO]: Found existing user by Google ID: Muhammad Waleed
+2025-05-07T13:18:22.524Z [INFO]: User authenticated via Google: Muhammad Waleed (ID: 681b5aabb015c89885ffe0ab)
+2025-05-07T13:18:22.526Z [INFO]: JWT generated successfully for Google user: Muhammad Waleed
+2025-05-07T13:18:25.557Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.558Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:25.572Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.573Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:25.703Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.705Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:25.766Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.767Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:25.899Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.900Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:25.915Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.917Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:25.937Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.938Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:25.957Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:25.957Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.077Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.078Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.091Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.092Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.170Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.171Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.222Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.223Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.325Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.327Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.340Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.344Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.379Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.380Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.394Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.395Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:26.474Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:26.475Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.061Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.062Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.072Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.072Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.087Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.087Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.099Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.100Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.112Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.112Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.167Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.168Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.194Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.195Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.223Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.224Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.265Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.266Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.328Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.328Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.462Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.463Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.485Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.486Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.610Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.611Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.625Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.627Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.630Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.631Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.753Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.753Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.756Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.757Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.785Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.786Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.797Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.797Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.896Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.897Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.918Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.918Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:28.987Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:28.989Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.002Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.003Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.080Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.080Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.110Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.110Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.177Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.178Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.202Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.203Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.288Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.289Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.322Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.323Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.359Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.360Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.387Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.389Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.458Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.459Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.486Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.486Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.531Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.533Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.573Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.574Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.608Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.609Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.633Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.634Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.668Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.669Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.705Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.706Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.797Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.798Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.801Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.801Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.818Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.818Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.852Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.853Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.976Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.977Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:29.993Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:29.994Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.005Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.005Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.011Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.012Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.063Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.064Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.106Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.109Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.200Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.201Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.234Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.234Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.299Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.300Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.330Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.333Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.406Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.424Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.462Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.470Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.516Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.520Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.549Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.549Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.579Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.588Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.604Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.604Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.637Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.638Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.648Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.650Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.701Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.701Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.716Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.716Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.783Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.784Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.796Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.796Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.836Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.836Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.860Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.860Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.929Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.930Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.952Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.954Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.988Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.989Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:30.995Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:30.995Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.039Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.039Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.049Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.050Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.169Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.170Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.175Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.175Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.224Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.225Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.240Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.242Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.285Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.286Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.309Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.309Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.341Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.342Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.357Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.358Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.388Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.389Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.392Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.392Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.420Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.421Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.447Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.448Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.489Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.490Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.511Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.512Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.548Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.549Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.571Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.572Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.620Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.621Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.625Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.626Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.641Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.643Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.655Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.656Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.687Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.689Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.696Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.699Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.740Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.740Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.769Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.770Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.814Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.816Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.841Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.842Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.879Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.880Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.901Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.901Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.964Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.965Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:31.982Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:31.982Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.009Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.010Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.027Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.027Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.066Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.066Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.087Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.088Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.115Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.115Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.137Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.138Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.272Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.273Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.277Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.279Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.289Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.290Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.300Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.303Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.369Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.370Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.468Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.470Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.472Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.474Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.480Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.482Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.553Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.555Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.567Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.568Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.628Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.632Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.644Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.645Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.711Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.712Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.740Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.741Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.786Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.787Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.819Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.820Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.891Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.891Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.911Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.912Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.943Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.944Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:32.976Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:32.977Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.038Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.039Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.049Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.050Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.098Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.099Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.113Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.116Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.154Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.155Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.186Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.187Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.292Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.293Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.295Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.296Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.313Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.315Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.325Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.325Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.434Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.450Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.568Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.569Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.575Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.577Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.590Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.617Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.634Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.634Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.644Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.648Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.713Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.713Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.726Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.727Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.823Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.824Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.828Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.829Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.952Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.952Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:33.981Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:33.981Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.042Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.043Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.071Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.072Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.143Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.144Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.168Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.168Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.198Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.199Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.230Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.231Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.302Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.302Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.306Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.306Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.382Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.383Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.387Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.388Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.424Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.425Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.429Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.430Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.489Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.489Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.499Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.500Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.599Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.599Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.620Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.621Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.660Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.661Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.665Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.666Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.918Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.919Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.925Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.926Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.929Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.930Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.934Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.936Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.991Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.992Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:34.993Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:34.994Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:35.058Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:35.058Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:18:35.077Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:18:35.078Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:20:17.511Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T13:20:19.771Z [INFO]: Connected to MongoDB successfully
+2025-05-07T13:20:19.773Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:20:19.777Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:20:19.779Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:20:19.780Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T13:20:19.784Z [INFO]: Application initialized successfully
+2025-05-07T13:20:19.785Z [INFO]: Server running on port 3000
+2025-05-07T13:20:58.654Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-05-07T13:21:07.285Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-07T13:21:09.063Z [INFO]: Connected to MongoDB successfully
+2025-05-07T13:21:09.064Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:21:09.067Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:21:09.068Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-07T13:21:09.069Z [INFO]: GeminiInterface initialized successfully
+2025-05-07T13:21:09.073Z [INFO]: Application initialized successfully
+2025-05-07T13:21:09.073Z [INFO]: Server running on port 3000
+2025-05-07T13:21:40.086Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:21:40.088Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:23:31.365Z [INFO]: User authenticated: Muhammad Waleed
+2025-05-07T13:23:31.365Z [INFO]: Session status requested for user: Muhammad Waleed
+2025-05-07T13:25:58.134Z [INFO]: SIGINT signal received. Closing MongoDB connection...
