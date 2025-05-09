@@ -8,7 +8,21 @@ import { DatabaseConnections } from "@/components/connect/database-connections"
 import { DataPreview } from "@/components/connect/data-preview"
 import { FileText, Cloud, Database } from "lucide-react"
 
-export function ConnectTabs() {
+// Define FileInfo structure
+interface FileInfo {
+  fileId: string
+  originalName: string
+  path: string
+  size: number
+  mimeType: string
+}
+
+// Accept the callback prop
+interface ConnectTabsProps {
+  onUploadSuccess: (fileInfo: FileInfo) => void
+}
+
+export function ConnectTabs({ onUploadSuccess }: ConnectTabsProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewData, setPreviewData] = useState<any>(null)
   const [showPreview, setShowPreview] = useState(false)
@@ -99,7 +113,7 @@ export function ConnectTabs() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="file">
-          <FileUpload onFileSelected={handleFileSelected} />
+          <FileUpload onFileSelected={handleFileSelected} onUploadSuccess={onUploadSuccess} />
         </TabsContent>
         <TabsContent value="cloud">
           <CloudServices onFileSelected={handleCloudFileSelected} />

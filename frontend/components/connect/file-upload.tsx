@@ -1,194 +1,214 @@
 "use client"
 
-import type React from "react"
-
-import { useState, useRef } from "react"
+import React, { useState, useCallback } from "react"
+import { UploadCloud, File as FileIcon, Loader2, X } from "lucide-react"
+import { useDropzone } from "react-dropzone"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { FileSpreadsheet, FileText, FileJson, Upload, X, Check } from "lucide-react"
 import { Progress } from "@/components/ui/progress"
+import { useToast } from "@/hooks/use-toast"
 
-interface FileUploadProps {
-  onFileSelected: (file: File) => void
+interface FileInfo {
+  fileId: string
+  originalName: string
+  path: string
+  size: number
+  mimeType: string
 }
 
-export function FileUpload({ onFileSelected }: FileUploadProps) {
-  const [dragActive, setDragActive] = useState(false)
+interface FileUploadProps {
+  onUploadSuccess: (fileInfo: FileInfo) => void
+}
+
+export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [datasetName, setDatasetName] = useState("")
-  const [uploadProgress, setUploadProgress] = useState(0)
-  const [uploadComplete, setUploadComplete] = useState(false)
-  const [uploading, setUploading] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [uploadProgress, setUploadProgress] = useState<number>(0)
+  const [isLoading, setIsLoading] = useState<boolean>(false)
+  const [error, setError] = useState<string | null>(null)
+  const { toast } = useToast()
 
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true)
-    } else if (e.type === "dragleave") {
-      setDragActive(false)
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    if (acceptedFiles.length > 0) {
+      setSelectedFile(acceptedFiles[0])
+      setError(null)
+      setUploadProgress(0)
     }
-  }
+  }, [])
 
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setDragActive(false)
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: {
+      "text/csv": [".csv"],
+      "application/vnd.ms-excel": [".xls"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "application/json": [".json"],
+      "text/json": [".json"]
+    },
+    multiple: false,
+  } as any)
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0])
+  const handleUpload = async () => {
+    if (!selectedFile) {
+      setError("Please select a file first.")
+      return
     }
-  }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0])
-    }
-  }
-
-  const handleFile = (file: File) => {
-    setSelectedFile(file)
-    setDatasetName(file.name.split(".")[0])
-    simulateUpload(file)
-  }
-
-  const simulateUpload = (file: File) => {
-    setUploading(true)
+    setIsLoading(true)
+    setError(null) // Clear error at the start of upload attempt
     setUploadProgress(0)
 
-    const interval = setInterval(() => {
-      setUploadProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval)
-          setUploadComplete(true)
-          setUploading(false)
-          onFileSelected(file)
-          return 100
-        }
-        return prev + 10
+    const formData = new FormData()
+    formData.append("file", selectedFile)
+
+    let response: Response | null = null
+    let result: any = null
+
+    try {
+      // Simulate upload progress for better UX
+      const progressInterval = setInterval(() => {
+        setUploadProgress((prev) => {
+          const newProgress = Math.min(prev + Math.random() * 10, 90)
+          return newProgress
+        })
+      }, 300)
+
+      response = await fetch("/api/datasources/files", {
+        method: "POST",
+        body: formData,
       })
-    }, 200)
-  }
 
-  const resetUpload = () => {
-    setSelectedFile(null)
-    setDatasetName("")
-    setUploadProgress(0)
-    setUploadComplete(false)
-    if (inputRef.current) {
-      inputRef.current.value = ""
+      clearInterval(progressInterval)
+      setUploadProgress(95)
+
+      result = await response.json()
+
+      if (!response.ok) {
+        // Specific handling for 409 Conflict (duplicate file)
+        if (response.status === 409) {
+          const errorMsg = result.message || "A file with the same name already exists."
+          setError(errorMsg)
+          toast({
+            title: "Duplicate File",
+            description: errorMsg,
+            variant: "destructive",
+          })
+        } else {
+          // Handle other error types
+          const errorMsg = result.message || `Upload failed with status: ${response.status}`
+          setError(errorMsg)
+          toast({
+            title: "Upload Failed",
+            description: errorMsg,
+            variant: "destructive",
+          })
+        }
+        return
+      }
+
+      // Upload complete
+      setUploadProgress(100)
+
+      // Assuming the backend returns data in the format { success: true, data: { fileInfo: {...} }, message: '...' }
+      if (result.success && result.data?.fileInfo) {
+        toast({
+          title: "Upload Successful",
+          description: `${result.data.fileInfo.originalName} uploaded.`,
+          variant: "default",
+          className: "bg-green-100 border border-green-500 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-100",
+        })
+        setSelectedFile(null) // Clear selection after successful upload
+        setError(null) // Explicitly clear any previous error on success
+        onUploadSuccess(result.data.fileInfo) // Pass fileInfo to parent to trigger refresh
+      } else {
+        // Handle cases where response is ok but backend indicates failure
+        const errorMsg = result.message || "Upload failed. Invalid response from server."
+        setError(errorMsg)
+        toast({
+          title: "Upload Failed",
+          description: errorMsg,
+          variant: "destructive",
+        })
+      }
+    } catch (err: any) {
+      console.error("Upload failed:", err)
+      const errorMsg = err.message || "An unexpected error occurred during upload."
+      setError(errorMsg)
+      toast({
+        title: "Upload Failed",
+        description: errorMsg,
+        variant: "destructive",
+      })
+    } finally {
+      setIsLoading(false)
+      // Leave progress at 100 briefly if successful before resetting
+      if (response?.ok) {
+        setTimeout(() => setUploadProgress(0), 1000)
+      } else {
+        setUploadProgress(0)
+      }
     }
   }
 
-  const fileTypes = [
-    { name: "CSV", icon: <FileText className="h-10 w-10 text-blue-500" /> },
-    { name: "Excel", icon: <FileSpreadsheet className="h-10 w-10 text-green-500" /> },
-    { name: "JSON", icon: <FileJson className="h-10 w-10 text-orange-500" /> },
-  ]
+  const clearSelection = () => {
+    setSelectedFile(null)
+    setError(null)
+    setUploadProgress(0)
+  }
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        {fileTypes.map((type) => (
-          <Card key={type.name} className="transition-all hover:shadow-md">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <div className="space-y-1">
-                <CardTitle className="text-lg">{type.name}</CardTitle>
-                <CardDescription>Upload {type.name} files</CardDescription>
-              </div>
-              {type.icon}
-            </CardHeader>
-          </Card>
-        ))}
+    <div className="p-6 border rounded-lg shadow-sm bg-card text-card-foreground">
+      <h3 className="text-lg font-semibold mb-4">Upload Files</h3>
+      <p className="text-sm text-muted-foreground mb-4">
+        Upload CSV, XLS, XLSX, or JSON files to start analyzing your data.
+      </p>
+
+      <div
+        {...getRootProps()}
+        className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors duration-200 ease-in-out
+          ${isDragActive ? "border-primary bg-primary/10" : "border-border hover:border-primary/50"}
+          ${error ? "border-destructive" : ""}`}
+      >
+        <input {...getInputProps() as any} />
+        <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+        {isDragActive ? (
+          <p className="text-primary">Drop the file here ...</p>
+        ) : (
+          <p className="text-muted-foreground">Drag & drop a file here, or click to select a file</p>
+        )}
+        <p className="text-xs text-muted-foreground mt-2">Supported formats: CSV, XLS, XLSX, JSON</p>
       </div>
 
-      <Card className={`border-2 ${dragActive ? "border-teal-500 bg-teal-50" : "border-dashed"}`}>
-        <CardContent className="pt-6">
-          {!selectedFile ? (
-            <div
-              className="flex flex-col items-center justify-center py-10"
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-            >
-              <div className="mb-4 rounded-full bg-teal-100 p-3">
-                <Upload className="h-6 w-6 text-teal-600" />
-              </div>
-              <p className="mb-2 text-center text-lg font-medium">Drag and drop your file here</p>
-              <p className="mb-4 text-center text-sm text-gray-500">
-                Supports CSV, Excel (.xlsx), and JSON files up to 50MB
-              </p>
-              <Button onClick={() => inputRef.current?.click()} className="bg-teal-600 hover:bg-teal-700">
-                Browse Files
-              </Button>
-              <input
-                ref={inputRef}
-                type="file"
-                className="hidden"
-                accept=".csv,.xlsx,.xls,.json"
-                onChange={handleChange}
-              />
-              <p className="mt-4 text-center text-xs text-gray-400">🔒 Your data is encrypted and securely stored</p>
-            </div>
-          ) : (
-            <div className="space-y-4 py-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {selectedFile.name.endsWith(".csv") && <FileText className="h-8 w-8 text-blue-500" />}
-                  {(selectedFile.name.endsWith(".xlsx") || selectedFile.name.endsWith(".xls")) && (
-                    <FileSpreadsheet className="h-8 w-8 text-green-500" />
-                  )}
-                  {selectedFile.name.endsWith(".json") && <FileJson className="h-8 w-8 text-orange-500" />}
-                  <div>
-                    <p className="font-medium">{selectedFile.name}</p>
-                    <p className="text-xs text-gray-500">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
-                  </div>
-                </div>
-                <Button variant="ghost" size="icon" onClick={resetUpload}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
+      {selectedFile && !isLoading && (
+        <div className="mt-4 p-3 border rounded-md flex items-center justify-between bg-muted/50">
+          <div className="flex items-center gap-2">
+            <FileIcon className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm font-medium">{selectedFile.name}</span>
+            <span className="text-xs text-muted-foreground">({(selectedFile.size / 1024).toFixed(2)} KB)</span>
+          </div>
+          <Button variant="ghost" size="icon" onClick={clearSelection} className="h-6 w-6">
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
 
-              {uploading && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">Uploading...</span>
-                    <span className="text-xs font-medium">{uploadProgress}%</span>
-                  </div>
-                  <Progress value={uploadProgress} className="h-2" />
-                </div>
-              )}
+      {isLoading && (
+        <div className="mt-4">
+          <Progress value={uploadProgress} className="w-full" />
+          <p className="text-sm text-center mt-2 text-muted-foreground">Uploading {selectedFile?.name}...</p>
+        </div>
+      )}
 
-              {uploadComplete && (
-                <div className="flex items-center gap-2 text-sm text-green-600">
-                  <Check className="h-4 w-4" />
-                  <span>Upload complete</span>
-                </div>
-              )}
+      {error && <p className="mt-4 text-sm text-destructive text-center">{error}</p>}
 
-              <div className="space-y-2">
-                <Label htmlFor="dataset-name">Dataset Name</Label>
-                <Input
-                  id="dataset-name"
-                  value={datasetName}
-                  onChange={(e) => setDatasetName(e.target.value)}
-                  placeholder="Enter a name for this dataset"
-                />
-              </div>
-            </div>
-          )}
-        </CardContent>
-        {selectedFile && uploadComplete && (
-          <CardFooter className="justify-end border-t px-6 py-4">
-            <Button className="bg-teal-600 hover:bg-teal-700">Continue to Analysis</Button>
-          </CardFooter>
+      <Button onClick={handleUpload} disabled={!selectedFile || isLoading} className="w-full mt-6">
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Uploading...
+          </>
+        ) : (
+          "Upload and Analyze"
         )}
-      </Card>
+      </Button>
     </div>
   )
 }
