@@ -10,18 +10,19 @@ import { Eye, EyeOff, Check, X } from "lucide-react"
 import { SocialAuth } from "@/components/auth/social-auth"
 
 export function SignupForm() {
-  const { signup } = useAuth() // Get signup function from context
-  const [isLoading, setIsLoading] = useState(false)
+  const { signup, isLoading: authIsLoading } = useAuth() // Get signup and isLoading from context
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [formData, setFormData] = useState({
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     confirmPassword: "",
   })
   const [errors, setErrors] = useState({
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -58,10 +59,15 @@ export function SignupForm() {
 
   const validateForm = () => {
     let valid = true
-    const newErrors = { name: "", email: "", password: "", confirmPassword: "", general: "" } // Reset errors
+    const newErrors = { first_name: "", last_name: "", email: "", password: "", confirmPassword: "", general: "" } // Reset errors
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Name is required"
+    if (!formData.first_name.trim()) {
+      newErrors.first_name = "First name is required"
+      valid = false
+    }
+
+    if (!formData.last_name.trim()) {
+      newErrors.last_name = "Last name is required"
       valid = false
     }
 
@@ -101,18 +107,20 @@ export function SignupForm() {
 
     if (!validateForm()) return
 
-    setIsLoading(true)
     setErrors((prev) => ({ ...prev, general: "" })) // Clear previous general errors
 
     try {
       // Use the signup function from AuthContext
-      await signup({ name: formData.name, email: formData.email, password: formData.password })
+      await signup({ 
+        first_name: formData.first_name, 
+        last_name: formData.last_name, 
+        email: formData.email, 
+        password: formData.password 
+      })
       // Success toast and redirection are handled within AuthContext
     } catch (error: any) {
       // Display specific error message from context/API
       setErrors((prev) => ({ ...prev, general: error.message || "Signup failed. Please try again." }))
-    } finally {
-      setIsLoading(false)
     }
   }
 
@@ -123,20 +131,37 @@ export function SignupForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Name Input */}
-        <div className="space-y-2">
-          <Label htmlFor="name">Full Name</Label>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            placeholder="John Doe"
-            autoComplete="name"
-            value={formData.name}
-            onChange={handleChange}
-            disabled={isLoading}
-            className={errors.name ? "border-red-500" : ""}
-          />
-          {errors.name && <p className="text-xs text-red-500">{errors.name}</p>}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="first_name">First Name</Label>
+            <Input
+              id="first_name"
+              name="first_name"
+              type="text"
+              placeholder="John"
+              autoComplete="given-name"
+              value={formData.first_name}
+              onChange={handleChange}
+              disabled={authIsLoading}
+              className={errors.first_name ? "border-red-500" : ""}
+            />
+            {errors.first_name && <p className="text-xs text-red-500">{errors.first_name}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="last_name">Last Name</Label>
+            <Input
+              id="last_name"
+              name="last_name"
+              type="text"
+              placeholder="Doe"
+              autoComplete="family-name"
+              value={formData.last_name}
+              onChange={handleChange}
+              disabled={authIsLoading}
+              className={errors.last_name ? "border-red-500" : ""}
+            />
+            {errors.last_name && <p className="text-xs text-red-500">{errors.last_name}</p>}
+          </div>
         </div>
 
         {/* Email Input */}
@@ -150,7 +175,7 @@ export function SignupForm() {
             autoComplete="email"
             value={formData.email}
             onChange={handleChange}
-            disabled={isLoading}
+            disabled={authIsLoading}
             className={errors.email ? "border-red-500" : ""}
           />
           {errors.email && <p className="text-xs text-red-500">{errors.email}</p>}
@@ -168,7 +193,7 @@ export function SignupForm() {
               autoComplete="new-password"
               value={formData.password}
               onChange={handleChange}
-              disabled={isLoading}
+              disabled={authIsLoading}
               className={errors.password ? "border-red-500 pr-10" : "pr-10"}
             />
             {/* ... eye icon button */}
@@ -214,7 +239,7 @@ export function SignupForm() {
               autoComplete="new-password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              disabled={isLoading}
+              disabled={authIsLoading}
               className={errors.confirmPassword ? "border-red-500 pr-10" : "pr-10"}
             />
             {/* ... eye icon button */}
@@ -245,13 +270,13 @@ export function SignupForm() {
         </div>
 
         {/* Submit Button */}
-        <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isLoading}>
-          {isLoading ? "Creating account..." : "Sign up"}
+        <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={authIsLoading}>
+          {authIsLoading ? "Creating account..." : "Sign up"}
         </Button>
       </form>
 
       {/* Social Auth */}
-      <SocialAuth isLoading={isLoading} isSignUp />
+      <SocialAuth isLoading={authIsLoading} isSignUp />
     </div>
   )
 }

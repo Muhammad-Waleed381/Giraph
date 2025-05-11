@@ -1,19 +1,20 @@
 "use client"
 
 import { Button } from "@/components/ui/button"
+import { useAuth } from "@/context/AuthContext";
 
 interface SocialAuthProps {
-  isLoading: boolean
-  isSignUp?: boolean
+  isLoading?: boolean;
+  isSignUp?: boolean;
 }
 
-export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
+export function SocialAuth({ isLoading: propIsLoading, isSignUp = false }: SocialAuthProps) {
+  const { loginWithGoogle, isLoading: authIsLoading } = useAuth();
+
+  const G_isLoading = propIsLoading !== undefined ? propIsLoading : authIsLoading;
 
   const handleGoogleAuth = () => {
-    // Redirect the user to the backend Google OAuth endpoint
-    // The backend will handle the Google interaction and redirect back to the frontend
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'; // Fallback to 5000 if not set, adjust if your API is elsewhere
-    window.location.href = `${apiBaseUrl}/auth/google`;
+    loginWithGoogle();
   };
 
   return (
@@ -27,8 +28,8 @@ export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" disabled={isLoading} className="w-full" onClick={handleGoogleAuth}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <Button variant="outline" disabled={G_isLoading} className="w-full" onClick={handleGoogleAuth}>
           <svg
             className="mr-2 h-4 w-4"
             aria-hidden="true"
@@ -47,7 +48,7 @@ export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
           Google
         </Button>
 
-        <Button variant="outline" disabled={isLoading} className="w-full" onClick={() => console.log("Microsoft auth")}>
+        <Button variant="outline" disabled={true || G_isLoading} className="w-full" onClick={() => console.log("Microsoft auth clicked. Not implemented.")}>
           <svg
             className="mr-2 h-4 w-4"
             aria-hidden="true"
@@ -63,7 +64,7 @@ export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
               d="M0 32h214.6v214.6H0V32zm233.4 0H448v214.6H233.4V32zM0 265.4h214.6V480H0V265.4zm233.4 0H448V480H233.4V265.4z"
             ></path>
           </svg>
-          Microsoft
+          Microsoft (Coming Soon)
         </Button>
       </div>
     </div>

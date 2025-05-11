@@ -1,224 +1,173 @@
 "use client";
 
-import React, { createContext, useState, useContext, useEffect, ReactNode } from 'react';
-import { useRouter } from 'next/navigation';
+import React, { createContext, useState, useContext, useEffect, ReactNode, useCallback } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import { toast } from '@/hooks/use-toast';
+import apiClient from '../lib/apiClient'; // Import the apiClient
 
+// Updated User interface to match backend User model (excluding password_hash)
 interface User {
-  id: string;
-  name: string;
+  _id: string; // Changed from id to _id
+  first_name: string; // Added
+  last_name: string; // Added
   email: string;
-  // Add other relevant user fields
+  is_email_verified?: boolean; // New field
+  profile_picture?: string;
+  account_type?: string;
+  auth_provider?: string;
+  created_at: string; // Dates will likely be strings from JSON
+  last_login?: string;
 }
 
 interface AuthContextType {
   user: User | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: any) => Promise<void>;
-  signup: (details: { name: string; email: string; password: string }) => Promise<void>; // Updated details type
+  signup: (details: { first_name: string; last_name: string; email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
-  checkSession: () => Promise<void>;
+  loginWithGoogle: () => void;
+  // Removed checkSession, will use loadUserFromToken
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true); // Start loading until session is checked
+  const [isLoading, setIsLoading] = useState(true); // Start loading until user state is determined
   const router = useRouter();
+  const pathname = usePathname();
 
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'; // Ensure this env var is set or default
-
-  // Function to check the current session
-  const checkSession = async () => {
+  const loadUserFromToken = useCallback(async () => {
     setIsLoading(true);
-    console.log('[AuthContext] Attempting to check session at /auth/status...'); // Log: Start session check
+    console.log('[AuthContext] Attempting to load user from /auth/me...');
     try {
-      const response = await fetch(`${apiBaseUrl}/auth/status`, { // Changed to /auth/status
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Send cookies with the request
-      });
-
-      console.log(`[AuthContext] Session check response status from /auth/status: ${response.status}`); // Log: Response status
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('[AuthContext] Session check successful from /auth/status, user data:', data.user); // Log: Success and user data
-        setUser(data.user); // Make sure data.user is the correct path to user object
+      const response = await apiClient.get('/auth/me');
+      console.log(`[AuthContext] /auth/me response status: ${response.status}`);
+      if (response.data && response.data.success && response.data.data) {
+        setUser(response.data.data as User);
+        console.log('[AuthContext] User loaded successfully from token:', response.data.data);
       } else {
-        let errorResponseText = 'Failed to get error response text';
-        try {
-            errorResponseText = await response.text();
-        } catch (e) {
-            console.error('[AuthContext] Could not read error response body text from /auth/status:', e);
-        }
-        console.warn(`[AuthContext] Session check failed from /auth/status. Status: ${response.status}, Response Body: ${errorResponseText}`); // Log: Failure status and body
         setUser(null);
+        console.warn('[AuthContext] /auth/me call did not return user data or was not successful.');
       }
-    } catch (error) {
-      console.error('[AuthContext] Error during session check fetch operation to /auth/status:', error); // Log: Fetch operation error
+    } catch (error: any) {
       setUser(null);
+      if (error.response && error.response.status === 401) {
+        console.log('[AuthContext] No valid session found (401 from /auth/me).');
+      } else {
+        console.error('[AuthContext] Error loading user from token:', error.message);
+      }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
-  // Check session on initial load
   useEffect(() => {
-    checkSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run only once on mount
+    loadUserFromToken();
+  }, [loadUserFromToken]);
 
-  // Login function
   const login = async (credentials: any) => {
     setIsLoading(true);
-    let response: Response | undefined; // Define response here to access in catch
     try {
-      response = await fetch(`${apiBaseUrl}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json', // Prefer JSON responses
-         },
-        body: JSON.stringify(credentials),
-      });
-
-      const contentType = response.headers.get("content-type");
-      let data;
-
-      // Check if the response is JSON before parsing
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json(); // Parse JSON data
+      const response = await apiClient.post('/auth/login', credentials);
+      if (response.data && response.data.success && response.data.data.user) {
+        const loggedInUser = response.data.data.user as User;
+        setUser(loggedInUser);
+        toast({ title: "Login Successful", description: `Welcome back, ${loggedInUser.first_name}!` });
+        router.push(pathname.startsWith('/dashboard') ? pathname : '/dashboard');
       } else {
-        // If not JSON, read as text and throw an error
-        const responseText = await response.text();
-        console.error('Non-JSON response received from login API:', responseText);
-        throw new Error(response.statusText || 'Server returned an unexpected response.');
-      }
-
-      if (response.ok) {
-        setUser(data.user);
-        toast({ title: "Login Successful", description: "Welcome back!" });
-        router.push('/dashboard'); // Redirect to dashboard on successful login
-      } else {
-        // Use message from JSON if available, otherwise use status text
-        throw new Error(data.message || response.statusText || 'Login failed');
+        throw new Error(response.data?.message || 'Login failed due to unexpected server response');
       }
     } catch (error: any) {
-      console.error('Login failed:', error);
+      console.error('Login failed in AuthContext:', error);
       setUser(null);
-
       let errorMessage = "An unexpected error occurred during login.";
-      // Provide more specific feedback for JSON parsing errors vs other errors
-      if (error instanceof SyntaxError) { // JSON parse error (should be less likely now)
-          errorMessage = "Received an invalid response format from the server.";
-      } else if (error.message) {
-          errorMessage = error.message;
+      if (error.response && error.response.data) {
+        errorMessage = error.response.data.message || error.response.data.error?.message || error.message;
+      } else {
+        errorMessage = error.message;
       }
-
       toast({ title: "Login Failed", description: errorMessage, variant: "destructive" });
-      throw error; // Re-throw error to be caught in the form
+      throw error;
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Signup function
-  const signup = async (details: { name: string; email: string; password: string }) => { // Updated details type
+  const signup = async (details: { first_name: string; last_name: string; email: string; password: string }) => {
     setIsLoading(true);
-    let response: Response | undefined;
     try {
-      // Ensure the backend expects 'username' and not 'name'
-      const signupDetails = {
-        username: details.name, // Map frontend 'name' to backend 'username'
-        email: details.email,
-        password: details.password,
-      };
-
-      response = await fetch(`${apiBaseUrl}/auth/signup`, {
-        method: 'POST',
-        headers: {
-           'Content-Type': 'application/json',
-           'Accept': 'application/json',
-        },
-        body: JSON.stringify(signupDetails), // Use mapped details
-      });
-
-      const contentType = response.headers.get("content-type");
-      let data;
-
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        const responseText = await response.text();
-        console.error('Non-JSON response received from signup API:', responseText);
-        throw new Error(response.statusText || 'Server returned an unexpected response during signup.');
-      }
-
-      if (response.ok) {
-        // Backend successfully created user and sent verification email
+      const response = await apiClient.post('/auth/signup', details);
+      if (response.data && response.data.success && response.data.data.user) {
+        const signedUpUser = response.data.data.user as User;
+        // Don't auto-login until email is verified, we will change this later
+        // setUser(signedUpUser); 
         toast({
           title: "Signup Successful",
-          description: data.message || "Account created. Please check your email to verify your account before logging in.",
+          // description: `Welcome, ${signedUpUser.first_name}! You are now logged in.`,
+          description: `Welcome, ${signedUpUser.first_name}! Please check your email to verify your account.`,
         });
-        router.push('/login'); // Redirect to login page
+        // router.push('/dashboard'); // Don't redirect yet
+        // Potentially redirect to a page that says "Please verify your email"
+        router.push('/login?message=verify-email');
       } else {
-        // Use message from JSON if available, otherwise use status text
-        throw new Error(data.message || response.statusText || 'Signup failed');
+        throw new Error(response.data?.message || 'Signup failed due to unexpected response');
       }
     } catch (error: any) {
-      console.error('Signup failed:', error);
-
+      console.error('Signup failed in AuthContext:', error);
+      setUser(null); 
       let errorMessage = "An unexpected error occurred during signup.";
-      if (error instanceof SyntaxError) {
-          errorMessage = "Received an invalid response format from the server.";
-      } else if (error.message) {
-          errorMessage = error.message;
+      if (error.response && error.response.data) {
+        errorMessage = error.response.data.message || error.response.data.error?.message || error.message;
+      } else {
+        errorMessage = error.message;
       }
-
       toast({ title: "Signup Failed", description: errorMessage, variant: "destructive" });
-      throw error; // Re-throw error to be caught in the form
+      throw error; 
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Logout function
+  const loginWithGoogle = () => {
+    // The backend handles the cookie setting and redirect.
+    // The frontend just needs to navigate to the Google auth endpoint.
+    const googleAuthUrl = `${apiClient.defaults.baseURL}/auth/google`;
+    window.location.href = googleAuthUrl;
+  };
+
   const logout = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${apiBaseUrl}/auth/logout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include', // Send cookies with the request (e.g., for backend to clear HttpOnly cookie)
-      });
-
-      if (!response.ok) {
-         // Even if logout fails on backend, clear frontend state
-         console.error('Backend logout failed, proceeding with frontend logout.');
-      }
-
-    } catch (error) {
-      console.error('Logout request failed:', error);
-       // Still proceed with frontend logout on network error
+      await apiClient.post('/auth/logout');
+      // Cookie is cleared by the backend.
+    } catch (error: any) {
+      console.error('Logout request failed on backend:', error.response?.data?.message || error.message);
+      // Even if backend call fails, proceed with frontend logout
     } finally {
-       setUser(null);
-       setIsLoading(false);
-       toast({ title: "Logged Out", description: "You have been successfully logged out." });
-       router.push('/login'); // Redirect to login page after logout
+      setUser(null);
+      setIsLoading(false);
+      toast({ title: "Logged Out", description: "You have been successfully logged out." });
+      router.push('/login');
     }
   };
 
-
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, signup, logout, checkSession }}>
+    <AuthContext.Provider value={{ 
+        user, 
+        isAuthenticated: !!user, // Determine by user presence
+        isLoading, 
+        login, 
+        signup, 
+        logout, 
+        loginWithGoogle 
+    }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-// Custom hook to use the AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
