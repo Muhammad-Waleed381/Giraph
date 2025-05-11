@@ -15,7 +15,7 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   login: (credentials: any) => Promise<void>;
-  signup: (details: any) => Promise<void>;
+  signup: (details: { name: string; email: string; password: string }) => Promise<void>; // Updated details type
   logout: () => Promise<void>;
   checkSession: () => Promise<void>;
 }
@@ -32,24 +32,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Function to check the current session
   const checkSession = async () => {
     setIsLoading(true);
+    console.log('[AuthContext] Attempting to check session at /auth/status...'); // Log: Start session check
     try {
-      const response = await fetch(`${apiBaseUrl}/auth/session`, {
+      const response = await fetch(`${apiBaseUrl}/auth/status`, { // Changed to /auth/status
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Send cookies with the request
       });
+
+      console.log(`[AuthContext] Session check response status from /auth/status: ${response.status}`); // Log: Response status
 
       if (response.ok) {
         const data = await response.json();
-        setUser(data.user);
+        console.log('[AuthContext] Session check successful from /auth/status, user data:', data.user); // Log: Success and user data
+        setUser(data.user); // Make sure data.user is the correct path to user object
       } else {
+        let errorResponseText = 'Failed to get error response text';
+        try {
+            errorResponseText = await response.text();
+        } catch (e) {
+            console.error('[AuthContext] Could not read error response body text from /auth/status:', e);
+        }
+        console.warn(`[AuthContext] Session check failed from /auth/status. Status: ${response.status}, Response Body: ${errorResponseText}`); // Log: Failure status and body
         setUser(null);
-        // Don't redirect here, let protected routes handle it
       }
     } catch (error) {
-      console.error('Session check failed:', error);
+      console.error('[AuthContext] Error during session check fetch operation to /auth/status:', error); // Log: Fetch operation error
       setUser(null);
-      // Optionally show a toast for network errors
-      // toast({ title: "Error", description: "Could not connect to server.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -116,37 +125,44 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Signup function
-  const signup = async (details: any) => {
+  const signup = async (details: { name: string; email: string; password: string }) => { // Updated details type
     setIsLoading(true);
     let response: Response | undefined;
     try {
+      // Ensure the backend expects 'username' and not 'name'
+      const signupDetails = {
+        username: details.name, // Map frontend 'name' to backend 'username'
+        email: details.email,
+        password: details.password,
+      };
+
       response = await fetch(`${apiBaseUrl}/auth/signup`, {
         method: 'POST',
         headers: {
            'Content-Type': 'application/json',
-           'Accept': 'application/json', // Prefer JSON
+           'Accept': 'application/json',
         },
-        body: JSON.stringify(details),
+        body: JSON.stringify(signupDetails), // Use mapped details
       });
 
       const contentType = response.headers.get("content-type");
       let data;
 
-      // Check if the response is JSON before parsing
       if (contentType && contentType.includes("application/json")) {
         data = await response.json();
       } else {
-        // If not JSON, read as text and throw an error
         const responseText = await response.text();
         console.error('Non-JSON response received from signup API:', responseText);
-        // Use status text if available, otherwise a generic message
         throw new Error(response.statusText || 'Server returned an unexpected response during signup.');
       }
 
       if (response.ok) {
-        // Assuming successful signup returns user data or a success message in JSON
-        toast({ title: "Signup Successful", description: data.message || "Please log in to continue." });
-        router.push('/login'); // Redirect to login page after successful signup
+        // Backend successfully created user and sent verification email
+        toast({
+          title: "Signup Successful",
+          description: data.message || "Account created. Please check your email to verify your account before logging in.",
+        });
+        router.push('/login'); // Redirect to login page
       } else {
         // Use message from JSON if available, otherwise use status text
         throw new Error(data.message || response.statusText || 'Signup failed');
@@ -155,7 +171,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error('Signup failed:', error);
 
       let errorMessage = "An unexpected error occurred during signup.";
-      if (error instanceof SyntaxError) { // JSON parse error
+      if (error instanceof SyntaxError) {
           errorMessage = "Received an invalid response format from the server.";
       } else if (error.message) {
           errorMessage = error.message;
@@ -175,6 +191,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const response = await fetch(`${apiBaseUrl}/auth/logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Send cookies with the request (e.g., for backend to clear HttpOnly cookie)
       });
 
       if (!response.ok) {
