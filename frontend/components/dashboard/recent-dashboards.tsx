@@ -48,7 +48,7 @@ export function RecentDashboards() {
             <CardContent className="p-4">
               <div className="h-32 rounded-md bg-gray-100 flex items-center justify-center">
                 <img
-                  src="/placeholder.svg?height=128&width=256"
+                  src="/preview.jpeg"
                   alt="Dashboard preview"
                   className="h-full w-full object-cover"
                 />

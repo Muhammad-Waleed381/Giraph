@@ -5761,3 +5761,41 @@
 2025-05-07T13:23:31.365Z [INFO]: User authenticated: Muhammad Waleed
 2025-05-07T13:23:31.365Z [INFO]: Session status requested for user: Muhammad Waleed
 2025-05-07T13:25:58.134Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-05-11T08:10:19.362Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-11T08:10:21.757Z [INFO]: Connected to MongoDB successfully
+2025-05-11T08:10:21.759Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T08:10:21.762Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T08:10:21.763Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T08:10:21.764Z [INFO]: GeminiInterface initialized successfully
+2025-05-11T08:10:21.769Z [INFO]: Application initialized successfully
+2025-05-11T08:10:21.770Z [INFO]: Server running on port 3000
+2025-05-11T08:11:12.639Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header
+2025-05-11T08:11:34.822Z [ERROR]: Login error for email f@gmail.com:
+2025-05-11T08:11:34.823Z [ERROR]: Error during user login:
+2025-05-11T15:14:02.517Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-11T15:14:06.548Z [INFO]: Connected to MongoDB successfully
+2025-05-11T15:14:06.551Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T15:14:06.558Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T15:14:06.560Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T15:14:06.562Z [INFO]: GeminiInterface initialized successfully
+2025-05-11T15:14:06.572Z [INFO]: Application initialized successfully
+2025-05-11T15:14:06.574Z [INFO]: Server running on port 3000
+2025-05-11T15:15:05.061Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header
+2025-05-11T15:16:05.755Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header
+2025-05-11T15:19:17.580Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header
+2025-05-11T15:20:04.440Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header
+2025-05-11T15:22:20.552Z [INFO]: User logged in successfully: cirog
+2025-05-11T15:26:05.479Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header
+2025-05-11T15:26:13.115Z [INFO]: User logged in successfully: cirog
+2025-05-11T15:54:30.467Z [INFO]: SIGINT signal received. Closing MongoDB connection...
+2025-05-11T15:54:37.131Z [WARN]: JWT_SECRET environment variable is not set. Using a default secret for development only. Please set a strong secret in production.
+2025-05-11T15:54:39.363Z [INFO]: Connected to MongoDB successfully
+2025-05-11T15:54:39.365Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T15:54:39.369Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T15:54:39.370Z [INFO]: Stored Google OAuth tokens are expired
+2025-05-11T15:54:39.372Z [INFO]: GeminiInterface initialized successfully
+2025-05-11T15:54:39.379Z [INFO]: Application initialized successfully
+2025-05-11T15:54:39.380Z [INFO]: Server running on port 3000
+2025-05-11T15:54:39.614Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header
+2025-05-11T15:54:53.339Z [INFO]: User logged in successfully: cirog
+2025-05-11T17:13:35.753Z [WARN]: Authentication attempt failed: No token provided in cookie or Authorization header

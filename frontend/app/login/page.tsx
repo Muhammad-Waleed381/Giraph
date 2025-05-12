@@ -13,7 +13,7 @@ export default function LoginPage() {
     <AuthLayout
       title="Welcome back to Giraph"
       subtitle="Please login to continue exploring your data insights."
-      image="/placeholder.svg?height=600&width=600"
+      image="/wordcloud.jpg"
     >
       <LoginForm />
       <div className="mt-6 text-center text-sm">

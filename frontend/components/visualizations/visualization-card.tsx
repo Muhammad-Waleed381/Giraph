@@ -48,7 +48,7 @@ export function VisualizationCard({ visualization, onToggleFavorite }: Visualiza
       <div className="relative">
         <div className="aspect-video bg-muted overflow-hidden">
           <img
-            src={visualization.thumbnail || "/placeholder.svg"}
+            src={"/SalesPerformance.jpeg"}
             alt={visualization.title}
             className="w-full h-full object-cover transition-transform duration-500 ease-in-out"
             style={{ transform: isHovered ? "scale(1.05)" : "scale(1)" }}
