@@ -19,13 +19,7 @@ export function DashboardHeader() {
         <div className="flex items-center gap-2">{/* Page title could go here if needed */}</div>
 
         <div className="flex items-center gap-4">
-          <div className="relative">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <Badge className="absolute -right-1 -top-1 h-5 w-5 rounded-full bg-orange-500 p-0 text-[10px]">3</Badge>
-              <span className="sr-only">Notifications</span>
-            </Button>
-          </div>
+          {/* Notification Bell Button Removed */}
 
           <Button variant="ghost" size="icon">
             <HelpCircle className="h-5 w-5" />

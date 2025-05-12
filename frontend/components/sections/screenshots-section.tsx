@@ -11,17 +11,17 @@ export function ScreenshotsSection() {
     {
       title: "AI-Generated Dashboard",
       description: "Upload your data and get beautiful visualizations instantly.",
-      image: "/placeholder.svg?height=720&width=1280",
+      image: "/Sample1.jpeg?height=720&width=1280",
     },
     {
       title: "Natural Language Queries",
       description: "Ask questions in plain English and get instant insights.",
-      image: "/placeholder.svg?height=720&width=1280",
+      image: "/Sample2.jpg?height=720&width=1280",
     },
     {
       title: "Mobile-Friendly View",
       description: "Access your dashboards on any device, anywhere.",
-      image: "/placeholder.svg?height=720&width=1280",
+      image: "/Mobile.jpeg?height=720&width=1280",
     },
   ]
 

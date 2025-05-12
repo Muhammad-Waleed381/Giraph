@@ -16,12 +16,16 @@ export function TestimonialsSection() {
         <div className="mt-12 flex justify-center">
           <div className="rounded-xl border border-gray-200 bg-gray-50 p-8 text-center shadow-sm">
             <p className="text-lg text-gray-600 italic">
-              "Coming soon: Customer testimonials and success stories from Giraph users."
+              "Giraph has been instrumental in helping us analyze complex grid data and identify patterns for predictive maintenance. The ability to quickly generate insightful dashboards has significantly improved our operational efficiency."
             </p>
             <div className="mt-6">
-              <div className="h-12 w-12 mx-auto rounded-full bg-gray-200"></div>
-              <p className="mt-2 font-medium text-gray-900">Future Customer</p>
-              <p className="text-sm text-gray-500">Position, Company</p>
+              <img 
+                src="/user.jpeg" 
+                alt="Future Customer"
+                className="h-12 w-12 mx-auto rounded-full object-cover"
+              />
+              <p className="mt-2 font-medium text-gray-900">Pakistan Electric Supply Company</p>
+              <p className="text-sm text-gray-500">Data Analyst</p>
             </div>
           </div>
         </div>

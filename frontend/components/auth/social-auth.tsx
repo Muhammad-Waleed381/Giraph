@@ -27,7 +27,7 @@ export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3"> {/* Changed grid-cols-2 to grid-cols-1 */}
         <Button variant="outline" disabled={isLoading} className="w-full" onClick={handleGoogleAuth}>
           <svg
             className="mr-2 h-4 w-4"
@@ -47,24 +47,7 @@ export function SocialAuth({ isLoading, isSignUp = false }: SocialAuthProps) {
           Google
         </Button>
 
-        <Button variant="outline" disabled={isLoading} className="w-full" onClick={() => console.log("Microsoft auth")}>
-          <svg
-            className="mr-2 h-4 w-4"
-            aria-hidden="true"
-            focusable="false"
-            data-prefix="fab"
-            data-icon="microsoft"
-            role="img"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 448 512"
-          >
-            <path
-              fill="currentColor"
-              d="M0 32h214.6v214.6H0V32zm233.4 0H448v214.6H233.4V32zM0 265.4h214.6V480H0V265.4zm233.4 0H448V480H233.4V265.4z"
-            ></path>
-          </svg>
-          Microsoft
-        </Button>
+        {/* Microsoft Button Removed */}
       </div>
     </div>
   )

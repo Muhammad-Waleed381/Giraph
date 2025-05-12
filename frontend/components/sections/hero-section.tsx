@@ -50,12 +50,12 @@ export function HeroSection() {
             <div className="relative rounded-2xl bg-white p-2 shadow-2xl border border-gray-200">
               <div className="aspect-[16/9] overflow-hidden rounded-xl bg-gray-100">
                 <img
-                  src="/placeholder.svg?height=720&width=1280"
+                  src="/Dashboard_Preview.jpeg?height=720&width=1280"
                   alt="Giraph Dashboard Preview"
                   className="h-full w-full object-cover"
                 />
               </div>
-              <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-orange-500 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+              <div className="absolute -bottom-6 -right-6 h-24 w-24 rounded-full bg-orange-500 flex items-center justify-center text-center text-white font-bold text-lg shadow-lg">
                 AI-Powered
               </div>
             </div>
