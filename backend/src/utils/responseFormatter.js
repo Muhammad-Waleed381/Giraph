@@ -33,13 +33,14 @@ export const responseFormatter = {
      */
     error: (message = 'An error occurred', statusCode = 500, details = {}) => {
         // Return a plain JSON object for the response
-        return {
+        const response = {
             success: false,
-            error: {
-                message: message,
-                statusCode: statusCode,
-                details: details
-            }
+            message: message,
+            statusCode: statusCode
         };
+        if (Object.keys(details).length > 0) {
+            response.details = details;
+        }
+        return response;
     }
 };

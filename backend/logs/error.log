@@ -251,3 +251,109 @@
 2025-05-07T12:09:09.380Z [ERROR]: Login error for email waleedmods2008@gmail.com:
 2025-05-07T12:09:09.381Z [ERROR]: Error during user login:
 2025-05-07T12:20:15.119Z [ERROR]: Error during user signup:
+2025-05-11T12:37:28.323Z [ERROR]: Login error for email ar647832@gmail.com:
+2025-05-11T12:37:28.323Z [ERROR]: Error during user login:
+2025-05-11T12:38:18.045Z [ERROR]: Login error for email ar647832@gmail.com:
+2025-05-11T12:38:18.045Z [ERROR]: Error during user login:
+2025-05-11T12:40:50.348Z [ERROR]: [AuthToken] Token verification failed: invalid signature
+2025-05-11T12:59:05.296Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:05.300Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:09.529Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:10.071Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:10.270Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:10.469Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:10.672Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:10.840Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:11.019Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T12:59:11.184Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T13:08:44.349Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T13:08:44.354Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T13:08:57.228Z [ERROR]: API Error: this.dataSourceService.createFileInfo is not a function
+2025-05-11T13:08:59.643Z [ERROR]: API Error: this.dataSourceService.getUploadedFiles is not a function
+2025-05-11T13:25:25.918Z [ERROR]: Error refreshing Google OAuth tokens: unauthorized_client
+2025-05-11T13:48:12.296Z [ERROR]: Error creating user: User with this email already exists.
+2025-05-11T13:48:12.296Z [ERROR]: Signup error for email ariaz.bscs23seecs@seecs.edu.pk:
+2025-05-11T13:48:12.297Z [ERROR]: Error during user signup:
+2025-05-11T13:51:30.440Z [ERROR]: API Error: Invalid Credentials
+2025-05-11T13:59:13.373Z [ERROR]: API Error: Invalid Credentials
+2025-05-11T14:16:17.229Z [ERROR]: API Error: Invalid Credentials
+2025-05-11T14:28:41.928Z [ERROR]: API Error: Missing authorization code
+2025-05-11T14:28:50.128Z [ERROR]: API Error: Missing authorization code
+2025-05-11T14:38:39.579Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T06:17:09.954Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:09.955Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:09.956Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:16.439Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:16.440Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:16.440Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:17.612Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:17.612Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:17.613Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:18.792Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:18.792Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:18.792Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:19.432Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:19.432Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:19.433Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:24.413Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:24.414Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:24.414Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:32.652Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:32.652Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:32.652Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:34.181Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:34.182Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:34.182Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:34.183Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:34.184Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T06:17:34.184Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-12T10:28:57.765Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T10:29:31.224Z [ERROR]: API Error: Missing authorization code
+2025-05-12T10:30:36.477Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T10:47:16.789Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T10:48:03.180Z [ERROR]: API Error: Missing authorization code
+2025-05-12T10:48:07.348Z [ERROR]: API Error: Missing authorization code
+2025-05-12T10:49:18.142Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T10:51:08.033Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T10:52:40.466Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T10:53:50.912Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T11:02:03.911Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T11:02:52.202Z [ERROR]: API Error: Invalid Credentials
+2025-05-12T11:41:30.245Z [ERROR]: Error exchanging code for tokens: invalid_grant
+2025-05-12T11:41:30.258Z [ERROR]: Error handling OAuth2 callback: invalid_grant
+2025-05-12T11:41:30.258Z [ERROR]: Error handling Google auth callback: invalid_grant
+2025-05-12T11:41:30.259Z [ERROR]: API Error: invalid_grant
+2025-05-12T12:31:46.000Z [ERROR]: Failed to initialize application: Cannot read properties of undefined (reading 'bind')
+2025-05-12T13:39:43.085Z [ERROR]: Error exchanging code for tokens: invalid_grant
+2025-05-12T13:39:43.087Z [ERROR]: Error handling OAuth2 callback: invalid_grant
+2025-05-12T13:39:43.087Z [ERROR]: Error handling Google auth callback: invalid_grant
+2025-05-12T13:39:43.088Z [ERROR]: API Error: invalid_grant
+2025-05-12T13:40:58.703Z [ERROR]: Error exchanging code for tokens: invalid_grant
+2025-05-12T13:40:58.704Z [ERROR]: Error handling OAuth2 callback: invalid_grant
+2025-05-12T13:40:58.705Z [ERROR]: Error handling Google auth callback: invalid_grant
+2025-05-12T13:40:58.706Z [ERROR]: API Error: invalid_grant
+2025-05-13T04:54:14.699Z [ERROR]: User ID not found in request during file upload.
+2025-05-13T04:54:14.703Z [ERROR]: Error deleting incomplete upload: ENOENT: no such file or directory, unlink '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112054406-49923823.csv'
+2025-05-13T04:54:14.704Z [ERROR]: API Error: User authentication required for file upload.
+2025-05-13T04:54:49.110Z [ERROR]: User ID not found in request during file upload.
+2025-05-13T04:54:49.111Z [ERROR]: Error deleting incomplete upload: ENOENT: no such file or directory, unlink '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112088937-758413305.csv'
+2025-05-13T04:54:49.112Z [ERROR]: API Error: User authentication required for file upload.
+2025-05-13T04:57:54.757Z [ERROR]: User ID not found in request during file upload.
+2025-05-13T04:57:54.759Z [ERROR]: Error deleting incomplete upload: ENOENT: no such file or directory, unlink '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112274660-862298604.csv'
+2025-05-13T04:57:54.759Z [ERROR]: API Error: User authentication required for file upload.
+2025-05-13T04:59:14.813Z [ERROR]: User ID not found in request during file upload.
+2025-05-13T04:59:14.819Z [ERROR]: Error deleting incomplete upload: ENOENT: no such file or directory, unlink '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112354601-734054425.csv'
+2025-05-13T04:59:14.819Z [ERROR]: API Error: User authentication required for file upload.
+2025-05-13T05:03:52.549Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T05:12:39.642Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T05:13:10.696Z [ERROR]: Error creating/updating data source record: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:13:20.747Z [ERROR]: Error updating data source import progress: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:13:57.816Z [ERROR]: Error creating/updating data source record: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:14:08.005Z [ERROR]: Error updating data source import progress: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:15:37.639Z [ERROR]: Error creating/updating data source record: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:15:47.665Z [ERROR]: Error updating data source import progress: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:16:15.560Z [ERROR]: Error creating/updating data source record: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:16:25.601Z [ERROR]: Error updating data source import progress: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T05:16:36.090Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T05:16:36.091Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T05:30:48.805Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.

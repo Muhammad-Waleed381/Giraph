@@ -108,11 +108,11 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
       setUploadProgress(100)
 
       // Assuming the backend returns data in the format { success: true, data: { fileInfo: {...} }, message: '...' }
-      if (result.success && result.data?.fileInfo) {
+      if (result.success !== false && result.data?.fileInfo) {
         toast({
           title: "Upload Successful",
           description: `${result.data.fileInfo.originalName} uploaded.`,
-          variant: "default",
+          variant: "success",
           className: "bg-green-100 border border-green-500 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-100",
         })
         setSelectedFile(null) // Clear selection after successful upload

@@ -132,7 +132,7 @@ export function RecentConnections({ refreshTrigger }: RecentConnectionsProps) {
         className: "bg-blue-100 border border-blue-500 text-blue-800 dark:bg-blue-900 dark:border-blue-700 dark:text-blue-100",
       });
       
-      const response = await fetch("/api/import/", {
+      const response = await fetch("/api/import/analyze/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

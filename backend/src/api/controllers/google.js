@@ -170,6 +170,7 @@ export class GoogleController {
     async importSheetData(req, res, next) {
         try {
             const { spreadsheetId, sheetName, options } = req.body;
+            const userId = req.user?.id || null; // Get user ID if available
             
             if (!spreadsheetId || !sheetName) {
                 throw responseFormatter.error('Both spreadsheetId and sheetName are required', 400);
@@ -187,14 +188,68 @@ export class GoogleController {
                 importOptions.schema = analysisResult.schema;
             }
             
+            // First create a record in data_sources
+            let dataSourceId = null;
+            try {
+                const DataSource = (await import('../../models/dataSource.js')).default;
+                
+                const dataSource = new DataSource({
+                    user_id: userId || '000000000000000000000000', // Default if no user ID
+                    name: `Google Sheet: ${sheetName}`,
+                    type: 'google_sheets',
+                    collection_name: importOptions.collectionName,
+                    google_sheet_info: {
+                        spreadsheet_id: spreadsheetId,
+                        sheet_name: sheetName
+                    },
+                    created_at: new Date(),
+                    last_updated: new Date()
+                });
+                
+                await dataSource.save();
+                dataSourceId = dataSource._id;
+                logger.info(`Created data source record for Google Sheet: ${dataSourceId}`);
+                
+            } catch (createError) {
+                logger.error('Error creating data source record for Google Sheet:', createError);
+                // Continue even if record creation fails
+            }
+            
             const result = await this.googleService.importSheetData(spreadsheetId, sheetName, importOptions);
             
+            // Update data source record with import results
+            if (dataSourceId) {
+                try {
+                    const DataSource = (await import('../../models/dataSource.js')).default;
+                    const dataSource = await DataSource.findById(dataSourceId);
+                    
+                    if (dataSource) {
+                        dataSource.row_count = result.totalRows;
+                        dataSource.schema_metadata = {
+                            fields: Object.keys(importOptions.schema.schema || {}),
+                            importedCount: result.insertedCount,
+                            totalRows: result.totalRows,
+                            importComplete: true,
+                            importCompletedAt: new Date()
+                        };
+                        dataSource.last_updated = new Date();
+                        await dataSource.save();
+                    }
+                } catch (updateError) {
+                    logger.error('Error updating data source record for Google Sheet:', updateError);
+                }
+            }
+            
             res.json(responseFormatter.success(
-                result,
+                {
+                    ...result,
+                    dataSourceId
+                },
                 'Google Sheet data imported successfully',
                 {
                     collectionName: importOptions.collectionName,
-                    recordsImported: result.importCount || 0,
+                    recordsImported: result.insertedCount || 0,
+                    totalRows: result.totalRows || 0,
                     spreadsheetId,
                     sheetName
                 }
