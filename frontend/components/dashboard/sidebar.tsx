@@ -24,12 +24,12 @@ import {
   Zap,
   BarChart3,
   Settings,
-  HelpCircle,
-  LogOut,
   ChevronLeft,
   ChevronRight,
+  PanelRight,
 } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { cn } from "@/lib/utils"
+import { Logo } from "@/components/logo"
 
 export function DashboardSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
@@ -46,7 +46,7 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen bg-gray-900">
         <MainSidebar />
         <div className="flex-1">{children}</div>
       </div>
@@ -57,7 +57,7 @@ export function DashboardSidebar({ children }: { children: React.ReactNode }) {
 function MainSidebar() {
   const pathname = usePathname()
   const { state, toggleSidebar } = useSidebar()
-  const { user, logout, isLoading } = useAuth() // Get user and logout from context
+  const { user } = useAuth() // Get user from context
 
   const navItems = [
     {
@@ -83,7 +83,7 @@ function MainSidebar() {
     {
       title: "Visualizations",
       icon: <BarChart3 className="h-5 w-5" />,
-      href: "/dashboard/visualizations",
+      href: "/visualizations",
     },
     {
       title: "Settings",
@@ -92,98 +92,74 @@ function MainSidebar() {
     },
   ]
 
-  const handleLogout = async () => {
-    await logout();
-    // Redirection is handled within the logout function in AuthContext
-  }
-
-  // Function to get initials from name
-  const getInitials = (name: string | undefined) => {
-    if (!name) return "?";
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase();
-  };
-
   return (
-    <Sidebar className="border-r border-gray-200">
-      <SidebarHeader className="border-b border-gray-200 px-3 py-4">
-        <div className="flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center gap-2">
+    <>
+      <Sidebar className="border-r border-gray-800 bg-gray-800">
+        <SidebarHeader className="border-b border-gray-700 px-3 py-4">
+          <div className="flex items-center justify-between">
             {state === "expanded" ? (
-              <span className="text-xl font-bold text-teal-600">Giraph</span>
+              <Logo showText size="md" />
             ) : (
-              <span className="text-xl font-bold text-teal-600">G</span>
+              <Logo showText={false} size="sm" />
             )}
-          </Link>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 rounded-full"
-            onClick={toggleSidebar}
-            aria-label={state === "expanded" ? "Collapse sidebar" : "Expand sidebar"}
-          >
-            {state === "expanded" ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-          </Button>
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent className="px-3 py-4">
-        <SidebarMenu>
-          {navItems.map((item) => (
-            <SidebarMenuItem key={item.href}>
-              <SidebarMenuButton
-                asChild
-                isActive={pathname === item.href}
-                tooltip={state === "collapsed" ? item.title : undefined}
-              >
-                <Link href={item.href} className="flex items-center gap-3">
-                  {item.icon}
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarContent>
-
-      <SidebarFooter className="border-t border-gray-200 px-3 py-4">
-        <div className="flex items-center gap-3">
-          <Avatar className="h-8 w-8">
-            <AvatarImage src="/placeholder-user.jpg" alt={user?.name || "User"} />
-            <AvatarFallback className="bg-teal-100 text-teal-800">
-              {getInitials(user?.name)}
-            </AvatarFallback>
-          </Avatar>
-          {state === "expanded" && (
-            <div className="flex-1 overflow-hidden">
-              <p className="truncate text-sm font-medium">{user?.name || "User"}</p>
-              <p className="truncate text-xs text-gray-500">{user?.email || ""}</p>
-            </div>
-          )}
-        </div>
-
-        {state === "expanded" && (
-          <div className="mt-4 flex gap-2">
-            <Button variant="outline" size="sm" className="flex-1">
-              <HelpCircle className="mr-1 h-4 w-4" />
-              Help
-            </Button>
             <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={handleLogout} // Call handleLogout on click
-              disabled={isLoading} // Disable button while logging out
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full text-gray-300 hover:text-white hover:bg-gray-700"
+              onClick={toggleSidebar}
+              aria-label={state === "expanded" ? "Collapse sidebar" : "Expand sidebar"}
             >
-              <LogOut className="mr-1 h-4 w-4" />
-              {isLoading ? "Logging out..." : "Logout"}
+              {state === "expanded" ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
             </Button>
           </div>
-        )}
-      </SidebarFooter>
-    </Sidebar>
+        </SidebarHeader>
+
+        <SidebarContent className="px-3 py-4">
+          <SidebarMenu>
+            {navItems.map((item) => (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  isActive={pathname === item.href}
+                  tooltip={state === "collapsed" ? item.title : undefined}
+                  className={cn(
+                    "text-gray-300 hover:text-white hover:bg-gray-700",
+                    pathname === item.href && "bg-blue-900/50 text-blue-400"
+                  )}
+                >
+                  <Link href={item.href} className="flex items-center gap-3">
+                    {item.icon}
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarContent>
+
+        <SidebarFooter className="border-t border-gray-700 px-3 py-4">
+          <div className="flex items-center justify-center">
+            <span className="text-xs text-gray-400">
+              © {new Date().getFullYear()} Giraph Analytics
+            </span>
+          </div>
+        </SidebarFooter>
+      </Sidebar>
+      
+      {/* Floating button to reopen sidebar when collapsed */}
+      {state === "collapsed" && (
+        <div className="fixed left-0 top-1/2 z-20 -translate-y-1/2 md:block">
+          <Button
+            variant="secondary"
+            size="icon"
+            className="h-10 w-10 rounded-r-lg rounded-l-none bg-gray-800 text-gray-300 hover:text-white hover:bg-gray-700 shadow-md"
+            onClick={toggleSidebar}
+            aria-label="Open sidebar"
+          >
+            <PanelRight className="h-5 w-5" />
+          </Button>
+        </div>
+      )}
+    </>
   )
 }

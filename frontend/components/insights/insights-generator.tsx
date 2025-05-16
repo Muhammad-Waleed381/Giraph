@@ -38,7 +38,7 @@ export function InsightsGenerator({ onGenerateInsights }: InsightsGeneratorProps
   }
 
   return (
-    <Card className="mb-6">
+    <Card className="mb-6 border-gray-800 bg-gray-800">
       <CardContent className="p-6">
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <div className="space-y-4">
@@ -51,12 +51,12 @@ export function InsightsGenerator({ onGenerateInsights }: InsightsGeneratorProps
                 onCheckedChange={setDeepAnalysisMode}
                 disabled={isGenerating}
               />
-              <Label htmlFor="deep-analysis" className="flex items-center gap-2">
+              <Label htmlFor="deep-analysis" className="flex items-center gap-2 text-gray-300">
                 Deep Analysis Mode
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <span className="cursor-help text-gray-400 hover:text-gray-600">
+                      <span className="cursor-help text-gray-400 hover:text-gray-300">
                         <HelpCircle className="h-4 w-4" />
                       </span>
                     </TooltipTrigger>
@@ -73,7 +73,7 @@ export function InsightsGenerator({ onGenerateInsights }: InsightsGeneratorProps
           </div>
 
           <div className="flex flex-col justify-end space-y-4">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-gray-400">
               {deepAnalysisMode
                 ? "Deep analysis may take 1-2 minutes to complete."
                 : "Standard analysis typically takes 15-30 seconds."}
@@ -81,7 +81,7 @@ export function InsightsGenerator({ onGenerateInsights }: InsightsGeneratorProps
             <Button
               onClick={handleGenerateInsights}
               disabled={!selectedDataset || isGenerating}
-              className="w-full bg-orange-500 hover:bg-orange-600"
+              className="w-full bg-blue-600 hover:bg-blue-700"
               size="lg"
             >
               {isGenerating ? (
@@ -91,7 +91,7 @@ export function InsightsGenerator({ onGenerateInsights }: InsightsGeneratorProps
                 </>
               ) : (
                 <>
-                  <Search className="mr-2 h-4 w-4" />🔍 Generate Insights
+                  <Search className="mr-2 h-4 w-4" />Generate Insights
                 </>
               )}
             </Button>
@@ -99,9 +99,9 @@ export function InsightsGenerator({ onGenerateInsights }: InsightsGeneratorProps
         </div>
 
         {!selectedDataset && (
-          <div className="mt-4 rounded-md bg-blue-50 p-4 text-center">
-            <p className="text-blue-700">Select a dataset to generate AI-powered insights.</p>
-            <Button className="mt-2 bg-teal-600 hover:bg-teal-700">Go to Connect Data</Button>
+          <div className="mt-4 rounded-md bg-gray-700/50 p-4 text-center border border-gray-700">
+            <p className="text-gray-300">Select a dataset to generate AI-powered insights.</p>
+            <Button className="mt-2 bg-blue-600 hover:bg-blue-700">Go to Connect Data</Button>
           </div>
         )}
       </CardContent>

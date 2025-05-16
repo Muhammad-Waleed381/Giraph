@@ -1,6 +1,7 @@
 import express from 'express';
 import { DataSourceController } from '../controllers/datasource.js';
 import { configureFileUpload, handleMulterError } from '../middleware/upload.js';
+import { authenticateToken } from '../middleware/authenticateToken.js';
 
 /**
  * Data Sources routes
@@ -22,6 +23,9 @@ export function setupDataSourceRoutes(uploadsDir) {
     router.post('/files', upload.single('file'), handleMulterError, dataSourceController.uploadFile.bind(dataSourceController));
     router.get('/files', dataSourceController.getUploadedFiles.bind(dataSourceController));
     router.delete('/files/:fileId', dataSourceController.deleteFile.bind(dataSourceController));
+
+    // Collection Routes - Added for query functionality
+    router.get('/collections', dataSourceController.getUserCollections.bind(dataSourceController));
 
     return router;
 }

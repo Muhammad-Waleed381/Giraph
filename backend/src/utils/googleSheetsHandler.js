@@ -69,7 +69,7 @@ class GoogleSheetsHandler {
         return this.oauth2Client.generateAuthUrl({
             access_type: 'offline',
             scope: scopes,
-            prompt: 'consent'
+            // prompt: 'consent' // Removing this to allow refresh token reuse
         });
     }
     
@@ -108,6 +108,15 @@ class GoogleSheetsHandler {
      */
     setCredentials(tokens) {
         this.oauth2Client.setCredentials(tokens);
+    }
+    
+    /**
+     * Check if credentials are set
+     * @returns {boolean} True if credentials are set, false otherwise
+     */
+    isCredentialSet() {
+        return !!this.oauth2Client.credentials && 
+               Object.keys(this.oauth2Client.credentials).length > 0;
     }
     
     /**
@@ -261,6 +270,28 @@ class GoogleSheetsHandler {
             };
         } catch (error) {
             logger.error('Error analyzing sheet data:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Clear OAuth tokens
+     */
+    async clearTokens() {
+        try {
+            // Clear the credentials from the oauth2Client
+            this.oauth2Client.credentials = null;
+            
+            // Remove the tokens file
+            const tokenPath = path.join(process.cwd(), '.google-tokens.json');
+            if (fs.existsSync(tokenPath)) {
+                fs.unlinkSync(tokenPath);
+                logger.info('Removed Google OAuth tokens file');
+            }
+            
+            return true;
+        } catch (error) {
+            logger.error('Error clearing Google OAuth tokens:', error);
             throw error;
         }
     }

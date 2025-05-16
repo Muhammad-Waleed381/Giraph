@@ -120,6 +120,7 @@ export class VisualizationService {
             this.recommendationCache.set(recommendationCacheId, { 
                 timestamp: Date.now(),
                 collectionName: schema.collection_name,
+                schemaInfo: schema,
                 recommendations: detailedRecommendations 
             });
             logger.info(`Stored recommendations under cache ID: ${recommendationCacheId}`);
@@ -150,6 +151,148 @@ export class VisualizationService {
             return responsePayload;
         } catch (error) {
             logger.error('Error in generateRecommendations:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Refine visualization recommendations based on natural language user prompt
+     */
+    async refineVisualizationRecommendations(options) {
+        try {
+            const { recommendationCacheId, userPrompt, currentRecommendations = [] } = options;
+            
+            // Validate inputs
+            if (!recommendationCacheId) {
+                throw new Error('Recommendation cache ID is required');
+            }
+            
+            if (!userPrompt || userPrompt.trim() === '') {
+                throw new Error('User prompt is required for refinement');
+            }
+            
+            // Retrieve cache entry
+            const cachedData = this.recommendationCache.get(recommendationCacheId);
+            if (!cachedData) {
+                throw new Error(`Cache ID ${recommendationCacheId} is invalid or has expired`);
+            }
+            
+            const collectionName = cachedData.collectionName;
+            const schemaInfo = cachedData.schemaInfo;
+            
+            // Use either provided current recommendations or cached ones
+            const recommendations = currentRecommendations.length > 0 
+                ? currentRecommendations 
+                : cachedData.recommendations;
+                
+            if (!recommendations || recommendations.length === 0) {
+                throw new Error('No recommendations available to refine');
+            }
+            
+            // Initialize Gemini interface
+            const gemini = new (await import('../utils/geminiInterface.js')).GeminiInterface();
+            
+            logger.info(`Refining recommendations for cache ID: ${recommendationCacheId} with prompt: "${userPrompt}"`);
+            
+            // Prepare prompt for Gemini
+            const refinementPrompt = `
+            Given the following data schema: ${JSON.stringify(schemaInfo)}
+            
+            And the current visualization recommendations: ${JSON.stringify(recommendations)}
+            
+            The user wants to refine these visualizations with the following request: "${userPrompt}"
+            
+            Please provide an updated list of visualization recommendations based on the user's request.
+            
+            Each recommendation should include:
+            1. id - preserve existing ids when modifying, generate new ones for new visualizations
+            2. title - a clear, concise title that describes the visualization
+            3. description - a brief explanation of what insights this visualization provides
+            4. type - the type of chart (bar, line, pie, scatter, etc.)
+            5. dimensions - an array of data fields used in this visualization
+            6. echarts_config - basic configuration hints for ECharts
+            
+            If the user asks for a new type of chart, add it. If they ask to modify an existing one, update it.
+            If they ask to remove a specific chart, omit it from the response.
+            
+            Respond with a JSON array of refined visualization recommendations. 
+            Each object in the array should have the format:
+            {
+              "id": string,
+              "title": string,
+              "description": string,
+              "type": string,
+              "data": { "dimensions": string[] },
+              "echarts_config": { 
+                "title": object,
+                "tooltip": object,
+                "legend": object,
+                "xAxis": object,
+                "yAxis": object
+              }
+            }
+            
+            Do NOT include any text explanations outside the JSON array.
+            `;
+            
+            // Call Gemini for refinement
+            const refinementResult = await gemini.getRefinedVisualizationRecommendations(refinementPrompt);
+            
+            if (!refinementResult || !refinementResult.visualizations || !Array.isArray(refinementResult.visualizations)) {
+                throw new Error('Invalid response from AI for visualization refinement');
+            }
+            
+            logger.info('Successfully refined visualization recommendations');
+            
+            // Format the refined recommendations
+            const refinedDetailedRecommendations = refinementResult.visualizations.map(vis => ({
+                id: vis.id,
+                title: vis.title,
+                description: vis.description,
+                type: vis.type,
+                dimensions: vis.data ? vis.data.dimensions : [],
+                echartsConfigHints: vis.echarts_config ? {
+                    title: vis.echarts_config.title,
+                    tooltip: vis.echarts_config.tooltip || { trigger: 'axis' },
+                    legend: vis.echarts_config.legend,
+                    xAxis: vis.echarts_config.xAxis,
+                    yAxis: vis.echarts_config.yAxis
+                } : {}
+            }));
+            
+            // Update cache with refined recommendations
+            this.recommendationCache.set(recommendationCacheId, {
+                timestamp: Date.now(),
+                collectionName: collectionName,
+                schemaInfo: schemaInfo,
+                recommendations: refinedDetailedRecommendations
+            });
+            
+            // Prepare response payload
+            const responsePayload = {
+                recommendationCacheId: recommendationCacheId,
+                refinement_summary: refinementResult.refinement_summary || `Refined based on: "${userPrompt}"`,
+                refined_visualizations: refinementResult.visualizations.map(vis => ({
+                    id: vis.id,
+                    title: vis.title,
+                    description: vis.description,
+                    type: vis.type,
+                    suggestedDimensions: vis.data ? vis.data.dimensions : [],
+                    echartsConfigHints: vis.echarts_config ? {
+                        title: vis.echarts_config.title,
+                        tooltip: vis.echarts_config.tooltip || { trigger: 'axis' },
+                        legend: vis.echarts_config.legend,
+                        xAxis: vis.echarts_config.xAxis,
+                        yAxis: vis.echarts_config.yAxis
+                    } : {},
+                    preview: this._generatePreviewForVisualization(vis.type)
+                }))
+            };
+            
+            return responsePayload;
+            
+        } catch (error) {
+            logger.error('Error in refineVisualizationRecommendations:', error);
             throw error;
         }
     }
@@ -280,9 +423,32 @@ export class VisualizationService {
                         series: queryConfigResult.visualization?.option?.series || []
                     };
                     
-                    // Apply basic series if none provided
-                    if (chartOption.series.length === 0 && queryResults.length > 0) {
-                        logger.warn(`AI did not provide series configuration for ${visConfig.title}. Applying basic series.`);
+                    // Apply basic series if none provided and we have data and dimensions
+                    if (chartOption.series.length === 0 && queryResults.length > 0 && chartOption.dataset && chartOption.dataset.dimensions && chartOption.dataset.dimensions.length > 0) {
+                        logger.warn(`AI did not provide series configuration for ${visConfig.title}. Applying basic series based on dimensions.`);
+                        const dimensions = chartOption.dataset.dimensions;
+                        const chartType = visConfig.type || 'bar';
+                        let seriesConfig = { type: chartType };
+
+                        if (dimensions.length >= 2) {
+                            if (chartType === 'pie') {
+                                seriesConfig.encode = { itemName: dimensions[0], value: dimensions[1] };
+                                seriesConfig.radius = ['40%', '70%']; // Common pie chart styling
+                            } else if (chartType === 'scatter') {
+                                seriesConfig.encode = { x: dimensions[0], y: dimensions[1] };
+                                if (dimensions.length >= 3) {
+                                    seriesConfig.encode.size = dimensions[2];
+                                }
+                            } else { // Default to bar/line type encoding
+                                seriesConfig.encode = { x: dimensions[0], y: dimensions[1] };
+                            }
+                        } else if (dimensions.length === 1 && (chartType === 'bar' || chartType === 'line')) {
+                            // Handle single dimension for bar/line (e.g. count, or value is implicitly the first dimension)
+                            seriesConfig.encode = { x: dimensions[0], y: dimensions[0] }; 
+                        }
+                        chartOption.series = [seriesConfig];
+                    } else if (chartOption.series.length === 0 && queryResults.length > 0) {
+                        logger.warn(`AI did not provide series configuration for ${visConfig.title} and no dimensions available. Applying simple series type.`);
                         chartOption.series = [{ type: visConfig.type || 'bar' }];
                     }
                 } catch (e) {
@@ -305,6 +471,120 @@ export class VisualizationService {
             };
         } catch (error) {
             logger.error('Error in generateVisualizations:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Save a dashboard of visualizations
+     */
+    async saveDashboard(dashboardData) {
+        try {
+            const { name, description, collectionName, visualizations } = dashboardData;
+            
+            if (!name) {
+                throw new Error('Dashboard name is required');
+            }
+            
+            if (!collectionName) {
+                throw new Error('Collection name is required');
+            }
+            
+            if (!visualizations || !Array.isArray(visualizations) || visualizations.length === 0) {
+                throw new Error('At least one visualization is required to save a dashboard');
+            }
+            
+            // Get database instance
+            const db = getDatabase();
+            
+            // Save dashboard to the dashboards collection
+            const dashboardsCollection = db.collection('dashboards');
+            
+            const dashboardDocument = {
+                name,
+                description: description || '',
+                collectionName,
+                visualizations,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            };
+            
+            const result = await dashboardsCollection.insertOne(dashboardDocument);
+            
+            return {
+                dashboardId: result.insertedId.toString(),
+                name: name,
+                message: 'Dashboard saved successfully'
+            };
+            
+        } catch (error) {
+            logger.error('Error in saveDashboard:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Get all saved dashboards
+     */
+    async getAllDashboards() {
+        try {
+            // Get database instance
+            const db = getDatabase();
+            const dashboardsCollection = db.collection('dashboards');
+            
+            // Get all dashboards, sorted by most recent first
+            const dashboards = await dashboardsCollection.find({})
+                .sort({ updatedAt: -1 })
+                .project({
+                    name: 1,
+                    description: 1,
+                    collectionName: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    visualizationsCount: { $size: '$visualizations' }
+                })
+                .toArray();
+                
+            return dashboards;
+            
+        } catch (error) {
+            logger.error('Error in getAllDashboards:', error);
+            throw error;
+        }
+    }
+    
+    /**
+     * Get a dashboard by ID
+     */
+    async getDashboardById(dashboardId) {
+        try {
+            if (!dashboardId) {
+                throw new Error('Dashboard ID is required');
+            }
+            
+            // Get database instance
+            const db = getDatabase();
+            const dashboardsCollection = db.collection('dashboards');
+            
+            // Convert string ID to ObjectId if needed
+            let objectId;
+            try {
+                objectId = new (await import('mongodb')).ObjectId(dashboardId);
+            } catch (e) {
+                throw new Error('Invalid dashboard ID format');
+            }
+            
+            // Get the dashboard
+            const dashboard = await dashboardsCollection.findOne({ _id: objectId });
+            
+            if (!dashboard) {
+                throw new Error(`Dashboard with ID ${dashboardId} not found`);
+            }
+            
+            return dashboard;
+            
+        } catch (error) {
+            logger.error('Error in getDashboardById:', error);
             throw error;
         }
     }
@@ -397,9 +677,32 @@ export class VisualizationService {
                         series: queryConfigResult.visualization?.option?.series || []
                     };
                     
-                    // Apply basic series if none provided
-                    if (chartOption.series.length === 0 && queryResults.length > 0) {
-                        logger.warn(`AI did not provide series configuration for ${visConfig.title}. Applying basic series.`);
+                    // Apply basic series if none provided and we have data and dimensions
+                    if (chartOption.series.length === 0 && queryResults.length > 0 && chartOption.dataset && chartOption.dataset.dimensions && chartOption.dataset.dimensions.length > 0) {
+                        logger.warn(`AI did not provide series configuration for ${visConfig.title}. Applying basic series based on dimensions.`);
+                        const dimensions = chartOption.dataset.dimensions;
+                        const chartType = visConfig.type || 'bar';
+                        let seriesConfig = { type: chartType };
+
+                        if (dimensions.length >= 2) {
+                            if (chartType === 'pie') {
+                                seriesConfig.encode = { itemName: dimensions[0], value: dimensions[1] };
+                                seriesConfig.radius = ['40%', '70%']; // Common pie chart styling
+                            } else if (chartType === 'scatter') {
+                                seriesConfig.encode = { x: dimensions[0], y: dimensions[1] };
+                                if (dimensions.length >= 3) {
+                                    seriesConfig.encode.size = dimensions[2];
+                                }
+                            } else { // Default to bar/line type encoding
+                                seriesConfig.encode = { x: dimensions[0], y: dimensions[1] };
+                            }
+                        } else if (dimensions.length === 1 && (chartType === 'bar' || chartType === 'line')) {
+                            // Handle single dimension for bar/line (e.g. count, or value is implicitly the first dimension)
+                            seriesConfig.encode = { x: dimensions[0], y: dimensions[0] }; 
+                        }
+                        chartOption.series = [seriesConfig];
+                    } else if (chartOption.series.length === 0 && queryResults.length > 0) {
+                        logger.warn(`AI did not provide series configuration for ${visConfig.title} and no dimensions available. Applying simple series type.`);
                         chartOption.series = [{ type: visConfig.type || 'bar' }];
                     }
                 } catch (e) {

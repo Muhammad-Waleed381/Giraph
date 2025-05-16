@@ -1,6 +1,8 @@
 import { responseFormatter } from '../../utils/responseFormatter.js';
 import { DataSourceService } from '../../services/dataSourceService.js';
 import { logger } from '../../utils/logger.js';
+import DataSourceModel from '../../models/dataSource.js';
+import { getDatabase } from '../../config/database.js';
 
 /**
  * Controller for data sources (files, collections, Google Sheets)
@@ -175,6 +177,47 @@ export class DataSourceController {
             ));
         } catch (error) {
             next(error);
+        }
+    }
+
+    /**
+     * Get collections for the current user
+     */
+    async getUserCollections(req, res, next) {
+        try {
+            logger.info('Fetching all collections (user filter disabled)');
+            
+            try {
+                // Get the database to check connection
+                getDatabase();
+                
+                // Get the DataSource model instance
+                const dataSourceModel = await DataSourceModel.getInstance();
+                
+                // Use the model's method to get all collections
+                const collections = await dataSourceModel.getAllCollections();
+                
+                // If no collections found, return an empty array with appropriate message
+                if (collections.length === 0) {
+                    logger.info('No collections found');
+                    return res.json(responseFormatter.success([], 'No collections found'));
+                }
+                
+                logger.info(`Found ${collections.length} collections: ${collections.join(', ')}`);
+                res.json(responseFormatter.success(collections, 'Successfully fetched collections'));
+            } catch (dbError) {
+                // Check if this is a database connection error
+                if (dbError.message && dbError.message.includes('Database connection not established')) {
+                    logger.error("Database connection is not ready:", dbError);
+                    return next(responseFormatter.error('Database connection not established', 500));
+                }
+                
+                logger.error(`Database error when fetching collections:`, dbError);
+                return next(responseFormatter.error('Failed to fetch collections due to database error', 500));
+            }
+        } catch (error) {
+            logger.error(`Error fetching collections: `, error);
+            next(responseFormatter.error('Failed to fetch collections', 500));
         }
     }
 

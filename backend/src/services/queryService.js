@@ -32,8 +32,8 @@ export class QueryService {
 
     /**
      * Fix date operations in aggregation pipeline
-     * Detect and fix common date operation issues, particularly removing $dateFromString
-     * when applied to native Date fields, and ensuring date operators have correct input.
+     * Detect and fix common date operation issues, particularly ensuring date operators have correct input.
+     * It prefers using $toDate for string-to-date conversions.
      * @param {Array} pipeline - MongoDB aggregation pipeline
      * @param {Object} availableSchemas - Collection schemas to check field types
      * @param {string} primaryCollection - Name of the primary collection
@@ -44,166 +44,122 @@ export class QueryService {
             return pipeline;
         }
 
-        logger.info(`Validating date operations in pipeline for ${primaryCollection}...`);
-
-        // SPECIAL HANDLING: For known collections, force disable all $dateFromString
-        // This is a temporary workaround for schemas that might be inaccurate
-        const forceDateConversionRemoval = ['sales_data', 'order_returns'].includes(primaryCollection);
-        if (forceDateConversionRemoval) {
-            logger.warn(`Applying special date operation handling for ${primaryCollection} collection - removing all $dateFromString operations`);
-        }
+        logger.info(`Validating and fixing date operations in pipeline for ${primaryCollection}...`);
 
         const collectionSchema = availableSchemas[primaryCollection]?.schema || {};
+        const knownDateFields = new Set();
 
-        // Track field types through pipeline stages
-        let knownDateFields = new Set();
-
-        // Find initial date fields from schema
+        // Find initial date fields from schema and common names
         Object.entries(collectionSchema).forEach(([fieldName, fieldInfo]) => {
-            // Check for 'date', 'datetime', 'timestamp' etc.
             const fieldType = String(fieldInfo?.type || '').toLowerCase();
             if (fieldType.includes('date') || fieldType.includes('timestamp')) {
                 knownDateFields.add(fieldName);
-                logger.debug(`Identified date field from schema: ${fieldName}`);
+                logger.debug(`Identified date field from schema type: ${fieldName}`);
+            } else {
+                // Check common date field name patterns even if type is string or unknown
+                const lowerFieldName = fieldName.toLowerCase();
+                if (lowerFieldName.includes('date') || lowerFieldName.includes('time') || 
+                    lowerFieldName.endsWith('_at') || lowerFieldName.endsWith('_on') || 
+                    ['created', 'modified', 'timestamp', 'event_date'].includes(lowerFieldName)) {
+                    knownDateFields.add(fieldName); // Add it, _recursivelyFixDateOps will ensure $toDate if it's used as string by AI
+                    logger.debug(`Potentially identified date field by name pattern: ${fieldName} (will verify usage)`);
+                }
             }
         });
+        // Add very common generic date field names if not already caught by schema/patterns
+        ['date', 'Date', 'Order Date', 'order_date', 'transaction_date'].forEach(df => knownDateFields.add(df));
 
-        // Special handling for known date fields in common collections (if schema is unreliable)
-        if (primaryCollection === 'sales_data') {
-            const knownSalesDateFields = ['Order Date', 'Ship Date'];
-            knownSalesDateFields.forEach(field => {
-                if (!knownDateFields.has(field)) {
-                    knownDateFields.add(field);
-                    logger.info(`Manually adding known date field for ${primaryCollection}: ${field}`);
-                }
-            });
-        }
+        logger.info(`Initial candidate date fields for ${primaryCollection}: ${Array.from(knownDateFields).join(', ')}`);
 
-        logger.info(`Initial known date fields: ${Array.from(knownDateFields).join(', ')}`);
-
-        // Create a deep copy of the pipeline to avoid modifying the original
         const fixedPipeline = JSON.parse(JSON.stringify(pipeline));
 
-        // Process each pipeline stage
-        let stageIndex = 0;
         for (const stage of fixedPipeline) {
-            logger.debug(`Processing pipeline stage ${stageIndex}: ${JSON.stringify(stage)}`);
-
-            // Recursively fix date operations within the stage
-            this._recursivelyFixDateOps(stage, null, null, knownDateFields, forceDateConversionRemoval);
-
-            // Update known date fields based on $addFields, $project, etc.
-            // This needs to be done *after* fixing the current stage
-            this._trackDateFieldsFromStage(stage, knownDateFields);
-            logger.debug(`Known date fields after stage ${stageIndex}: ${Array.from(knownDateFields).join(', ')}`);
-            stageIndex++;
+            this._recursivelyFixDateOps(stage, null, null, knownDateFields, collectionSchema);
+            this._trackDateFieldsFromStage(stage, knownDateFields); // Track fields that become dates
         }
 
-        logger.info(`Fixed pipeline: ${JSON.stringify(fixedPipeline)}`);
-
+        logger.info(`Pipeline after date operation fixing for ${primaryCollection}: ${JSON.stringify(fixedPipeline)}`);
         return fixedPipeline;
     }
 
     /**
      * Helper: Recursively scan and fix date operations within an object/array.
      * Modifies the object/array in place.
-     * @private
-     * @param {Object|Array} current - The current object or array being processed.
-     * @param {Object|Array|null} parent - The parent object or array.
-     * @param {string|number|null} keyInParent - The key or index of 'current' within 'parent'.
-     * @param {Set<string>} knownDateFields - Set of field names known to be dates.
-     * @param {boolean} forceRemoveConversions - Whether to remove $dateFromString regardless of field type.
      */
-    _recursivelyFixDateOps(current, parent, keyInParent, knownDateFields, forceRemoveConversions = false) {
+    _recursivelyFixDateOps(current, parent, keyInParent, knownDateFields, schema) {
         if (!current || typeof current !== 'object') return;
 
-        // Handle arrays - process each element recursively
         if (Array.isArray(current)) {
-            current.forEach((item, index) => this._recursivelyFixDateOps(item, current, index, knownDateFields, forceRemoveConversions));
+            current.forEach((item, index) => this._recursivelyFixDateOps(item, current, index, knownDateFields, schema));
             return;
         }
 
-        // Handle objects - process each key-value pair
-        const keys = Object.keys(current);
-        for (const key of keys) {
+        const dateOperators = ['$year', '$month', '$dayOfMonth', '$dayOfWeek', '$dayOfYear', '$hour', '$minute', '$second', '$millisecond', '$dateToString'];
+
+        Object.keys(current).forEach(key => {
             const value = current[key];
 
-            // --- Rule 1: Fix $dateFromString applied to known date fields ---
-            // Example: { "$month": { "$dateFromString": { "dateString": "$Order Date" } } }
-            // If "Order Date" is a known date field, this should become { "$month": "$Order Date" }
             if (key === '$dateFromString' && value && typeof value === 'object' && parent && keyInParent !== null) {
-                // Extract the field name being converted (handle variations like $toString)
                 const dateFieldExpr = value.dateString;
                 let fieldName = null;
                 if (typeof dateFieldExpr === 'string' && dateFieldExpr.startsWith('$')) {
-                    fieldName = dateFieldExpr.substring(1); // Simple "$FieldName"
-                } else if (typeof dateFieldExpr === 'object' && dateFieldExpr.$toString && typeof dateFieldExpr.$toString === 'string' && dateFieldExpr.$toString.startsWith('$')) {
-                    fieldName = dateFieldExpr.$toString.substring(1); // { $toString: "$FieldName" }
-                } else if (typeof dateFieldExpr === 'object' && dateFieldExpr.$field) {
-                     fieldName = dateFieldExpr.$field; // { $field: "FieldName" } - less common
+                    fieldName = dateFieldExpr.substring(1);
                 }
-                 // Add more extraction logic if other patterns emerge
-
-                let shouldReplace = forceRemoveConversions;
-                if (fieldName && knownDateFields.has(fieldName)) {
-                    shouldReplace = true;
-                    logger.warn(`Found $dateFromString applied to known date field "${fieldName}" in parent key "${keyInParent}". Replacing with direct field reference.`);
-                } else if (fieldName) {
-                     logger.debug(`Found $dateFromString on field "${fieldName}" which is not marked as a date field.`);
-                } else {
-                     logger.debug(`Found $dateFromString with complex/unrecognized input: ${JSON.stringify(value)}`);
-                }
-
-                if (shouldReplace && fieldName) {
-                    // Replace the parent's value (the $dateFromString object) with the direct field reference
+                
+                const fieldSchemaType = fieldName ? schema[fieldName]?.type?.toLowerCase() : null;
+                if (fieldName && fieldSchemaType && (fieldSchemaType.includes('date') || fieldSchemaType.includes('timestamp'))) {
+                    logger.warn(`Gemini used $dateFromString on field '${fieldName}' which is already a BSON date. Replacing with direct field reference.`);
                     parent[keyInParent] = `$${fieldName}`;
-                    // Since we modified the parent, we don't need to recurse into the $dateFromString object itself
-                    continue; // Move to the next key in the current object
+                    return; 
+                } else {
+                    logger.warn(`Converting $dateFromString to $toDate for input: ${JSON.stringify(value)}.`);
+                    parent[keyInParent] = { $toDate: value.dateString }; 
+                    return; 
                 }
             }
-
-            // --- Rule 2: Ensure date operators ($month, $year, etc.) have a valid date input ---
-            // Example: { "$month": "$DateField" } -> OK if DataField is date
-            // Example: { "$month": "$StringField" } -> Error, needs $dateFromString if StringField holds a date string
-            // Example: { "$month": { some_expr } } -> Recurse into some_expr
-            const dateOperators = ['$year', '$month', '$dayOfMonth', '$dayOfWeek', '$dayOfYear', '$hour', '$minute', '$second', '$millisecond', '$dateToString'];
+            
             if (dateOperators.includes(key)) {
-                const inputExpr = value; // The input to the date operator
-
+                const inputExpr = value;
                 if (typeof inputExpr === 'string' && inputExpr.startsWith('$')) {
-                    // Input is a direct field reference, e.g., "$Order Date"
                     const fieldName = inputExpr.substring(1);
-                    if (!knownDateFields.has(fieldName)) {
-                        // This is potentially an error: applying a date op to a non-date field
-                        // The AI prompt now explicitly tells it *not* to do this.
-                        // We could try to *add* $dateFromString here, but it's safer to rely on the AI fixing it based on the improved prompt.
-                        logger.error(`Potential Error: Date operator "${key}" applied directly to non-date field "${fieldName}". Pipeline: ${JSON.stringify(current)}. Relying on AI prompt rules to prevent this.`);
-                        // Optionally, throw an error or attempt a fix:
-                        // current[key] = { $dateFromString: { dateString: inputExpr } }; // Risky if the string isn't a valid date format
+                    const fieldSchemaType = schema[fieldName]?.type?.toLowerCase();
+
+                    // Condition for forcing $toDate:
+                    // 1. Schema type is explicitly 'string'.
+                    // 2. Schema type is unknown/missing, and it's a common date-like field name (e.g., 'date', 'Order Date').
+                    // 3. It is NOT already confirmed to be a BSON date type by a strict schema check.
+                    const commonDateNames = ['date', 'order_date', 'transaction_date', 'event_date', 'ship_date', 'delivery_date', 'created_at', 'updated_at', 'Order Date', 'Ship Date'];
+                    const isCommonDateName = commonDateNames.includes(fieldName) || fieldName.toLowerCase().includes('date');
+
+                    if (fieldSchemaType === 'string' || 
+                        (!fieldSchemaType && isCommonDateName) || 
+                        (fieldSchemaType && !fieldSchemaType.includes('date') && !fieldSchemaType.includes('timestamp') && isCommonDateName)) {
+                        logger.warn(`Date operator '${key}' on field '${fieldName}' (schema type: ${fieldSchemaType || 'unknown'}, commonName: ${isCommonDateName}). Applying $toDate.`);
+                        current[key] = { $toDate: inputExpr };
+                    } else if (fieldSchemaType && (fieldSchemaType.includes('date') || fieldSchemaType.includes('timestamp'))) {
+                        logger.debug(`Date operator '${key}' correctly applied to BSON date field '${fieldName}'.`);
                     } else {
-                         logger.debug(`Date operator "${key}" correctly applied to known date field "${fieldName}".`);
+                        // Fallback for less certain cases: if Gemini didn't use $toDate and it is in knownDateFields (by pattern), apply $toDate.
+                        // This handles cases where schema might be missing but name suggests a date.
+                        if (knownDateFields.has(fieldName)){
+                             logger.warn(`Date operator '${key}' on field '${fieldName}' (in knownDateFields by pattern, schema type: ${fieldSchemaType || 'unknown'}). Applying $toDate as a safeguard.`);
+                             current[key] = { $toDate: inputExpr };
+                        } else {
+                            logger.debug(`Date operator '${key}' on field '${fieldName}'. Type seems non-date and not a strong date name pattern. Assuming AI handled it or it's not a date.`);
+                        }
                     }
                 } else if (inputExpr && typeof inputExpr === 'object') {
-                    // Input is a nested expression, e.g., { $dateFromString: ... } or some other calculation
-                    // We need to recurse into this nested expression to check/fix it
-                     logger.debug(`Recursing into input expression for date operator "${key}": ${JSON.stringify(inputExpr)}`);
-                     this._recursivelyFixDateOps(inputExpr, current, key, knownDateFields, forceRemoveConversions);
-                } else {
-                    // Input is something else (literal, null, etc.) - likely an error generated by AI
-                    logger.error(`Invalid input type for date operator "${key}": ${JSON.stringify(inputExpr)}. Pipeline: ${JSON.stringify(current)}`);
-                    // Optionally try to remove the problematic stage/field or throw error
+                    this._recursivelyFixDateOps(inputExpr, current, key, knownDateFields, schema);
+                } else if (typeof inputExpr === 'string') {
+                     logger.warn(`Date operator '${key}' applied to literal string '${inputExpr}'. Applying $toDate.`);
+                     current[key] = { $toDate: inputExpr };
                 }
-                 // No 'continue' here, allow recursion below for other keys in the object
             }
 
-
-            // --- Recursion Step ---
-            // Recurse into nested objects or arrays
             if (value && typeof value === 'object') {
-                this._recursivelyFixDateOps(value, current, key, knownDateFields, forceRemoveConversions);
+                this._recursivelyFixDateOps(value, current, key, knownDateFields, schema);
             }
-        }
-        // No need for the _replaced logic anymore
+        });
     }
 
     /**
@@ -211,20 +167,16 @@ export class QueryService {
      * @private
      */
     _trackDateFieldsFromStage(stage, knownDateFields) {
-        const stageOperator = Object.keys(stage)[0]; // e.g., $project, $addFields, $group
-
+        const stageOperator = Object.keys(stage)[0];
         let fieldsToCheck = null;
         if (stageOperator === '$project' || stageOperator === '$addFields') {
             fieldsToCheck = stage[stageOperator];
         } else if (stageOperator === '$group') {
-            // Check fields created in the _id document or accumulated fields
             fieldsToCheck = stage[stageOperator];
-            // We need to check both the _id object and the accumulator fields
             const groupFields = { ...(typeof fieldsToCheck._id === 'object' ? fieldsToCheck._id : {}), ...fieldsToCheck };
-            delete groupFields._id; // Don't check the _id key itself, check *within* it if it's an object
-             fieldsToCheck = groupFields;
+            delete groupFields._id;
+            fieldsToCheck = groupFields;
         }
-        // Add checks for $lookup 'as' fields if necessary, though less common to create dates there
 
         if (fieldsToCheck && typeof fieldsToCheck === 'object') {
             Object.entries(fieldsToCheck).forEach(([fieldName, definition]) => {
@@ -234,11 +186,9 @@ export class QueryService {
                         knownDateFields.add(fieldName);
                     }
                 } else {
-                    // If a field is redefined and *no longer* a date, remove it
-                    // (e.g., $project: { myDate: { $dateToString... } })
                     if (knownDateFields.has(fieldName)) {
-                         logger.debug(`Field "${fieldName}" is being overwritten by a non-date expression in stage ${stageOperator}. Untracking.`);
-                         knownDateFields.delete(fieldName);
+                        logger.debug(`Field "${fieldName}" is being overwritten by a non-date expression in stage ${stageOperator}. Untracking.`);
+                        knownDateFields.delete(fieldName);
                     }
                 }
             });
@@ -251,39 +201,26 @@ export class QueryService {
      */
     _expressionProducesDate(definition, knownDateFields) {
         if (!definition || typeof definition !== 'object') {
-            // Simple field reference: "$ExistingDateField"
             if (typeof definition === 'string' && definition.startsWith('$')) {
                 return knownDateFields.has(definition.substring(1));
             }
-            return false; // Literals, other types are not dates
+            return false;
         }
-
         // Check for operators that explicitly return dates
-        if (definition.$dateFromString !== undefined) return true;
-        if (definition.$toDate !== undefined) return true; // Alias for $dateFromString
-        // Add other date-producing operators if needed (e.g., $dateAdd, $dateSubtract, $dateTrunc)
+        if (definition.$toDate !== undefined) return true;
+        if (definition.$dateFromString !== undefined) return true; // Keep for completeness, though we prefer $toDate
         if (definition.$dateAdd !== undefined) return true;
         if (definition.$dateSubtract !== undefined) return true;
         if (definition.$dateTrunc !== undefined) return true;
 
-
-        // Check if it's an operator that *preserves* the date type from its input
-        // e.g., $ifNull: [ "$DateField", new Date() ] -> Date
-        // e.g., $cond: { if: <cond>, then: "$DateField", else: "$AnotherDateField" } -> Date
-        // This is complex to track perfectly, but we can handle common cases.
         if (definition.$ifNull && Array.isArray(definition.$ifNull)) {
-             // If any argument produces a date, the result *could* be a date
-             return definition.$ifNull.some(arg => this._expressionProducesDate(arg, knownDateFields));
+            return definition.$ifNull.some(arg => this._expressionProducesDate(arg, knownDateFields));
         }
         if (definition.$cond) {
-            // If 'then' or 'else' produces a date, the result *could* be a date
             const thenExpr = definition.$cond.then;
             const elseExpr = definition.$cond.else;
             return this._expressionProducesDate(thenExpr, knownDateFields) || this._expressionProducesDate(elseExpr, knownDateFields);
         }
-         // Add $switch, etc. if needed
-
-        // Default: Assume it doesn't produce a date unless explicitly known
         return false;
     }
 
@@ -291,9 +228,7 @@ export class QueryService {
      * Process natural language query, potentially across multiple collections
      */
     async processQuery(query, options = {}) {
-        // Extract collectionNames from options
         const { collectionNames: specifiedCollections } = options;
-        
         try {
             const logMessage = specifiedCollections 
                 ? `Service processing query "${query}" for collections: [${specifiedCollections.join(', ')}]`
@@ -301,7 +236,7 @@ export class QueryService {
             logger.info(logMessage);
             
             const db = getDatabase();
-            this.dbHandler.db = db; // Ensure dbHandler has the current db instance
+            this.dbHandler.db = db;
             
             let targetCollectionNames;
 
@@ -354,8 +289,8 @@ export class QueryService {
                                 if (value instanceof Date) type = 'date';
                                 else if (Array.isArray(value)) type = 'array';
                                 else if (value === null) type = 'null';
-                                acc[key] = { type: type };
-                return acc;
+                                acc[key] = { type: type, sample: value }; // Include sample for better type inference
+                                return acc;
                             }, {})
                         };
                     } else {
@@ -400,21 +335,21 @@ export class QueryService {
             }
 
             // Apply date operation fixes to the pipeline
-            const correctedPipeline = this.fixDateOperations(queryResult.pipeline, availableSchemas, primaryCollectionName);
-
+            const finalPipeline = this.fixDateOperations(queryResult.pipeline, availableSchemas, primaryCollectionName);
+            
             // 5. Execute the query against the primary collection
             logger.info(`Executing generated query pipeline on primary collection: ${primaryCollectionName}`);
-            logger.debug(`Pipeline: ${JSON.stringify(correctedPipeline)}`);
+            logger.debug(`Pipeline: ${JSON.stringify(finalPipeline)}`);
 
             const primaryCollection = db.collection(primaryCollectionName);
             // --- Add Error Handling for Aggregation ---
             let queryResults;
             try {
-                 queryResults = await primaryCollection.aggregate(correctedPipeline).toArray();
+                 queryResults = await primaryCollection.aggregate(finalPipeline).toArray();
                  logger.info(`Query executed successfully, got ${queryResults.length} results`);
             } catch (aggError) {
                  logger.error(`Error executing aggregation pipeline for collection "${primaryCollectionName}":`, aggError);
-                 logger.error(`Failed Pipeline: ${JSON.stringify(correctedPipeline)}`);
+                 logger.error(`Failed Pipeline: ${JSON.stringify(finalPipeline)}`);
                  // Rethrow a more informative error
                  throw new Error(`Database query execution failed on collection "${primaryCollectionName}". Cause: ${aggError.message}. Check logs for pipeline details.`);
             }
@@ -450,15 +385,95 @@ export class QueryService {
                 const dimensions = finalVisualization.option.dataset.dimensions;
 
                 // --- Robust Axis and Dimension Role Identification --- 
-                let xAxisType = finalVisualization.option.xAxis?.type || 'category'; // Default to category if missing
-                let yAxisType = finalVisualization.option.yAxis?.type || 'value'; // Default to value if missing
+                let xAxisType = finalVisualization.option.xAxis?.type || 'category';
+                let yAxisType = finalVisualization.option.yAxis?.type || 'value';
                 
                 let categoryDimensionRaw = null;
                 let valueDimensionRaw = null;
-                let isHorizontalBar = false; // Flag for horizontal bar charts
+                let isHorizontalBar = false;
+
+                // Helper to find a key in the first result that matches a pattern
+                const findKeyByPattern = (patterns) => {
+                    if (queryResults.length === 0) return null;
+                    const firstResultKeys = Object.keys(queryResults[0]);
+                    for (const pattern of patterns) {
+                        const regex = new RegExp(pattern, 'i'); // Case-insensitive match
+                        const foundKey = firstResultKeys.find(key => regex.test(key));
+                        if (foundKey) return foundKey;
+                    }
+                    // Check within _id if it's an object (common for $group stage)
+                    if (queryResults[0]._id && typeof queryResults[0]._id === 'object') {
+                        const idKeys = Object.keys(queryResults[0]._id);
+                        for (const pattern of patterns) {
+                            const regex = new RegExp(pattern, 'i');
+                            const foundKey = idKeys.find(key => regex.test(key));
+                            if (foundKey) return `_id.${foundKey}`; // Path to nested key
+                        }
+                    }
+                    return null;
+                };
+
+                // Try to intelligently guess dimensions if not perfectly provided by AI or if defaults are used
+                if (dimensions && dimensions.length >= 2) {
+                    // Default assumption from AI
+                    categoryDimensionRaw = dimensions[0];
+                    valueDimensionRaw = dimensions[1];
+                } else if (queryResults.length > 0) {
+                    logger.info('Attempting to infer category and value dimensions from queryResults keys...');
+                    const firstResult = queryResults[0];
+                    const keys = Object.keys(firstResult);
+                    
+                    // Attempt to find a time-based category field (month, year, date)
+                    categoryDimensionRaw = findKeyByPattern(['month', '^yr$', 'year', 'date', 'quarter']);
+                    
+                    // Attempt to find a common value/metric field
+                    valueDimensionRaw = findKeyByPattern(['sales', 'profit', 'revenue', 'count', 'total', 'amount', 'value', 'sum', 'avg', 'average']);
+
+                    if (categoryDimensionRaw && valueDimensionRaw) {
+                        logger.info(`Inferred category: ${categoryDimensionRaw}, value: ${valueDimensionRaw} from result keys.`);
+                        // Update dimensions array if we made better guesses
+                        finalVisualization.option.dataset.dimensions = [categoryDimensionRaw, valueDimensionRaw, ...keys.filter(k => k !== categoryDimensionRaw && k !== valueDimensionRaw)];
+                    } else if (keys.length >= 2) {
+                        // Fallback to first two keys if specific patterns not found
+                        categoryDimensionRaw = keys.filter(k => k !== '_id')[0] || keys[0]; // Prefer non-_id field first
+                        valueDimensionRaw = keys.filter(k => k !== '_id' && k !== categoryDimensionRaw)[0] || keys[1];
+                        logger.warn(`Could not infer specific time/metric dimensions. Falling back to first two available keys: ${categoryDimensionRaw}, ${valueDimensionRaw}`);
+                        finalVisualization.option.dataset.dimensions = [categoryDimensionRaw, valueDimensionRaw, ...keys.filter(k => k !== categoryDimensionRaw && k !== valueDimensionRaw)];
+                    } else if (keys.length === 1 && keys[0] !== '_id') {
+                        // Handle single dimension case, e.g. count of something where category is implied
+                        categoryDimensionRaw = 'category'; // Placeholder name
+                        valueDimensionRaw = keys[0];
+                        // Augment results to have a placeholder category if needed for chart
+                        finalVisualization.option.dataset.source = queryResults.map((item, index) => ({ 'category': `Item ${index + 1}`, ...item }));
+                        finalVisualization.option.dataset.dimensions = ['category', valueDimensionRaw];
+                        logger.warn(`Only one data dimension found: ${valueDimensionRaw}. Using placeholder category.`);
+                    } else {
+                        logger.error('Could not determine category/value dimensions from queryResults.');
+                    }
+                }
 
                 // Identify dimensions based on axis types (prefer standard vertical bar layout)
                 if (dimensions && dimensions.length > 0) {
+                    // Check if we should use a horizontal bar chart based on label length
+                    if (finalVisualization.type === 'bar' && !isHorizontalBar) {
+                        // Get actual data to examine label lengths
+                        const potentialCategoryDim = dimensions[0];
+                        if (potentialCategoryDim && queryResults.length > 0) {
+                            const sampleLabels = queryResults.map(item => String(item[potentialCategoryDim] || ''));
+                            const avgLabelLength = sampleLabels.reduce((sum, label) => sum + label.length, 0) / sampleLabels.length;
+                            const maxLabelLength = Math.max(...sampleLabels.map(label => label.length));
+                            
+                            // Use horizontal bar if labels are long, especially with many categories
+                            if ((maxLabelLength > 25 || avgLabelLength > 15) && queryResults.length > 3) {
+                                logger.info(`Switching to horizontal bar due to long labels (max: ${maxLabelLength}, avg: ${avgLabelLength.toFixed(1)})`);
+                                isHorizontalBar = true;
+                                // Swap axis types
+                                xAxisType = 'value';
+                                yAxisType = 'category';
+                            }
+                        }
+                    }
+
                     if (xAxisType === 'category' && yAxisType === 'value') {
                         categoryDimensionRaw = dimensions[0];
                         if (dimensions.length > 1) valueDimensionRaw = dimensions[1];
@@ -488,70 +503,117 @@ export class QueryService {
                 const valueDimensionFormatted = this.formatDimensionName(valueDimensionRaw);
                 logger.info(`Identified Roles -> Category: ${categoryDimensionRaw} (Formatted: ${categoryDimensionFormatted}), Value: ${valueDimensionRaw} (Formatted: ${valueDimensionFormatted})`);
 
+                // Helper to safely access nested properties using a path string
+                const getNestedValue = (obj, path) => {
+                    if (!path) return undefined;
+                    return path.split('.').reduce((currentObject, key) => currentObject?.[key], obj);
+                };
+
                 // --- Configure Axes based on Identified Roles --- 
-                // Ensure axis objects exist
                 finalVisualization.option.xAxis = finalVisualization.option.xAxis || {};
                 finalVisualization.option.yAxis = finalVisualization.option.yAxis || {};
 
-                // Configure X-Axis
                 finalVisualization.option.xAxis.type = xAxisType;
                 if (xAxisType === 'category') {
                     finalVisualization.option.xAxis.name = categoryDimensionFormatted;
                     if (categoryDimensionRaw) {
-                         const xAxisCategories = queryResults.map(item => item[categoryDimensionRaw]);
+                         const xAxisCategories = queryResults.map(item => getNestedValue(item, categoryDimensionRaw));
                          finalVisualization.option.xAxis.data = xAxisCategories;
                     }
-                    finalVisualization.option.xAxis.axisLabel = { interval: 0, rotate: 30, ...(finalVisualization.option.xAxis.axisLabel || {}) };
-                    finalVisualization.option.xAxis.nameGap = 35;
-                } else { // Value or Time axis
-                    finalVisualization.option.xAxis.name = isHorizontalBar ? valueDimensionFormatted : categoryDimensionFormatted; // Value if horizontal bar
+                    
+                    const longestLabel = finalVisualization.option.xAxis.data?.reduce(
+                        (max, current) => (String(current)?.length > String(max)?.length ? current : max),
+                        ""
+                    ) || "";
+                    
+                    const labelRotation = String(longestLabel).length > 30 ? 45 : 
+                                         String(longestLabel).length > 20 ? 30 : 
+                                         String(longestLabel).length > 10 ? 15 : 0;
+                    
+                    const labelAlign = labelRotation > 0 ? 'right' : 'center';
+                    const labelVerticalAlign = labelRotation > 0 ? 'middle' : 'top';
+                    
+                    finalVisualization.option.xAxis.axisLabel = { 
+                        interval: 0, 
+                        rotate: labelRotation,
+                        align: labelAlign,
+                        verticalAlign: labelVerticalAlign,
+                        margin: 14,
+                        fontSize: 12,
+                        formatter: function(value) {
+                            const valStr = String(value);
+                            if (valStr.length > 40) {
+                                return valStr.substring(0, 38) + '...';
+                            }
+                            return valStr;
+                        },
+                        ...(finalVisualization.option.xAxis.axisLabel || {}) 
+                    };
+                    finalVisualization.option.xAxis.nameGap = 35 + (labelRotation > 30 ? 15 : 0);
+                } else { 
+                    finalVisualization.option.xAxis.name = isHorizontalBar ? valueDimensionFormatted : categoryDimensionFormatted;
                     finalVisualization.option.xAxis.nameGap = 25;
                 }
                  finalVisualization.option.xAxis.nameLocation = 'middle';
                  finalVisualization.option.xAxis.nameTextStyle = { fontWeight: 'bold', fontSize: 14 };
 
-                 // Configure Y-Axis
                 finalVisualization.option.yAxis.type = yAxisType;
                  if (yAxisType === 'category') {
                      finalVisualization.option.yAxis.name = categoryDimensionFormatted;
                       if (categoryDimensionRaw) {
-                         const yAxisCategories = queryResults.map(item => item[categoryDimensionRaw]);
+                         const yAxisCategories = queryResults.map(item => getNestedValue(item, categoryDimensionRaw));
                          finalVisualization.option.yAxis.data = yAxisCategories;
                      }
-                     // No rotation typically needed for y-axis labels
-                     finalVisualization.option.yAxis.axisLabel = { interval: 0, ...(finalVisualization.option.yAxis.axisLabel || {}) }; 
+                     
+                     finalVisualization.option.yAxis.axisLabel = { 
+                         interval: 0,
+                         fontSize: 12,
+                         width: 120, 
+                         overflow: 'truncate',
+                         formatter: function(value) {
+                             const valStr = String(value);
+                             if (valStr.length > 25) {
+                                 return valStr.substring(0, 23) + '...';
+                             }
+                             return valStr;
+                         },
+                         ...(finalVisualization.option.yAxis.axisLabel || {}) 
+                     }; 
+                     if (isHorizontalBar) {
+                         finalVisualization.option.grid = {
+                             ...finalVisualization.option.grid,
+                             left: '15%', 
+                         };
+                     }
                      finalVisualization.option.yAxis.nameGap = 45;
-                 } else { // Value or Time axis
-                     finalVisualization.option.yAxis.name = isHorizontalBar ? categoryDimensionFormatted : valueDimensionFormatted; // Category if horizontal bar
+                 } else { 
+                     finalVisualization.option.yAxis.name = isHorizontalBar ? categoryDimensionFormatted : valueDimensionFormatted;
                      finalVisualization.option.yAxis.nameGap = 45;
                  }
                 finalVisualization.option.yAxis.nameLocation = 'middle';
                 finalVisualization.option.yAxis.nameTextStyle = { fontWeight: 'bold', fontSize: 14 };
                 
-                 // --- Configure Series Encoding --- 
+                // --- Configure Series Encoding --- 
                 if (finalVisualization.option.series.length > 0) {
                     finalVisualization.option.series = finalVisualization.option.series.map(s => {
-                        let updatedEncode = { ...(s.encode || {}) }; // Start with existing encode
+                        let updatedEncode = { ...(s.encode || {}) };
                         
-                        // Map category and value dimensions correctly
-                        if (isHorizontalBar) { // Horizontal Bar: category->Y, value->X
+                        if (isHorizontalBar) { 
                             if (categoryDimensionRaw) updatedEncode.y = categoryDimensionRaw;
                             if (valueDimensionRaw) updatedEncode.x = valueDimensionRaw;
-                             // Remove mappings conflicting with axis.data if present
                              if (yAxisType === 'category') delete updatedEncode.y;
                              if (xAxisType === 'category') delete updatedEncode.x;
-                        } else { // Vertical Chart (default): category->X, value->Y
+                        } else { 
                             if (categoryDimensionRaw) updatedEncode.x = categoryDimensionRaw;
                             if (valueDimensionRaw) updatedEncode.y = valueDimensionRaw;
-                             // Remove mappings conflicting with axis.data if present
                             if (xAxisType === 'category') delete updatedEncode.x;
                              if (yAxisType === 'category') delete updatedEncode.y;
                         }
                         
-                        s.datasetIndex = 0; // Ensure series links to the dataset
+                        s.datasetIndex = 0; 
                         return { ...s, encode: updatedEncode };
                     });
-                } else { // Add default series if none exist
+                } else { 
                      const defaultType = finalVisualization.type || 'bar'; 
                      const defaultSeries = { type: defaultType, datasetIndex: 0 };
                      let defaultEncode = {};
@@ -569,8 +631,6 @@ export class QueryService {
                      logger.warn(`AI did not provide series config. Added default series: ${JSON.stringify(defaultSeries)}`);
                 }
                 
-                // --- Tooltip, DataZoom, Grid, Title --- (Adjust slightly based on new dimension logic)
-                
                 // Enhanced Tooltip Formatter
                 finalVisualization.option.tooltip = {
                     trigger: 'axis',
@@ -578,24 +638,26 @@ export class QueryService {
                     formatter: (params) => {
                         let tooltipContent = '';
                         if (params && params.length > 0) {
-                            // Determine which axis holds the category based on chart orientation
-                            const categoryName = params[0].axisValueLabel || params[0].name;
-                            tooltipContent += `${categoryDimensionFormatted || 'Category'}: ${categoryName}<br/>`;
+                            const categoryValueFromAxis = params[0].axisValueLabel || params[0].name;
+                            tooltipContent += `${categoryDimensionFormatted || 'Category'}: ${categoryValueFromAxis}<br/>`;
                             
                             params.forEach(param => {
                                 const seriesName = param.seriesName || '';
-                                // Try to get value based on encode information for the correct axis
                                 let value;
-                                const encodeKey = isHorizontalBar ? 'x' : 'y'; // Value is on X for horizontal, Y for vertical
-                                const dimName = isHorizontalBar ? valueDimensionRaw : valueDimensionRaw; 
-                                if(param.encode && param.encode[encodeKey] && param.encode[encodeKey].length > 0) {
-                                     value = param.value[param.encode[encodeKey][0]];
-                                } else if (dimName) {
-                                     // Fallback to assuming standard dimension order if encode is missing
-                                     value = param.value[dimName]; 
+                                const rawDataItem = param.data; // ECharts provides the raw data item here
+
+                                if (valueDimensionRaw && rawDataItem) {
+                                    value = getNestedValue(rawDataItem, valueDimensionRaw);
+                                } else {
+                                    // Fallback if valueDimensionRaw is not set or rawDataItem is missing
+                                    const encodeKey = isHorizontalBar ? 'x' : 'y';
+                                    if(param.encode && param.encode[encodeKey] && param.encode[encodeKey].length > 0 && rawDataItem) {
+                                         const valueKey = param.encode[encodeKey][0];
+                                         value = getNestedValue(rawDataItem, valueKey);
+                                    }
                                 }
                                 
-                                const formattedValue = typeof value === 'number' ? value.toLocaleString() : value;
+                                const formattedValue = typeof value === 'number' ? value.toLocaleString() : (value !== undefined && value !== null ? String(value) : 'N/A');
                                 const seriesDimFormatted = valueDimensionFormatted || 'Value';
                                 
                                 tooltipContent += `${param.marker} ${seriesName ? seriesName + ' (' + seriesDimFormatted + ')' : seriesDimFormatted}: ${formattedValue}<br/>`;
@@ -634,11 +696,26 @@ export class QueryService {
                 finalVisualization.option.grid = {
                     containLabel: true,
                     top: '15%', 
-                    bottom: finalVisualization.option.grid?.bottom || (xAxisType === 'category' ? '25%' : '15%'), // More bottom padding if x categories rotated
+                    bottom: finalVisualization.option.grid?.bottom || (xAxisType === 'category' ? '35%' : '15%'), // More bottom padding for x categories
                     left: '10%',
                     right: '8%', // Slightly more right padding for potential y-axis zoom slider
                     ...(finalVisualization.option.grid || {}) 
                 };
+                
+                // Check product name length and adjust grid further if needed
+                if (xAxisType === 'category' && finalVisualization.option.xAxis.data) {
+                    const longestLabel = finalVisualization.option.xAxis.data.reduce(
+                        (max, current) => (current?.length > max?.length ? current : max),
+                        ""
+                    ) || "";
+                    
+                    // Adjust bottom padding based on label length
+                    if (longestLabel.length > 30) {
+                        finalVisualization.option.grid.bottom = '40%';
+                    } else if (longestLabel.length > 20) {
+                        finalVisualization.option.grid.bottom = '30%';
+                    }
+                }
                 
                 // Title formatting (remains same)
                 finalVisualization.option.title = finalVisualization.option.title || {};
@@ -661,7 +738,7 @@ export class QueryService {
                 visualization: finalVisualization, 
                 canVisualize, 
                 explanation: queryResult.explanation || 'No additional explanation available',
-                mongoQuery: correctedPipeline 
+                mongoQuery: finalPipeline 
             };
         } catch (error) {
             logger.error(`Error processing natural language query:`, error);

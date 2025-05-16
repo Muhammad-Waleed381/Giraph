@@ -242,4 +242,17 @@ export class GoogleService {
             throw error;
         }
     }
+
+    /**
+     * Clear Google authentication tokens
+     */
+    async clearTokens() {
+        try {
+            // Call method in googleSheetsHandler to clear tokens
+            return await this.googleSheets.clearTokens();
+        } catch (error) {
+            logger.error('Error clearing Google tokens:', error);
+            throw error;
+        }
+    }
 }

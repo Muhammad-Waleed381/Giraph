@@ -12,6 +12,7 @@ import authRoutes from './authRoutes.js'; // Import auth routes
 import { errorHandler } from '../middleware/errorHandler.js';
 import { GoogleSheetsHandler } from '../../utils/googleSheetsHandler.js';
 
+
 /**
  * Setup API routes
  * @param {Object} app - Express app

@@ -21,14 +21,12 @@ export class ImportController {
     async importFromFile(req, res, next) {
         try {
             const { filePath, fileId, schema, collectionName, dropCollection = false, sampleSize = 100 } = req.body;
-            const userId = req.user?._id ? new mongoose.Types.ObjectId(req.user._id) : null; // Assuming auth middleware sets req.user
+            // We won't require user ID anymore
+            // const userId = req.user?._id ? new mongoose.Types.ObjectId(req.user._id) : null;
 
-            if (!userId) {
-                // If you require a user for every import, throw an error.
-                // Otherwise, imports can proceed without user association if userId is null.
-                logger.warn('No user ID found in request for importFromFile. Import will not be associated with a user.');
-                // return next(responseFormatter.error('User authentication required for import.', 401));
-            }
+            // if (!userId) {
+            //     logger.warn('No user ID found in request for importFromFile. Import will not be associated with a user.');
+            // }
             
             if (!filePath && !fileId) {
                 throw responseFormatter.error('Missing file information. Either filePath or fileId is required', 400);
@@ -58,7 +56,8 @@ export class ImportController {
                 isId: !filePath,
                 currentPage: 1,
                 pageSize: 1000,
-                userId 
+                // We won't pass userId anymore
+                // userId 
             };
 
             const initialResult = await this.importService.importFromFile(
@@ -68,54 +67,41 @@ export class ImportController {
             );
             
             let totalImported = initialResult.insertedCount;
-            // let dataSourceId = null; // dataSourceId will be part of initialResult if service handles it
 
-            // The DataSource record should be created/updated by the service.
-            // We might want to fetch the dataSourceId here if needed for the response.
-            let dataSourceId = null;
-            if (userId && fileId) { // fileId is the upload_id
-                 const DataSource = (await import('../../models/dataSource.js')).default;
-                 const ds = await DataSource.findOne({ user_id: userId, 'file_info.upload_id': fileId });
-                 if (ds) dataSourceId = ds._id;
-            }
+            // The DataSource functionality is now optional
+            // let dataSourceId = null;
+            // if (userId && fileId) {
+            //     const DataSource = (await import('../../models/dataSource.js')).default;
+            //     const ds = await DataSource.findOne({ user_id: userId, 'file_info.upload_id': fileId });
+            //     if (ds) dataSourceId = ds._id;
+            // }
             
             if (initialResult.hasMoreData) {
-                logger.info(`Starting background import process for remaining pages of ${filePath || fileId}`);
-                // Call as a detached Promise but ensure it starts
                 this.importRemainingPages(
                     filePath || fileId,
                     schemaToUse,
                     {
-                        ...importOptions, // Pass all options including userId
-                        collectionName: initialResult.collectionName, // Use collection name from initial result
+                        ...importOptions,
+                        collectionName: initialResult.collectionName,
                         currentPage: 2, 
                         totalRows: initialResult.totalRows,
-                        // userId is already in importOptions
                     }
-                ).catch(error => {
-                    logger.error(`Error in background import process: ${error.message}`, error);
-                });
-                
-                logger.info(`Background import process initiated for ${filePath || fileId}. User will be notified upon completion.`);
+                );
             }
             
             res.json(responseFormatter.success(
                 {
                     ...initialResult,
-                    dataSourceId, // Include dataSourceId if found
+                    // dataSourceId,
                     importing: initialResult.hasMoreData, 
-                    // totalRows: initialResult.totalRows, // Already in initialResult
-                    // importedCount: totalImported, // Already in initialResult as insertedCount for the first page
-                    estimatedTimeRemaining: this.estimateImportTime(initialResult.totalRows - totalImported),
-                    success: true // Explicitly add success flag to make it clearer for the frontend
+                    estimatedTimeRemaining: this.estimateImportTime(initialResult.totalRows - totalImported)
                 },
                 `Successfully initiated import of ${totalImported} documents into ${initialResult.collectionName}` +
                 (initialResult.hasMoreData ? '. Continuing to import the rest in the background...' : '. Import complete.'),
                 {
                     collectionName: initialResult.collectionName,
                     totalRows: initialResult.totalRows,
-                    insertedCount: totalImported, // This is for the first page only
-                    status: 'success' // Add explicit status
+                    insertedCount: totalImported
                 }
             ));
         } catch (error) {
@@ -130,13 +116,10 @@ export class ImportController {
         // Options should include: collectionName, isId, currentPage, totalRows, pageSize, userId
         const { collectionName, isId, currentPage, totalRows, pageSize = 1000, userId } = options;
         let page = currentPage;
-        let importedSoFar = 0;
         // totalImported is tracked by the service within the DataSource record
         
         try {
             let hasMoreData = true;
-            
-            logger.info(`Background import started for ${filePathOrId}. Total rows: ${totalRows}, starting from page ${page} with page size ${pageSize}`);
             
             while (hasMoreData) {
                 logger.info(`Background import: Importing page ${page} of ${Math.ceil(totalRows / pageSize)} for ${filePathOrId}...`);
@@ -154,9 +137,6 @@ export class ImportController {
                     }
                 );
                 
-                importedSoFar += result.insertedCount;
-                logger.info(`Page ${page} imported successfully with ${result.insertedCount} records. Total imported so far: ${importedSoFar}/${totalRows}`);
-                
                 hasMoreData = result.hasMoreData;
                 // DataSource record updates are handled by importService.importFromFile
                 
@@ -167,45 +147,11 @@ export class ImportController {
                 }
             }
             
-            logger.info(`Background import complete for ${filePathOrId}: All pages processed for ${collectionName}. Total records imported: ${importedSoFar}`);
+            logger.info(`Background import complete for ${filePathOrId}: All pages processed for ${collectionName}.`);
             
-            // Update the DataSource record one final time to ensure completion status is set
-            if (userId) {
-                try {
-                    const DataSource = (await import('../../models/dataSource.js')).default;
-                    const dsRecord = await DataSource.findOne({'file_info.upload_id': filePathOrId, user_id: userId });
-                    if (dsRecord) {
-                        dsRecord.schema_metadata.importComplete = true;
-                        dsRecord.schema_metadata.importCompletedAt = new Date();
-                        dsRecord.schema_metadata.importedCount = importedSoFar;
-                        dsRecord.schema_metadata.importProgress = 100;
-                        dsRecord.last_updated = new Date();
-                        await dsRecord.save();
-                        logger.info(`Updated data source record for ${filePathOrId} with completed status`);
-                    }
-                } catch (error) {
-                    logger.error(`Failed to update DataSource with completion status: ${error.message}`);
-                }
-            }
         } catch (error) {
             logger.error(`Error in background import of ${filePathOrId} (page ${page}):`, error);
-            // Try to update the DataSource record with error info
-            if (userId) {
-                try {
-                    const DataSource = (await import('../../models/dataSource.js')).default;
-                    const dsRecord = await DataSource.findOne({'file_info.upload_id': filePathOrId, user_id: userId });
-                    if (dsRecord) {
-                        dsRecord.schema_metadata.importError = error.message;
-                        dsRecord.schema_metadata.importErrorAt = new Date();
-                        dsRecord.last_updated = new Date();
-                        await dsRecord.save();
-                        logger.info(`Updated data source record for ${filePathOrId} with error status`);
-                    }
-                } catch (updateError) {
-                    logger.error(`Failed to update DataSource with error status: ${updateError.message}`);
-                }
-            }
-            throw error; // Re-throw to be caught by the caller
+            // The service's importFromFile should have marked the DataSource with an error.
         }
     }
     
@@ -235,25 +181,24 @@ export class ImportController {
     async importFromGoogle(req, res, next) {
         try {
             const { spreadsheetId, sheetName, schema, collectionName, dropCollection = false, sampleSize = 100 } = req.body;
-            const userId = req.user?._id ? new mongoose.Types.ObjectId(req.user._id) : null;
+            // Skip user ID extraction - it's not needed
+            // const userId = req.user?._id ? new mongoose.Types.ObjectId(req.user._id) : null;
 
-            if (!userId) {
-                logger.warn('No user ID found in request for importFromGoogle. Import will not be associated with a user.');
-                // return next(responseFormatter.error('User authentication required for import.', 401));
-            }
+            // if (!userId) {
+            //     logger.warn('No user ID found in request for importFromGoogle. Import will not be associated with a user.');
+            //     // return next(responseFormatter.error('User authentication required for import.', 401));
+            // }
             
             if (!spreadsheetId || !sheetName) {
                 throw responseFormatter.error('Missing parameters. Both spreadsheetId and sheetName are required', 400);
             }
             
-            if (!this.googleSheets.isCredentialSet()) { // Check credentials using a method
-                // Attempt to refresh or re-auth if necessary, or guide user
-                // For now, assume credentials must be pre-set
+            if (!this.googleSheets.isCredentialSet()) {
+                // Instead of returning a 401 error, try to get a new URL and send it back
                 const authUrl = this.googleSheets.getAuthUrl();
-                 return next(responseFormatter.error(
-                    'Google authentication required. Please authenticate.', 
-                    401, 
-                    { authUrl } // Optionally provide authUrl if re-authentication is needed
+                return res.json(responseFormatter.success(
+                    { authUrl },
+                    'Google authentication URL generated. Please authenticate and try again.'
                 ));
             }
             
@@ -328,23 +273,19 @@ export class ImportController {
                 {
                     collectionName: collectionName || schemaToUse.collection_name,
                     schema: schemaToUse,
-                    dropCollection,
-                    userId
+                    dropCollection
+                    // Remove userId from here
                 }
             );
             
             res.json(responseFormatter.success(
-                {
-                    ...result, // result from service should now include dataSourceId
-                    success: true // Explicitly add success flag
-                },
+                result, // result from service should now include dataSourceId
                 `Successfully imported ${result.insertedCount} documents from Google Sheet into ${result.collectionName}`,
                 {
                     collectionName: result.collectionName,
                     totalRows: result.totalRows,
                     insertedCount: result.insertedCount,
-                    dataSourceId: result.dataSourceId,
-                    status: 'success' // Add explicit status
+                    dataSourceId: result.dataSourceId
                 }
             ));
         } catch (error) {
@@ -364,36 +305,44 @@ export class ImportController {
     async analyzeAndImport(req, res, next) {
         try {
             const { filePath, fileId, sampleSize = 100, dropCollection = false } = req.body;
-            
+            const userId = req.user?._id ? new mongoose.Types.ObjectId(req.user._id) : null;
+
             if (!filePath && !fileId) {
                 throw responseFormatter.error('Missing file information. Either filePath or fileId is required', 400);
             }
-            
+
             // First, analyze the file to generate schema
             const dataSourceService = new (await import('../../services/dataSourceService.js')).DataSourceService(this.importService.uploadsDir);
-            const { data, metadata, schema } = await dataSourceService.analyzeSchema(
+            // analyzeSchema in dataSourceService itself loads file data and returns metadata including totalRows
+            const analysisResult = await dataSourceService.analyzeSchema(
                 filePath || fileId,
                 !filePath, // isId = true if filePath is not provided
                 sampleSize
             );
-            
-            // Then import the data
-            const result = await this.importService.importFromFile(
+            const { metadata, schema } = analysisResult;
+
+            // Then import the data, ensuring all rows are processed by this single call to importService
+            // Note: importService.importFromFile loads the entire file, then slices.
+            // This is okay if analyzeAndImport is meant for a one-shot full import after analysis.
+            // For very large files, the paginated importFromFile controller endpoint is better.
+            const importResult = await this.importService.importFromFile(
                 filePath || fileId,
                 schema,
                 {
                     dropCollection,
-                    isId: !filePath // isId = true if filePath is not provided
+                    isId: !filePath, // isId = true if filePath is not provided
+                    pageSize: metadata.totalRows, // Process all rows from the loaded file data
+                    userId // Pass userId for data source record management
                 }
             );
-            
+
             // Generate visualization recommendations
             const gemini = new (await import('../../utils/geminiInterface.js')).GeminiInterface();
             logger.info('Generating visualization recommendations...');
             const visualizations = await gemini.generateVisualizationRecommendations(metadata, schema);
-            
-            // Prepare the output response
-            const output = {
+
+            // Prepare the output payload
+            const outputPayload = {
                 dataset_info: visualizations.dataset_info,
                 visualizations: visualizations.visualizations.map(vis => {
                     return {
@@ -408,13 +357,18 @@ export class ImportController {
                 }),
                 analysis_summary: visualizations.analysis_summary,
                 import_result: {
-                    collectionName: result.collectionName,
-                    totalRows: result.totalRows,
-                    insertedCount: result.insertedCount
+                    collectionName: importResult.collectionName,
+                    totalRows: importResult.totalRows,
+                    insertedCount: importResult.insertedCount,
+                    // Potentially add dataSourceId from importResult if available and needed
                 }
             };
             
-            res.json(output);
+            // Use responseFormatter for success
+            res.json(responseFormatter.success(
+                outputPayload,
+                'File analyzed and imported successfully.'
+            ));
         } catch (error) {
             next(error);
         }
@@ -504,13 +458,7 @@ export class ImportController {
             const nextPage = hasMoreData ? currentPage + 1 : null;
             
             res.json(responseFormatter.success(
-                { 
-                    ...result, 
-                    currentPage, 
-                    nextPage, 
-                    hasMoreData,
-                    success: true // Explicitly add success flag
-                }, // Add iteration info to result
+                { ...result, currentPage, nextPage, hasMoreData }, // Add iteration info to result
                 `Imported page ${currentPage} with ${result.insertedCount} documents into ${result.collectionName}`,
                 {
                     collectionName: result.collectionName,
@@ -518,8 +466,7 @@ export class ImportController {
                     nextPage,
                     hasMoreData,
                     totalInserted: result.totalInserted || result.insertedCount,
-                    iterationType,
-                    status: 'success' // Add explicit status
+                    iterationType
                 }
             ));
         } catch (error) {

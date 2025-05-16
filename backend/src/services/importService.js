@@ -196,6 +196,9 @@ export class ImportService {
             
             if (collectionName) {
                 schema.collection_name = collectionName;
+            } else if (!schema.collection_name) {
+                // Ensure we have a collection name by generating one based on the sheet name
+                schema.collection_name = `google_sheet_${sheetName.toLowerCase().replace(/\s+/g, '_')}`;
             }
             
             const db = getDatabase();
@@ -220,41 +223,49 @@ export class ImportService {
             const insertedCount = await dbHandler.insertData(collection, data, schema);
 
             let dataSourceId = null;
+            // Make user ID tracking optional
             if (userId) {
-                const DataSource = (await import('../models/dataSource.js')).default;
-                let dataSourceRecord = await DataSource.findOne({
-                    'google_sheet_info.spreadsheet_id': spreadsheetId,
-                    'google_sheet_info.sheet_name': sheetName,
-                    user_id: userId
-                });
+                try {
+                    const DataSource = (await import('../models/dataSource.js')).default;
+                    let dataSourceRecord = await DataSource.findOne({
+                        'google_sheet_info.spreadsheet_id': spreadsheetId,
+                        'google_sheet_info.sheet_name': sheetName,
+                        user_id: userId
+                    });
 
-                const dsData = {
-                    user_id: userId,
-                    name: schema.collection_name || `Google Sheet - ${sheetName}`,
-                    type: 'google_sheets',
-                    collection_name: schema.collection_name,
-                    row_count: rows.length,
-                    google_sheet_info: { spreadsheet_id: spreadsheetId, sheet_name: sheetName },
-                    schema_metadata: {
-                        fields: Object.keys(schema.schema || {}),
-                        importedCount: insertedCount,
-                        totalRows: rows.length,
-                        importProgress: 100,
-                        importComplete: true,
-                        importCompletedAt: new Date()
-                    },
-                    last_updated: new Date()
-                };
+                    const dsData = {
+                        user_id: userId,
+                        name: schema.collection_name || `Google Sheet - ${sheetName}`,
+                        type: 'google_sheets',
+                        collection_name: schema.collection_name,
+                        row_count: rows.length,
+                        google_sheet_info: { spreadsheet_id: spreadsheetId, sheet_name: sheetName },
+                        schema_metadata: {
+                            fields: Object.keys(schema.schema || {}),
+                            importedCount: insertedCount,
+                            totalRows: rows.length,
+                            importProgress: 100,
+                            importComplete: true,
+                            importCompletedAt: new Date()
+                        },
+                        last_updated: new Date()
+                    };
 
-                if (dataSourceRecord) {
-                    Object.assign(dataSourceRecord, dsData);
-                    logger.info(`Updating data source record for Google Sheet ${spreadsheetId}/${sheetName}`);
-                } else {
-                    dataSourceRecord = new DataSource({ ...dsData, created_at: new Date() });
-                    logger.info(`Creating data source record for Google Sheet ${spreadsheetId}/${sheetName}`);
+                    if (dataSourceRecord) {
+                        Object.assign(dataSourceRecord, dsData);
+                        logger.info(`Updating data source record for Google Sheet ${spreadsheetId}/${sheetName}`);
+                    } else {
+                        dataSourceRecord = new DataSource({ ...dsData, created_at: new Date() });
+                        logger.info(`Creating data source record for Google Sheet ${spreadsheetId}/${sheetName}`);
+                    }
+                    await dataSourceRecord.save();
+                    dataSourceId = dataSourceRecord._id;
+                } catch (error) {
+                    logger.warn(`Error tracking Google Sheet import in DataSource: ${error.message}`);
+                    // Continue with import even if DataSource tracking fails
                 }
-                await dataSourceRecord.save();
-                dataSourceId = dataSourceRecord._id;
+            } else {
+                logger.info('Importing Google Sheet without user association - skipping DataSource tracking');
             }
             
             return {
@@ -270,7 +281,7 @@ export class ImportService {
         } catch (error) {
             logger.error('Error in importFromGoogleSheet:', error);
             if (options.userId) {
-                 try {
+                try {
                     const DataSource = (await import('../models/dataSource.js')).default;
                     const dsRecord = await DataSource.findOne({'google_sheet_info.spreadsheet_id': spreadsheetId, 'google_sheet_info.sheet_name': sheetName, user_id: options.userId });
                     if (dsRecord) {

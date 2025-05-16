@@ -256,22 +256,21 @@ export function SignupForm() {
         </div>
 
         {/* Terms and Policy */}
-        <div className="text-xs text-gray-500">
-          {/* ... links ... */}
-           By signing up, you agree to our{" "}
-          <a href="#" className="text-teal-600 hover:text-teal-500">
+        <div className="text-xs text-gray-400">
+          By signing up, you agree to our{" "}
+          <a href="#" className="text-blue-400 hover:text-blue-300">
             Terms
           </a>{" "}
           and{" "}
-          <a href="#" className="text-teal-600 hover:text-teal-500">
+          <a href="#" className="text-blue-400 hover:text-blue-300">
             Privacy Policy
           </a>
           .
         </div>
 
         {/* Submit Button */}
-        <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={authIsLoading}>
-          {authIsLoading ? "Creating account..." : "Sign up"}
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={authIsLoading}>
+          {authIsLoading ? "Creating Account..." : "Create Account"}
         </Button>
       </form>
 

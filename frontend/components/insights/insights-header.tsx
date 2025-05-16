@@ -5,16 +5,16 @@ export function InsightsHeader() {
   return (
     <div className="mb-8">
       <div className="flex items-center gap-3">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-orange-100">
-          <span className="text-xl text-orange-600">⚡</span>
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-900/50">
+          <span className="text-xl text-blue-400">⚡</span>
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold text-gray-900">Auto-Generated Insights</h1>
+            <h1 className="text-3xl font-bold text-white">Auto-Generated Insights</h1>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <button className="text-gray-400 hover:text-gray-600">
+                  <button className="text-gray-400 hover:text-gray-300">
                     <HelpCircle className="h-5 w-5" />
                     <span className="sr-only">Learn more about auto insights</span>
                   </button>
@@ -28,7 +28,7 @@ export function InsightsHeader() {
               </Tooltip>
             </TooltipProvider>
           </div>
-          <p className="text-gray-600">
+          <p className="text-gray-400">
             Let AI analyze your dataset and surface key trends, outliers, and growth areas—instantly.
           </p>
         </div>

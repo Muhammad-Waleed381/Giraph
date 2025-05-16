@@ -1,24 +1,21 @@
-import type { Metadata } from "next"
-import { VisualizationsHeader } from "@/components/visualizations/visualizations-header"
-import { VisualizationsFilters } from "@/components/visualizations/visualizations-filters"
-import { VisualizationsList } from "@/components/visualizations/visualizations-list"
-import { EmptyState } from "@/components/visualizations/empty-state"
+"use client"
 
-export const metadata: Metadata = {
-  title: "Visualizations | Giraph",
-  description: "Create and manage your data visualizations and dashboards",
-}
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Loader2 } from "lucide-react"
 
-export default function VisualizationsPage() {
-  // In a real app, this would be fetched from an API
-  const hasVisualizations = true
+export default function VisualizationsRedirect() {
+  const router = useRouter()
+  
+  useEffect(() => {
+    router.replace("/visualizations")
+  }, [router])
 
   return (
-    <div className="flex flex-col h-full">
-      <VisualizationsHeader />
-      <div className="p-6 flex-1 overflow-auto">
-        <VisualizationsFilters />
-        {hasVisualizations ? <VisualizationsList /> : <EmptyState />}
+    <div className="flex items-center justify-center h-full">
+      <div className="flex flex-col items-center gap-2">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="text-sm text-muted-foreground">Redirecting to new visualizations page...</p>
       </div>
     </div>
   )

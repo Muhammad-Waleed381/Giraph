@@ -7,27 +7,24 @@ const apiClient = axios.create({
   withCredentials: true, // Important: This allows cookies (like HttpOnly JWT) to be sent with requests
 });
 
-// You can add interceptors for request and response if needed later
-// For example, to handle token refresh or global error handling
+// Add an interceptor to include authentication cookies with each request
+apiClient.interceptors.request.use(config => {
+  // Ensures that cookies are sent with every request
+  config.withCredentials = true;
+  return config;
+});
 
-// apiClient.interceptors.request.use(config => {
-//   // const token = localStorage.getItem('token'); // If using localStorage for token
-//   // if (token) {
-//   //   config.headers.Authorization = `Bearer ${token}`;
-//   // }
-//   return config;
-// });
-
-// apiClient.interceptors.response.use(
-//   response => response,
-//   async error => {
-//     // const originalRequest = error.config;
-//     // if (error.response.status === 401 && !originalRequest._retry) {
-//     //   originalRequest._retry = true;
-//     //   // try refreshing token, then retry originalRequest
-//     // }
-//     return Promise.reject(error);
-//   }
-// );
+// Add response interceptor to handle unauthorized errors
+apiClient.interceptors.response.use(
+  response => response,
+  async error => {
+    if (error.response && error.response.status === 401) {
+      // Redirect to login if unauthorized
+      console.error("Unauthorized request:", error.config.url);
+      // Could redirect to login here if needed
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default apiClient; 

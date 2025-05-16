@@ -31,21 +31,44 @@ export class GoogleController {
      */
     async handleCallback(req, res, next) {
         try {
-            const { code } = req.query;
-            
-            if (!code) {
-                throw responseFormatter.error('Missing authorization code', 400);
+            const { code, error: oauthError } = req.query;
+
+            if (oauthError) {
+                logger.error('Google OAuth Error during callback:', oauthError);
+                // Redirect to frontend with error status
+                return res.redirect(
+                    process.env.FRONTEND_URL 
+                    ? `${process.env.FRONTEND_URL}/dashboard/connect?google_auth_status=error&message=${encodeURIComponent(oauthError)}` 
+                    : `/dashboard/connect?google_auth_status=error&message=${encodeURIComponent(oauthError)}`
+                );
             }
             
-            const tokens = await this.googleService.handleAuthCallback(code);
+            if (!code) {
+                logger.warn('Missing authorization code in Google callback');
+                 // Redirect to frontend with error status for missing code
+                return res.redirect(
+                    process.env.FRONTEND_URL
+                    ? `${process.env.FRONTEND_URL}/dashboard/connect?google_auth_status=error&message=Missing%20authorization%20code`
+                    : `/dashboard/connect?google_auth_status=error&message=Missing%20authorization%20code`
+                );
+            }
             
-            res.json(responseFormatter.success(
-                { authenticated: true },
-                'Google authentication successful',
-                { expiryDate: tokens.expiry_date }
-            ));
+            await this.googleService.handleAuthCallback(code);
+            
+            // Redirect to frontend with success status
+            res.redirect(
+                process.env.FRONTEND_URL
+                ? `${process.env.FRONTEND_URL}/dashboard/connect?google_auth_status=success`
+                : `/dashboard/connect?google_auth_status=success`
+            );
         } catch (error) {
-            next(error);
+            logger.error('Error in Google OAuth callback:', error.message);
+            // Redirect to frontend with generic error status
+            res.redirect(
+                process.env.FRONTEND_URL
+                ? `${process.env.FRONTEND_URL}/dashboard/connect?google_auth_status=error&message=${encodeURIComponent(error.message || 'Authentication%20failed')}`
+                : `/dashboard/connect?google_auth_status=error&message=${encodeURIComponent(error.message || 'Authentication%20failed')}`
+            );
         }
     }
 
@@ -256,6 +279,22 @@ export class GoogleController {
             ));
         } catch (error) {
             logger.error('Error importing Google Sheet data:', error);
+            next(error);
+        }
+    }
+
+    /**
+     * Logout from Google and clear tokens
+     */
+    async logout(req, res, next) {
+        try {
+            await this.googleService.clearTokens();
+            
+            res.json(responseFormatter.success(
+                { },
+                'Successfully logged out from Google'
+            ));
+        } catch (error) {
             next(error);
         }
     }

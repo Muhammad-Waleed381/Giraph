@@ -107,17 +107,18 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
       // Upload complete
       setUploadProgress(100)
 
-      // Assuming the backend returns data in the format { success: true, data: { fileInfo: {...} }, message: '...' }
-      if (result.success !== false && result.data?.fileInfo) {
+      // Check for success flag and that data object with a string id or filename exists.
+      if (result.success === true && result.data && (typeof result.data.id === 'string' || typeof result.data.filename === 'string')) {
+        const filename = result.data.originalName || result.data.filename || result.data.id || 'File';
         toast({
           title: "Upload Successful",
-          description: `${result.data.fileInfo.originalName} uploaded.`,
-          variant: "success",
+          description: `${filename} uploaded successfully.`,
+          variant: "default",
           className: "bg-green-100 border border-green-500 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-100",
         })
         setSelectedFile(null) // Clear selection after successful upload
         setError(null) // Explicitly clear any previous error on success
-        onUploadSuccess(result.data.fileInfo) // Pass fileInfo to parent to trigger refresh
+        onUploadSuccess(result.data) // Pass fileInfo (which is result.data) to parent
       } else {
         // Handle cases where response is ok but backend indicates failure
         const errorMsg = result.message || "Upload failed. Invalid response from server."

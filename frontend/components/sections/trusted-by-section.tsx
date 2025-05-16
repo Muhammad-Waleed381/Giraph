@@ -7,20 +7,20 @@ export function TrustedBySection() {
   ]
 
   return (
-    <section className="py-12 bg-gray-50">
+    <section className="py-12 bg-gray-900">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-8">
-          <h2 className="text-center text-sm font-medium uppercase tracking-wider text-gray-500">
+          <h2 className="text-center text-sm font-medium uppercase tracking-wider text-gray-400">
             Trusted by teams from
           </h2>
           <div className="flex flex-wrap justify-center gap-8 md:gap-12">
             {logos.map((logo, index) => (
               <div
                 key={index}
-                className="flex h-12 items-center justify-center rounded-lg bg-white px-6 shadow-sm"
+                className="flex h-12 items-center justify-center rounded-lg bg-gray-800 px-6 shadow-sm border border-gray-700"
                 style={{ width: logo.width }}
               >
-                <span className="text-gray-400 font-medium">{logo.name}</span>
+                <span className="text-gray-300 font-medium">{logo.name}</span>
               </div>
             ))}
           </div>

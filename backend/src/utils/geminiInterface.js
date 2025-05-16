@@ -34,34 +34,73 @@ class GeminiInterface {
         try {
             logger.info('Processing response for JSON extraction');
             
-            // Minimal cleaning: Trim and find first { and last }
-            let cleanText = responseText.trim();
-            const startIndex = cleanText.indexOf('{');
-            const endIndex = cleanText.lastIndexOf('}');
+            let textToParse = responseText.trim();
             
-            if (startIndex === -1 || endIndex === -1 || endIndex < startIndex) {
-                logger.error("Could not find valid JSON object boundaries {'...'} for parsing.", { originalText: responseText });
-                throw new Error('No valid JSON object boundaries found in response');
+            // Remove markdown code block fences if present
+            if (textToParse.startsWith("```json")) {
+                textToParse = textToParse.substring(7); // Remove ```json
+            }
+            if (textToParse.startsWith("```")) {
+              textToParse = textToParse.substring(3);
+            }
+            if (textToParse.endsWith("```")) {
+                textToParse = textToParse.substring(0, textToParse.length - 3);
+            }
+            textToParse = textToParse.trim();
+
+            const startIndex = textToParse.indexOf('{');
+            const lastBraceIndex = textToParse.lastIndexOf('}');
+            const lastBracketIndex = textToParse.lastIndexOf(']');
+            
+            let endIndex = -1;
+
+            if (textToParse.startsWith("[") && lastBracketIndex > startIndex) { // Response is an array
+                endIndex = lastBracketIndex;
+            } else if (textToParse.startsWith("{") && lastBraceIndex > startIndex) { // Response is an object
+                endIndex = lastBraceIndex;
+            } else { 
+                // Try to find the start of a JSON object or array if not at the beginning
+                const firstBrace = textToParse.indexOf('{');
+                const firstBracket = textToParse.indexOf('[');
+
+                if (firstBrace !== -1 && (firstBracket === -1 || firstBrace < firstBracket)) { // Starts with {
+                    if (lastBraceIndex > firstBrace) {
+                        textToParse = textToParse.substring(firstBrace, lastBraceIndex + 1);
+                        endIndex = textToParse.lastIndexOf('}');
+                    }
+                } else if (firstBracket !== -1 && (firstBrace === -1 || firstBracket < firstBrace)) { // Starts with [
+                     if (lastBracketIndex > firstBracket) {
+                        textToParse = textToParse.substring(firstBracket, lastBracketIndex + 1);
+                        endIndex = textToParse.lastIndexOf(']');
+                    }
+                }
+            }
+
+            if (startIndex === -1 || endIndex === -1 || endIndex < (textToParse.startsWith("[") ? textToParse.indexOf('[') : startIndex)) {
+                 logger.error("Could not find valid JSON object/array boundaries for parsing.", { originalText: responseText, processedText: textToParse });
+                 throw new Error('No valid JSON object/array boundaries found in response');
             }
             
-            cleanText = cleanText.substring(startIndex, endIndex + 1);
+            // If we didn't re-substring above for cases where JSON doesn't start at index 0
+            if (!(textToParse.startsWith("{") || textToParse.startsWith("["))) {
+                 textToParse = textToParse.substring(startIndex, endIndex + 1);
+            }
             
             // Pre-process MongoDB-specific syntax that's not valid JSON
-            cleanText = this._preprocessMongoDBSyntax(cleanText);
+            textToParse = this._preprocessMongoDBSyntax(textToParse);
             
-            // *** Log the exact string before parsing ***
-            logger.info('Attempting to parse cleaned JSON:', cleanText);
+            logger.info('Attempting to parse cleaned JSON:', textToParse);
             
-            // Parse the JSON
-            return JSON.parse(cleanText);
+            return JSON.parse(textToParse);
             
         } catch (error) {
-            // Log the text that caused the error if it was a JSON.parse error
+            // Ensure textToParse is defined in this scope for logging
+            const textForLog = typeof textToParse !== 'undefined' ? textToParse : responseText;
             if (error instanceof SyntaxError) {
-                 logger.error('SyntaxError during JSON.parse. Text attempted:', cleanText);
+                 logger.error('SyntaxError during JSON.parse. Text attempted:', textForLog);
             }
-            logger.error('Error during _extractJsonFromResponse processing:', error);
-            throw error; // Re-throw the error to be caught by the caller
+            logger.error('Error during _extractJsonFromResponse processing:', { error: error.message, stack: error.stack, textAttempted: textForLog});
+            throw new Error(`Error extracting JSON: ${error.message}`);
         }
     }
     
@@ -159,6 +198,42 @@ class GeminiInterface {
             return this._extractJsonFromResponse(text);
         } catch (error) {
             logger.error('Error in generateTimeSeriesForecast:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Refine visualization recommendations based on user's natural language prompt
+     */
+    async getRefinedVisualizationRecommendations(refinementPrompt) {
+        try {
+            logger.info('Refining visualization recommendations with Gemini...');
+            const result = await this.model.generateContent(refinementPrompt);
+            const response = await result.response;
+            const text = response.text();
+            logger.info('Raw refinement response:', text);
+            
+            // Use the robust _extractJsonFromResponse method
+            const extractedJson = this._extractJsonFromResponse(text);
+
+            // The prompt asks for a JSON array of recommendations.
+            // If the extracted JSON is already an array, wrap it in the expected structure.
+            // If it's an object with a 'visualizations' key (as sometimes returned), use that.
+            if (Array.isArray(extractedJson)) {
+                return { visualizations: extractedJson };
+            } else if (extractedJson && typeof extractedJson === 'object' && Array.isArray(extractedJson.visualizations)) {
+                return extractedJson; // It's already in the { visualizations: [] } format
+            } else if (extractedJson && typeof extractedJson === 'object' && !extractedJson.visualizations) {
+                 // This case can happen if the AI returns a single JSON object instead of an array or wrapped object
+                logger.warn('Refinement response was a single JSON object, wrapping it into a visualizations array.');
+                return { visualizations: [extractedJson] };
+            }
+            
+            logger.error('Unexpected JSON structure from refinement response:', extractedJson);
+            throw new Error('Refined recommendations did not return the expected array structure.');
+
+        } catch (error) {
+            logger.error('Error in getRefinedVisualizationRecommendations:', { message: error.message, stack: error.stack });
             throw error;
         }
     }
@@ -331,7 +406,20 @@ class GeminiInterface {
         6. The FINAL stage of the pipeline ($project or $group output) MUST output documents where the field names EXACTLY MATCH the requested dimensions. For example, if dimensions are ["industry", "totalRevenue"], the final documents should look like { "industry": "some_value", "totalRevenue": number }.
         7. Use ONLY standard JSON. Do NOT use ISODate(), ObjectId(), NumberLong(), etc.
         8. Limit the results if appropriate (e.g., $limit: 50) unless the aggregation naturally limits results (like grouping by a few categories).
-
+        9. **CRITICAL ECHARTS CONFIGURATION:**
+           a. **visualization.data.dimensions**: This array MUST be populated with the exact field names that will be present in the dataset.source (i.e., the results from your pipeline). This is ESSENTIAL for connecting data to the chart.
+           b. **visualization.option.series**: This array MUST be populated. Each series object within this array MUST have a type (e.g., 'bar', 'line', 'pie', 'scatter') and an encode object.
+           c. **series.encode**: 
+              - For type: 'bar' or type: 'line': encode should typically be { "x": "dimension_name_for_x_axis", "y": "dimension_name_for_y_axis" }. These dimension names MUST exist in visualization.data.dimensions.
+              - For type: 'pie': encode should be { "itemName": "dimension_name_for_category", "value": "dimension_name_for_value" }. These dimension names MUST exist in visualization.data.dimensions.
+              - For type: scatter': encode should be { "x": "dimension_name_for_x", "y": "dimension_name_for_y" }. If a third dimension is used for size, add "size": "dimension_name_for_size". These dimension names MUST exist in 
+              visualization.data.dimensions.
+           d. **visualization.option.xAxis and visualization.option.yAxis **: These MUST be defined. 
+              - For categorical axes (common for bar/line charts), set type: 'category'. The actual category data often comes from the dataset via series.encode.x.
+              - For numerical axes, set type: 'value'.
+              - Example for a bar chart x-axis: "xAxis": { "type": "category" } (data is implicitly mapped from the first dimension in encode.x).
+              - Example for a y-axis: "yAxis": { "type": "value" }.
+           e. Ensure title.text is set from visualization.title.
 
         Return ONLY the following JSON structure with no additional text:
         {
@@ -339,24 +427,21 @@ class GeminiInterface {
                 "id": "${visualization.id}",
                 "type": "${visualization.type}",
                 "data": {
-                    "dimensions": [/* array of field names matching final pipeline output */]
+                    "dimensions": [/* CRITICAL: Accurate array of field names from pipeline output */]
                 },
                 "option": {
                     "title": { "text": "${visualization.title}" },
-                    "tooltip": { },
+                    "tooltip": { "trigger": "axis" },
                     "legend": { "data": [] },
                     "grid": { "left": "3%", "right": "4%", "bottom": "3%", "containLabel": true },
-                    "xAxis": { },
-                    "yAxis": { },
-                    "series": [/* Series configurations based on type */]
+                    "xAxis": { /* CRITICAL: Define type, e.g., { "type": "category" } */ },
+                    "yAxis": { /* CRITICAL: Define type, e.g., { "type": "value" } */ },
+                    "series": [/* CRITICAL: Array of series objects with type and encode, e.g., { "type": "bar", "encode": { "x": "dim1", "y": "dim2" } } */]
                 }
             },
             "pipeline": [
                 // MongoDB aggregation pipeline stages
-                {"$match": {}},
-                {"$group": {}},
-                {"$sort": {}},
-                {"$limit": 50}
+                // Example: { "$match": {} }, { "$group": {} }, { "$sort": {} }, { "$limit": 50 }
             ]
         }`;
     }
@@ -449,18 +534,20 @@ class GeminiInterface {
         1.  Interpret the user's core intent, considering all available collections and schemas.
         2.  Determine if the query requires data from MULTIPLE collections and generate $lookup stages if needed.
         3.  Identify the PRIMARY collection to start the aggregation pipeline from. If multiple are suitable, prefer the one most central to the query's main subject.
-        4.  **Identify the primary CATEGORY dimension (e.g., product name, region, date) and the primary VALUE dimension (e.g., count, total sales, average price) based on the query.**
+        4.  **Identify the primary CATEGORY dimension (e.g., product name, region, date/year/month) and the primary VALUE dimension (e.g., count, total sales, average price) based on the query.**
         5.  Determine if the query requires analysis/inference beyond data retrieval ("requires_analysis": true/false).
         6.  Identify key fields for analysis/lookup ("analysis_fields").
         7.  Generate the MongoDB aggregation pipeline. **Prefer standard, simple pipeline structures.** For example, for counts/sums by category, typically use $match -> $group -> $project -> $sort.
         8.  Use EXACT field names from schemas.
         9.  Use case-insensitive matching ($regex) for string comparisons where appropriate.
-        10. **CRITICAL Date Handling Rules**:
-            - **BEFORE using any date operator ($year, $month, $dayOfMonth, $dateToString, etc.) on a field, CHECK its TYPE in the provided Schema.**
-            - **If the schema TYPE for the field is 'date', 'datetime', or 'timestamp':** Use the date operator DIRECTLY on the field (e.g., { "$year": "$orderDateField" }). **DO NOT use $dateFromString.**
-            - **If the schema TYPE for the field is 'string' AND you need to perform date operations:** You MUST use $dateFromString FIRST to convert the string to a date object, THEN apply the date operator (e.g., { "$year": { "$dateFromString": { "dateString": "$orderDateStringField" } } }).
-            - **If the schema TYPE is missing or unclear, assume it's NOT a date object and apply the $dateFromString logic if date operations are needed.**
-        11. **Field Naming:** When creating new fields (e.g., in $group or $project), use clear, predictable names (e.g., 'count', 'totalSales', 'averagePrice').
+        10. **CRITICAL Date Handling Rules for Time-Based Queries (e.g., "top 5 months by sales")**:
+            -   **Identify the date field to be used for the time aggregation (e.g., "Order Date", "transaction_date").**
+            -   **ALWAYS ensure this date field is a BSON Date object BEFORE applying any date operator ($year, $month, $dayOfMonth, $dateToString, etc.).**
+            -   **If the schema for the field shows its type is 'string', or if the type is unknown/missing, you MUST explicitly convert it to a BSON Date using { "$toDate": "$fieldName" } before using it in any date operator.** For example: { "$year": { "$toDate": "$orderDateStringField" } }.
+            -   **If the schema already indicates the field is a BSON 'date', 'datetime', or 'timestamp', you can use the date operator directly on the field (e.g., { "$year": "$orderDateField" }).**
+            -   When grouping by time parts (e.g., year, month), create new fields in the $group stage with clear names (e.g., "year_extracted", "month_extracted"). Example: { $group: { _id: { year: { $year: { $toDate: "$dateField" } }, month: { $month: { $toDate: "$dateField" } } }, /* ... */ } }
+            -   If the query involves a specific field like "date", treat it as a potential date field and apply conversion if it's a string.
+        11. **Field Naming:** When creating new fields (e.g., in $group or $project), use clear, predictable names (e.g., 'count', 'totalSales', 'averagePrice', 'extracted_year', 'extracted_month').
         12. **Default Sorting:** If the query doesn't specify an order, apply a default sort, typically by the CATEGORY dimension ascending or the VALUE dimension descending (e.g., {$sort: { category_field: 1 }} or {$sort: { value_field: -1 }}). Choose the most logical default for the query type.
         13. **For visualization**:
             a.  Set "visualization_recommended_by_ai": true/false.

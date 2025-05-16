@@ -21,15 +21,15 @@ export function SocialAuth({ isLoading: propIsLoading, isSignUp = false }: Socia
     <div className="space-y-4">
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-200"></div>
+          <div className="w-full border-t border-gray-700"></div>
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-white px-2 text-gray-500">Or {isSignUp ? "sign up" : "log in"} with</span>
+          <span className="bg-gray-800 px-2 text-gray-400">Or {isSignUp ? "sign up" : "log in"} with</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <Button variant="outline" disabled={G_isLoading} className="w-full" onClick={handleGoogleAuth}>
+      <div className="flex justify-center">
+        <Button variant="outline" disabled={G_isLoading} className="w-full max-w-xs border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white" onClick={handleGoogleAuth}>
           <svg
             className="mr-2 h-4 w-4"
             aria-hidden="true"
@@ -46,25 +46,6 @@ export function SocialAuth({ isLoading: propIsLoading, isSignUp = false }: Socia
             ></path>
           </svg>
           Google
-        </Button>
-
-        <Button variant="outline" disabled={true || G_isLoading} className="w-full" onClick={() => console.log("Microsoft auth clicked. Not implemented.")}>
-          <svg
-            className="mr-2 h-4 w-4"
-            aria-hidden="true"
-            focusable="false"
-            data-prefix="fab"
-            data-icon="microsoft"
-            role="img"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 448 512"
-          >
-            <path
-              fill="currentColor"
-              d="M0 32h214.6v214.6H0V32zm233.4 0H448v214.6H233.4V32zM0 265.4h214.6V480H0V265.4zm233.4 0H448V480H233.4V265.4z"
-            ></path>
-          </svg>
-          Microsoft (Coming Soon)
         </Button>
       </div>
     </div>

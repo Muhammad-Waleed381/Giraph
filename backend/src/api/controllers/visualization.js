@@ -42,6 +42,40 @@ export class VisualizationController {
     }
 
     /**
+     * Refine visualization recommendations using natural language
+     */
+    async refineRecommendations(req, res, next) {
+        try {
+            const { recommendationCacheId, userPrompt, currentRecommendations } = req.body;
+            
+            if (!recommendationCacheId) {
+                throw responseFormatter.error('Recommendation cache ID is required', 400);
+            }
+            
+            if (!userPrompt) {
+                throw responseFormatter.error('User prompt is required for refinement', 400);
+            }
+            
+            const results = await this.visualizationService.refineVisualizationRecommendations({
+                recommendationCacheId,
+                userPrompt,
+                currentRecommendations
+            });
+            
+            res.json(responseFormatter.success(
+                results,
+                'Visualization recommendations refined successfully',
+                {
+                    recommendationCacheId: results.recommendationCacheId,
+                    refinedVisualizationsCount: results.refined_visualizations.length
+                }
+            ));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
      * Generate visualizations
      */
     async generateVisualizations(req, res, next) {
@@ -129,6 +163,85 @@ export class VisualizationController {
                     collectionName: result.collection,
                     visualizationCount: result.generatedVisualizations.length
                 }
+            ));
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Save a dashboard of visualizations
+     */
+    async saveDashboard(req, res, next) {
+        try {
+            const { name, description, collectionName, visualizations } = req.body;
+            
+            if (!name) {
+                throw responseFormatter.error('Dashboard name is required', 400);
+            }
+            
+            if (!collectionName) {
+                throw responseFormatter.error('Collection name is required', 400);
+            }
+            
+            if (!visualizations || !Array.isArray(visualizations) || visualizations.length === 0) {
+                throw responseFormatter.error('At least one visualization is required', 400);
+            }
+            
+            const result = await this.visualizationService.saveDashboard({
+                name,
+                description,
+                collectionName,
+                visualizations
+            });
+            
+            res.json(responseFormatter.success(
+                result,
+                'Dashboard saved successfully',
+                {
+                    dashboardId: result.dashboardId
+                }
+            ));
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    /**
+     * Get all saved dashboards
+     */
+    async getAllDashboards(req, res, next) {
+        try {
+            const dashboards = await this.visualizationService.getAllDashboards();
+            
+            res.json(responseFormatter.success(
+                { dashboards },
+                'Dashboards retrieved successfully',
+                {
+                    count: dashboards.length
+                }
+            ));
+        } catch (error) {
+            next(error);
+        }
+    }
+    
+    /**
+     * Get a dashboard by ID
+     */
+    async getDashboardById(req, res, next) {
+        try {
+            const { id } = req.params;
+            
+            if (!id) {
+                throw responseFormatter.error('Dashboard ID is required', 400);
+            }
+            
+            const dashboard = await this.visualizationService.getDashboardById(id);
+            
+            res.json(responseFormatter.success(
+                { dashboard },
+                `Dashboard '${dashboard.name}' retrieved successfully`
             ));
         } catch (error) {
             next(error);

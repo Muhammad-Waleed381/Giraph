@@ -357,3 +357,236 @@
 2025-05-13T05:16:36.090Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
 2025-05-13T05:16:36.091Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
 2025-05-13T05:30:48.805Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:39:50.427Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:39:58.509Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:40:41.914Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:40:55.382Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:44:29.294Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:44:39.668Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:46:18.402Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:48:14.363Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:48:53.657Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T06:51:36.876Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T07:13:49.589Z [ERROR]: Import from Google failed: Missing parameters. Both spreadsheetId and sheetName are required
+2025-05-13T07:13:49.590Z [ERROR]: API Error: Import from Google failed: Missing parameters. Both spreadsheetId and sheetName are required
+2025-05-13T07:13:59.760Z [ERROR]: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:13:59.760Z [ERROR]: API Error: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:14:06.077Z [ERROR]: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:14:06.078Z [ERROR]: API Error: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:14:13.235Z [ERROR]: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:14:13.235Z [ERROR]: API Error: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:14:13.901Z [ERROR]: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:14:13.901Z [ERROR]: API Error: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:14:55.325Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-05-13T07:14:55.326Z [ERROR]: API Error: Collection name is required in options
+2025-05-13T07:15:12.629Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-05-13T07:15:12.629Z [ERROR]: API Error: Collection name is required in options
+2025-05-13T07:15:13.499Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-05-13T07:15:13.499Z [ERROR]: API Error: Collection name is required in options
+2025-05-13T07:15:13.792Z [ERROR]: Error importing Google Sheet data: Collection name is required in options
+2025-05-13T07:15:13.793Z [ERROR]: API Error: Collection name is required in options
+2025-05-13T07:15:32.075Z [ERROR]: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:15:32.075Z [ERROR]: API Error: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:54:56.241Z [ERROR]: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:54:56.241Z [ERROR]: API Error: Import from Google failed: this.googleSheets.isCredentialSet is not a function
+2025-05-13T07:59:18.691Z [ERROR]: Error parsing CSV with UTF-8: ENOENT: no such file or directory, open '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112632421-774265014.csv'
+2025-05-13T07:59:18.692Z [ERROR]: Error in loadFile: ENOENT: no such file or directory, open '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112632421-774265014.csv'
+2025-05-13T07:59:18.692Z [ERROR]: Error in analyzeSchema: ENOENT: no such file or directory, open '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112632421-774265014.csv'
+2025-05-13T07:59:18.693Z [ERROR]: API Error: ENOENT: no such file or directory, open '/Users/ahsanriaz/Developer/Project/Giraph/backend/uploads/data_csv-1747112632421-774265014.csv'
+2025-05-13T07:59:45.709Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T08:09:42.885Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T09:00:49.327Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:00:49.332Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:00:51.909Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:00:52.451Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:02:41.218Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:08.081Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:08.083Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:20.031Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:20.431Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:20.648Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:20.834Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:21.015Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:21.749Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:20:22.016Z [ERROR]: API Error: User authentication required.
+2025-05-13T09:26:55.908Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T09:26:55.908Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T09:26:55.908Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T09:26:55.911Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T09:26:55.912Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T09:26:55.914Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T09:27:48.691Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T09:28:12.458Z [ERROR]: Error in importFromFile: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:28:22.464Z [ERROR]: Failed to update DataSource with import error: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:28:22.468Z [ERROR]: API Error: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:28:47.520Z [ERROR]: Error in importFromFile: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:28:57.524Z [ERROR]: Failed to update DataSource with import error: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:28:57.526Z [ERROR]: API Error: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:29:32.670Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T09:29:55.113Z [ERROR]: Error in importFromFile: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:30:05.118Z [ERROR]: Failed to update DataSource with import error: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T09:30:05.119Z [ERROR]: API Error: Operation `data_sources.findOne()` buffering timed out after 10000ms
+2025-05-13T10:15:44.559Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T10:24:44.122Z [ERROR]: Error saving file info to data_sources: data_sources validation failed: collection_name: Path `collection_name` is required.
+2025-05-13T10:31:55.550Z [ERROR]: Error saving file info to data_sources: Operation `data_sources.insertOne()` buffering timed out after 10000ms
+2025-05-13T11:15:30.495Z [ERROR]: Error fetching user collections for user 6820aac1591fe27bb5e90efe:  Operation `data_sources.distinct()` buffering timed out after 10000ms
+2025-05-13T11:15:30.498Z [ERROR]: API Error: Failed to fetch user collections
+2025-05-13T11:15:30.501Z [ERROR]: Error fetching user collections for user 6820aac1591fe27bb5e90efe:  Operation `data_sources.distinct()` buffering timed out after 10000ms
+2025-05-13T11:15:30.502Z [ERROR]: API Error: Failed to fetch user collections
+2025-05-13T11:19:31.200Z [ERROR]: Database connection is not ready
+2025-05-13T11:19:31.201Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:19:31.204Z [ERROR]: Database connection is not ready
+2025-05-13T11:19:31.204Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:19:31.207Z [ERROR]: Database connection is not ready
+2025-05-13T11:19:31.207Z [ERROR]: Database connection is not ready
+2025-05-13T11:19:31.207Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:19:31.207Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:20:25.391Z [ERROR]: Database connection is not ready
+2025-05-13T11:20:25.394Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:20:25.400Z [ERROR]: Database connection is not ready
+2025-05-13T11:20:25.401Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:21:22.890Z [ERROR]: Database connection is not ready
+2025-05-13T11:21:22.891Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:21:22.892Z [ERROR]: Database connection is not ready
+2025-05-13T11:21:22.892Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:21:22.898Z [ERROR]: Database connection is not ready
+2025-05-13T11:21:22.899Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:21:22.901Z [ERROR]: Database connection is not ready
+2025-05-13T11:21:22.901Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:24:58.569Z [ERROR]: Database connection is not ready
+2025-05-13T11:24:58.569Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:24:58.570Z [ERROR]: Database connection is not ready
+2025-05-13T11:24:58.570Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:24:58.572Z [ERROR]: Database connection is not ready
+2025-05-13T11:24:58.572Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:24:58.573Z [ERROR]: Database connection is not ready
+2025-05-13T11:24:58.573Z [ERROR]: API Error: Database connection not established
+2025-05-13T11:41:45.326Z [ERROR]: Error executing aggregation pipeline for collection "sales_data": PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date
+2025-05-13T11:41:45.327Z [ERROR]: Failed Pipeline: [{"$project":{"_id":0,"year":{"$year":"$order_date"},"sales":"$sales"}},{"$group":{"_id":"$year","totalSales":{"$sum":"$sales"}}},{"$sort":{"totalSales":-1}},{"$limit":5}]
+2025-05-13T11:41:45.327Z [ERROR]: Error processing natural language query: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date. Check logs for pipeline details.
+2025-05-13T11:41:45.328Z [ERROR]: API Error: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date. Check logs for pipeline details.
+2025-05-13T11:45:51.440Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T11:45:51.441Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T11:45:51.442Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T11:45:51.444Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T11:45:51.445Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T11:45:51.445Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-13T11:46:13.412Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-13T11:47:52.629Z [ERROR]: Error executing aggregation pipeline for collection "sales_data": PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date
+2025-05-13T11:47:52.629Z [ERROR]: Failed Pipeline: [{"$group":{"_id":{"$year":"$order_date"},"totalSales":{"$sum":"$sales"}}},{"$project":{"_id":0,"year":"$_id","totalSales":1}},{"$sort":{"totalSales":-1}},{"$limit":5}]
+2025-05-13T11:47:52.630Z [ERROR]: Error processing natural language query: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date. Check logs for pipeline details.
+2025-05-13T11:47:52.630Z [ERROR]: API Error: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date. Check logs for pipeline details.
+2025-05-13T12:04:19.388Z [ERROR]: Error executing aggregation pipeline for collection "sales_data": PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date
+2025-05-13T12:04:19.388Z [ERROR]: Failed Pipeline: [{"$group":{"_id":{"$year":"$order_date"},"totalSales":{"$sum":"$sales"}}},{"$project":{"_id":0,"year":"$_id","totalSales":1}},{"$sort":{"totalSales":-1}},{"$limit":5}]
+2025-05-13T12:04:19.388Z [ERROR]: Error processing natural language query: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date. Check logs for pipeline details.
+2025-05-13T12:04:19.389Z [ERROR]: API Error: Database query execution failed on collection "sales_data". Cause: PlanExecutor error during aggregation :: caused by :: year parameter 'date' must be coercible to date. Check logs for pipeline details.
+2025-05-13T12:09:59.889Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-13T12:21:44.471Z [ERROR]: Error processing natural language query: Assignment to constant variable.
+2025-05-13T12:21:44.472Z [ERROR]: API Error: Assignment to constant variable.
+2025-05-13T12:21:55.376Z [ERROR]: Error processing natural language query: Assignment to constant variable.
+2025-05-13T12:21:55.377Z [ERROR]: API Error: Assignment to constant variable.
+2025-05-13T12:22:06.755Z [ERROR]: Error processing natural language query: Assignment to constant variable.
+2025-05-13T12:22:06.755Z [ERROR]: API Error: Assignment to constant variable.
+2025-05-13T12:22:24.458Z [ERROR]: Error processing natural language query: Assignment to constant variable.
+2025-05-13T12:22:24.458Z [ERROR]: API Error: Assignment to constant variable.
+2025-05-13T17:15:24.873Z [ERROR]: Error in generateVisualizationDataQuery: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T17:15:24.875Z [ERROR]: Error processing visualization Distribution of Annual Growth: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T17:15:25.365Z [ERROR]: Error in generateVisualizationDataQuery: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T17:15:25.366Z [ERROR]: Error processing visualization Distribution of Annual Growth: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T17:52:57.735Z [ERROR]: Error in generateVisualizationDataQuery: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T17:52:57.736Z [ERROR]: Error processing visualization Sales Trend Over Time: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T17:53:04.733Z [ERROR]: Error in generateVisualizationDataQuery: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T17:53:04.734Z [ERROR]: Error processing visualization Sales Trend Over Time: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T18:16:47.719Z [ERROR]: Error in generateVisualizationDataQuery: cleanText is not defined
+2025-05-13T18:16:47.719Z [ERROR]: Error processing visualization Revenue vs. Number of Employees: cleanText is not defined
+2025-05-13T18:17:59.769Z [ERROR]: Error in generateVisualizationDataQuery: cleanText is not defined
+2025-05-13T18:17:59.769Z [ERROR]: Error processing visualization Sales Trend Over Time: cleanText is not defined
+2025-05-13T18:48:20.362Z [ERROR]: Failed to connect to MongoDB: connect ECONNREFUSED 127.0.0.1:27017, connect ECONNREFUSED ::1:27017
+2025-05-13T18:49:05.424Z [ERROR]: Failed to connect to MongoDB: connect ECONNREFUSED 127.0.0.1:27017, connect ECONNREFUSED ::1:27017
+2025-05-13T18:53:18.389Z [ERROR]: Failed to connect to MongoDB: connect ECONNREFUSED 127.0.0.1:27017, connect ECONNREFUSED ::1:27017
+2025-05-13T20:38:00.896Z [ERROR]: Error in getRefinedVisualizationRecommendations: cleanText is not defined
+2025-05-13T20:38:00.896Z [ERROR]: Error in refineVisualizationRecommendations: cleanText is not defined
+2025-05-13T20:38:00.898Z [ERROR]: API Error: cleanText is not defined
+2025-05-13T21:05:29.834Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T21:05:29.834Z [ERROR]: Error in generateRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T21:05:29.834Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-13T21:06:55.060Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent: [404 Not Found] models/gemini-2.5-flash is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:06:55.060Z [ERROR]: Error in generateRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent: [404 Not Found] models/gemini-2.5-flash is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:06:55.061Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent: [404 Not Found] models/gemini-2.5-flash is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:07:23.932Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent: [404 Not Found] models/gemini-2.5-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:07:23.933Z [ERROR]: Error in generateRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent: [404 Not Found] models/gemini-2.5-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:07:23.933Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro:generateContent: [404 Not Found] models/gemini-2.5-pro is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:07:48.920Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro-preview:generateContent: [404 Not Found] models/gemini-2.5-pro-preview is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:07:48.920Z [ERROR]: Error in generateRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro-preview:generateContent: [404 Not Found] models/gemini-2.5-pro-preview is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T21:07:48.920Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-2.5-pro-preview:generateContent: [404 Not Found] models/gemini-2.5-pro-preview is not found for API version v1, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.
+2025-05-13T22:44:31.555Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-13T23:04:13.486Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:04:16.646Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:04:17.751Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:04:50.123Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:04:50.949Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:04:51.129Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:07:40.731Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:01.442Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:02.361Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:02.533Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:02.679Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:02.845Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:03.011Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:03.145Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-13T23:08:03.296Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:27:31.428Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-14T04:28:19.804Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:28:19.805Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:28:19.805Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:28:19.808Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:28:19.808Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:28:19.808Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:28:39.601Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:28:41.833Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:29:24.710Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:29:24.711Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:29:24.711Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:29:24.713Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:29:24.713Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:29:24.713Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:29:40.250Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:36:35.426Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:36:35.426Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:36:35.427Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:36:35.427Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:36:35.427Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:36:35.428Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:36:53.949Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:36:54.794Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:36:54.939Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:36:55.070Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:37:03.968Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:38:29.650Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-14T04:40:00.880Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:40:00.881Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:40:00.882Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:40:00.883Z [ERROR]: Error listing spreadsheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:40:00.883Z [ERROR]: Error listing Google Sheets: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:40:00.883Z [ERROR]: API Error: No access, refresh token, API key or refresh handler callback is set.
+2025-05-14T04:40:20.172Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:40:21.572Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:40:21.740Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:40:21.941Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:40:22.139Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:40:22.339Z [ERROR]: API Error: Google authentication required. Please authenticate.
+2025-05-14T04:46:57.662Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-14T04:50:19.397Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-14T04:51:48.929Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-14T04:51:51.915Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-14T05:06:12.638Z [ERROR]: Error saving file info to data_sources: DataSource is not a constructor
+2025-05-14T19:05:51.524Z [ERROR]: Error in generateVisualizationDataQuery: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:05:51.525Z [ERROR]: Error processing visualization Revenue Distribution by Industry: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:09:13.898Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:09:13.899Z [ERROR]: Error in generateRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:09:13.901Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:09:26.818Z [ERROR]: Error in generateVisualizationRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:09:26.819Z [ERROR]: Error in generateRecommendations: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:09:26.820Z [ERROR]: API Error: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent: fetch failed
+2025-05-14T19:11:29.091Z [ERROR]: Error executing query: Invalid $project :: caused by :: $trim found an unknown argument: $replaceAll
+2025-05-14T19:11:29.091Z [ERROR]: Error processing visualization Revenue vs. Number of Employees: Invalid $project :: caused by :: $trim found an unknown argument: $replaceAll

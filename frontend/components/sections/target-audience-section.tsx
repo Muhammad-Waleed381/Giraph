@@ -22,41 +22,41 @@ export function TargetAudienceSection() {
 
   const audiences = [
     {
-      icon: <Briefcase className="h-8 w-8 text-teal-600" />,
+      icon: <Briefcase className="h-8 w-8 text-blue-500" />,
       title: "Small Business Owners",
       description: "Track revenue, inventory, customers.",
     },
     {
-      icon: <BarChart className="h-8 w-8 text-teal-600" />,
+      icon: <BarChart className="h-8 w-8 text-blue-500" />,
       title: "Marketers & Agencies",
       description: "Analyze campaigns and customer behavior.",
     },
     {
-      icon: <DollarSign className="h-8 w-8 text-teal-600" />,
+      icon: <DollarSign className="h-8 w-8 text-blue-500" />,
       title: "Finance Professionals",
       description: "Understand trends, budgets, and ROI.",
     },
     {
-      icon: <ShoppingBag className="h-8 w-8 text-teal-600" />,
+      icon: <ShoppingBag className="h-8 w-8 text-blue-500" />,
       title: "Ecommerce Owners",
       description: "Discover sales patterns and top products.",
     },
     {
-      icon: <GraduationCap className="h-8 w-8 text-teal-600" />,
+      icon: <GraduationCap className="h-8 w-8 text-blue-500" />,
       title: "Educators/Researchers",
       description: "Turn raw data into research-ready visuals.",
     },
   ]
 
   return (
-    <section id="use-cases" className="py-20 bg-white">
+    <section id="use-cases" className="py-20 bg-gray-900">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-gray-900">
+            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl text-white">
               Who Uses Giraph?
             </h2>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl">
+            <p className="mx-auto max-w-[700px] text-gray-300 md:text-xl">
               Powerful insights for teams across all industries.
             </p>
           </div>
@@ -68,7 +68,7 @@ export function TargetAudienceSection() {
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 rounded-full border-gray-200 bg-white shadow-sm"
+              className="h-10 w-10 rounded-full border-gray-700 bg-gray-800 shadow-sm hover:bg-gray-700 text-white"
               onClick={() => scroll("left")}
             >
               <ChevronLeft className="h-5 w-5" />
@@ -80,7 +80,7 @@ export function TargetAudienceSection() {
             <Button
               variant="outline"
               size="icon"
-              className="h-10 w-10 rounded-full border-gray-200 bg-white shadow-sm"
+              className="h-10 w-10 rounded-full border-gray-700 bg-gray-800 shadow-sm hover:bg-gray-700 text-white"
               onClick={() => scroll("right")}
             >
               <ChevronRight className="h-5 w-5" />
@@ -93,11 +93,11 @@ export function TargetAudienceSection() {
             {audiences.map((audience, index) => (
               <div
                 key={index}
-                className="flex-shrink-0 snap-start scroll-ml-4 w-[280px] rounded-xl border border-gray-200 bg-white p-6 shadow-sm"
+                className="flex-shrink-0 snap-start scroll-ml-4 w-[280px] rounded-xl border border-gray-700 bg-gray-800 p-6 shadow-sm transition-all hover:shadow-md"
               >
-                <div className="mb-4 rounded-full bg-teal-50 p-2 w-fit">{audience.icon}</div>
-                <h3 className="mb-2 text-xl font-bold text-gray-900">{audience.title}</h3>
-                <p className="text-gray-500">{audience.description}</p>
+                <div className="mb-4 rounded-full bg-blue-900/50 p-2 w-fit">{audience.icon}</div>
+                <h3 className="mb-2 text-xl font-bold text-white">{audience.title}</h3>
+                <p className="text-gray-300">{audience.description}</p>
               </div>
             ))}
           </div>

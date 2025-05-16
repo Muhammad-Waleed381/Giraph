@@ -76,7 +76,10 @@ export function RecentConnections({ refreshTrigger }: RecentConnectionsProps) {
       const initialMessages: {[key: string]: string} = {};
       uploadedFiles.forEach((file: FileSource) => {
         if (file.importInfo) {
-          initialStatus[file.id] = file.importInfo.status;
+          // Map 'failed' from data to 'error' for UI state
+          const uiStatus = file.importInfo.status === 'failed' ? 'error' : file.importInfo.status;
+          initialStatus[file.id] = uiStatus;
+          
           if (file.importInfo.status === 'success') {
             initialMessages[file.id] = `Imported to ${file.importInfo.collectionName} on ${format(new Date(file.importInfo.importedAt), "PPp")}`;
           } else if (file.importInfo.status === 'failed') {
@@ -142,17 +145,24 @@ export function RecentConnections({ refreshTrigger }: RecentConnectionsProps) {
 
       const result = await response.json();
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.message || "Import failed");
+      // Check for response.ok and result.success === true from the backend responseFormatter
+      if (!response.ok || result.success !== true) {
+        // Use result.message if available from responseFormatter.error or a default
+        throw new Error(result.message || "Import failed due to server error or invalid response");
       }
+
+      // Access data from result.data (as per responseFormatter.success)
+      const importData = result.data;
+      const collectionName = importData?.import_result?.collectionName || 'database';
+      const originalFileName = importData?.dataset_info?.file_details?.file_name || displayName;
 
       // Update import status to success
       setImportStatus(prev => ({ ...prev, [file.id]: 'success' }));
-      setImportMessages(prev => ({ ...prev, [file.id]: `Successfully imported to ${result.data?.collectionName || 'database'}` }));
+      setImportMessages(prev => ({ ...prev, [file.id]: `Successfully imported to ${collectionName}` }));
       
       toast({
         title: "Import Successful",
-        description: `${displayName} imported into collection: ${result.data?.collectionName || "database"}.`,
+        description: `${originalFileName} imported into collection: ${collectionName}.`,
         className: "bg-green-100 border border-green-500 text-green-800 dark:bg-green-900 dark:border-green-700 dark:text-green-100",
       });
 

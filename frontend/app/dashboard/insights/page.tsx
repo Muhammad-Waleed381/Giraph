@@ -6,9 +6,9 @@ import { InsightsDisplay } from "@/components/insights/insights-display"
 
 export default function AutoInsightsPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-950 dark:bg-gray-950">
       <DashboardHeader />
-      <main className="container mx-auto px-4 py-8">
+      <main className="mx-auto max-w-7xl px-4 py-8">
         <InsightsHeader />
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
           <div className="lg:col-span-1">

@@ -23,38 +23,38 @@ export function InsightsFilters() {
   }
 
   return (
-    <Card>
+    <Card className="border-gray-800 bg-gray-800">
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
-          <Filter className="h-5 w-5 text-gray-500" />
+        <CardTitle className="flex items-center gap-2 text-lg text-white">
+          <Filter className="h-5 w-5 text-gray-400" />
           Insight Filters
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Time Range</Label>
+          <Label className="text-sm font-medium text-gray-300">Time Range</Label>
           <RadioGroup value={timeRange} onValueChange={setTimeRange}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="all" id="all-time" />
-              <Label htmlFor="all-time" className="text-sm">
+              <Label htmlFor="all-time" className="text-sm text-gray-400">
                 All Time
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="30days" id="30days" />
-              <Label htmlFor="30days" className="text-sm">
+              <Label htmlFor="30days" className="text-sm text-gray-400">
                 Last 30 Days
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="90days" id="90days" />
-              <Label htmlFor="90days" className="text-sm">
+              <Label htmlFor="90days" className="text-sm text-gray-400">
                 Last Quarter
               </Label>
             </div>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="1year" id="1year" />
-              <Label htmlFor="1year" className="text-sm">
+              <Label htmlFor="1year" className="text-sm text-gray-400">
                 Last Year
               </Label>
             </div>
@@ -62,9 +62,9 @@ export function InsightsFilters() {
         </div>
 
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Insight Type</Label>
+          <Label className="text-sm font-medium text-gray-300">Insight Type</Label>
           <Select value={insightType} onValueChange={setInsightType}>
-            <SelectTrigger>
+            <SelectTrigger className="border-gray-700 bg-gray-700 text-gray-300">
               <SelectValue placeholder="Select insight type" />
             </SelectTrigger>
             <SelectContent>
@@ -79,16 +79,16 @@ export function InsightsFilters() {
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label className="text-sm font-medium">Number of Insights</Label>
-            <span className="text-sm font-medium">{insightCount[0]}</span>
+            <Label className="text-sm font-medium text-gray-300">Number of Insights</Label>
+            <span className="text-sm font-medium text-gray-300">{insightCount[0]}</span>
           </div>
           <Slider value={insightCount} min={3} max={10} step={1} onValueChange={setInsightCount} className="py-4" />
         </div>
 
         <div className="space-y-3">
-          <Label className="text-sm font-medium">Metric of Interest</Label>
+          <Label className="text-sm font-medium text-gray-300">Metric of Interest</Label>
           <Select value={metric} onValueChange={setMetric}>
-            <SelectTrigger>
+            <SelectTrigger className="border-gray-700 bg-gray-700 text-gray-300">
               <SelectValue placeholder="Select metric" />
             </SelectTrigger>
             <SelectContent>
@@ -101,7 +101,7 @@ export function InsightsFilters() {
           </Select>
         </div>
 
-        <Button variant="outline" className="w-full" onClick={handleReset}>
+        <Button variant="outline" className="w-full border-gray-700 text-gray-300 hover:bg-gray-700 hover:text-white" onClick={handleReset}>
           <RotateCcw className="mr-2 h-3.5 w-3.5" />
           Reset Filters
         </Button>

@@ -117,7 +117,7 @@ export function LoginForm() {
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="password">Password</Label>
-            <Link href="/forgot-password" className="text-xs text-teal-600 hover:text-teal-500">
+            <Link href="/forgot-password" className="text-xs text-blue-500 hover:text-blue-400">
               Forgot password?
             </Link>
           </div>
@@ -162,7 +162,7 @@ export function LoginForm() {
         </div>
 
         {/* Submit Button */}
-        <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700" disabled={isLoading}>
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={isLoading}>
           {isLoading ? "Logging in..." : "Log in"}
         </Button>
       </form>

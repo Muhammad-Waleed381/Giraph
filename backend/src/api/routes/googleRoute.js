@@ -17,6 +17,9 @@ export function setupGoogleRoutes() {
     router.get('/sheets/data', googleController.getSheetData.bind(googleController));
     router.post('/sheets/analyze', googleController.analyzeGoogleSheet.bind(googleController));
     router.post('/sheets/import', googleController.importSheetData.bind(googleController));
+    
+    // Authentication Routes
+    router.post('/logout', googleController.logout.bind(googleController));
 
     return router;
 }
